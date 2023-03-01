@@ -1,0 +1,73 @@
+﻿@model Agricola_Models.Models.UnidadMedida
+
+@{
+    ViewBag.Title = "Unidad de medida";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card" style="margin-top:20px">
+    <div class="card-header">
+        <h3>@ViewBag.Accion</h3>
+    </div>
+    <div class="card-body">
+        <form action="@Url.Action("GuardarCambios", "UnidadMedida")" method="post">
+            <input type="hidden" class="form-control" name="IdUnidad" value="@Html.DisplayTextFor(x=> x.IdUnidad)" />            
+
+            <div class="form-group">
+                <label>Descripción</label>
+                <input type="text" class="form-control" name="Descripcion" value="@Html.DisplayTextFor(x=> x.Descripcion)" />
+            </div>           
+
+            <div class="form-group">
+                <label>Símbolo</label>
+                <input type="text" class="form-control" name="Simbolo" value="@Html.DisplayTextFor(x=> x.Simbolo)" />
+            </div>            
+
+            <div class="form-group">
+                <label>Código Sunat</label>
+                <input type="text" class="form-control" name="IdSunat" value="@Html.DisplayTextFor(x=> x.IdSunat)" />
+            </div>
+
+            <hr />
+            <button type="submit" class="btn btn-success btn-sm">Guardar cambios</button>
+            <a class="btn btn-warning btn-sm" href="@Url.Action("Index", "UnidadMedida")">Volver</a>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+@*
+<div class="row" style="margin-top:30px">
+    <div class="col-sm-12">
+        <div class="panel-warning">
+            <div class="panel-heading">
+                <h4>Nueva unidad de medida</h4>
+                <hr />
+            </div>
+            <div class="panel-body">
+                <form action="@Url.Action("Registrar", "UnidadMedida")" method="post">
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" class="form-control" name="Descripcion" />
+                    </div>
+                    <div class="form-group">
+                        <label>Símbolo</label>
+                        <input type="text" class="form-control" name="Simbolo" />
+                    </div>
+                    <div class="form-group">
+                        <label>Código Sunat</label>
+                        <input type="text" class="form-control" name="IdSunat" />
+                    </div>
+                    <hr />
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                    <a class="btn btn-success" href="@Url.Action("Index", "UnidadMedida")">Volver</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    *@

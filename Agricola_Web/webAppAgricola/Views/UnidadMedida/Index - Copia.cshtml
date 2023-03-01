@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Agricola_Models.Models.UnidadMedida>
+
+@{
+    ViewBag.Title = "Inicio";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row" style="margin-top:30px">
+    <div class="col-sm-12">
+        <div class="panel-warning">
+            <div class="panel-heading">
+                <h4>Lista unidades de medida</h4>
+            </div>
+            <div class="panel-body">
+                <a class="btn btn-success" href="@Url.Action("Registrar", "UnidadMedida")">Crear Nuevo</a>
+                <hr />
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Símbolo</th>
+                                <th>SUNAT</th>
+                                <th style="width:150px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.IdUnidad</td>
+                                    <td>@item.Descripcion</td>
+                                    <td>@item.Simbolo</td>
+                                    <td>@item.IdSunat</td>
+                                    <td>
+                                        <a class="btn btn-primary btn-sm" href="@Url.Action("Editar", "UnidadMedida", new { idUnidad= item.IdUnidad })">Editar</a>
+                                        <a class="btn btn-danger btn-sm" href="@Url.Action("Eliminar", "UnidadMedida", new { idUnidad= item.IdUnidad })">Eliminar</a>
+                                    </td>                                   
+                                </tr>
+                             }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 

@@ -1,0 +1,40 @@
+﻿@model Agricola_Models.Models.Empresa
+
+@{
+    ViewBag.Title = "Empresas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card" style="margin-top:20px">
+    
+    <div class="card-header">
+        <h3>@ViewBag.Accion</h3>
+    </div>
+
+    <div class="card-body">
+
+        <form action="@Url.Action("GuardarCambios", "Empresa")" method="post">
+            
+            <input type="hidden" class="form-control" name="IdEmpresa" value="@Html.DisplayTextFor(x=> x.IdEmpresa)" />
+
+            <div class="form-group">
+                <label>RUC</label>
+                <input type="text" class="form-control" name="NumeroRUC" value="@Html.DisplayTextFor(x=> x.NumeroRUC)" />
+            </div>           
+
+            <div class="form-group">
+                <label>Razón Social</label>
+                <input type="text" class="form-control" name="RazonSocial" value="@Html.DisplayTextFor(x=> x.RazonSocial)" />
+            </div>            
+
+            <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" class="form-control" name="Direccion" value="@Html.DisplayTextFor(x=> x.Direccion)" />
+            </div>
+
+            <hr />
+            <button type="submit" class="btn btn-success btn-sm">Guardar cambios</button>
+            <a class="btn btn-warning btn-sm" href="@Url.Action("Index", "Empresa")">Volver</a>
+        </form>
+    </div>
+</div>

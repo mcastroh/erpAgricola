@@ -1,0 +1,77 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = webAppAgricola
+build_property.RootNamespace = webAppAgricola
+build_property.ProjectDir = E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola
+build_property._RazorSourceGeneratorDebug = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Empresa/Eliminar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzYVxFbGltaW5hci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Empresa/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzYVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Empresa/ListarPDF.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzYVxMaXN0YXJQREYuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Empresa/RegistrarOrEditar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzYVxSZWdpc3RyYXJPckVkaXRhci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/UnidadMedida/Eliminar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVW5pZGFkTWVkaWRhXEVsaW1pbmFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/UnidadMedida/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVW5pZGFkTWVkaWRhXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/UnidadMedida/ListarPDF.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVW5pZGFkTWVkaWRhXExpc3RhclBERi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/UnidadMedida/RegistrarOrEditar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVW5pZGFkTWVkaWRhXFJlZ2lzdHJhck9yRWRpdGFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Agricola/erpAgricola/erpAgricola/Agricola_Web/webAppAgricola/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-6jbc1nympb

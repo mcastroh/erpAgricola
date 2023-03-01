@@ -1,0 +1,12 @@
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\bin\Debug\net6.0\Agricola_Models.deps.json
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\bin\Debug\net6.0\Agricola_Models.dll
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\bin\Debug\net6.0\Agricola_Models.pdb
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\Agricola_Models.csproj.AssemblyReference.cache
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\Agricola_Models.GeneratedMSBuildEditorConfig.editorconfig
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\Agricola_Models.AssemblyInfoInputs.cache
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\Agricola_Models.AssemblyInfo.cs
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\Agricola_Models.csproj.CoreCompileInputs.cache
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\Agricola_Models.dll
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\refint\Agricola_Models.dll
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\Agricola_Models.pdb
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Models\obj\Debug\net6.0\ref\Agricola_Models.dll

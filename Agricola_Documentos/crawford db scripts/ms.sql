@@ -1,0 +1,2204 @@
+USE [master]
+GO
+/****** Object:  Database [MS]    Script Date: 18/02/2023 19:50:58 ******/
+CREATE DATABASE [MS]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'MS_Data', FILENAME = N'D:\MSSQL14.MSSQLSERVER\MSSQL\DATA\MS.MDF' , SIZE = 325248KB , MAXSIZE = UNLIMITED, FILEGROWTH = 10%)
+ LOG ON 
+( NAME = N'MS_Log', FILENAME = N'D:\MSSQL14.MSSQLSERVER\MSSQL\DATA\MS.LDF' , SIZE = 5696KB , MAXSIZE = UNLIMITED, FILEGROWTH = 10%)
+GO
+ALTER DATABASE [MS] SET COMPATIBILITY_LEVEL = 100
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [MS].[dbo].[sp_fulltext_database] @action = 'disable'
+end
+GO
+ALTER DATABASE [MS] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [MS] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [MS] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [MS] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [MS] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [MS] SET AUTO_CLOSE ON 
+GO
+ALTER DATABASE [MS] SET AUTO_SHRINK ON 
+GO
+ALTER DATABASE [MS] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [MS] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [MS] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [MS] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [MS] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [MS] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [MS] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [MS] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [MS] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [MS] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [MS] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [MS] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [MS] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [MS] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [MS] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [MS] SET RECOVERY SIMPLE 
+GO
+ALTER DATABASE [MS] SET  MULTI_USER 
+GO
+ALTER DATABASE [MS] SET PAGE_VERIFY TORN_PAGE_DETECTION  
+GO
+ALTER DATABASE [MS] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [MS] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [MS] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [MS] SET DELAYED_DURABILITY = DISABLED 
+GO
+ALTER DATABASE [MS] SET QUERY_STORE = OFF
+GO
+USE [MS]
+GO
+/****** Object:  User [wbuenano]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE USER [wbuenano] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[wbuenano]
+GO
+/****** Object:  User [user]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE USER [user] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[user]
+GO
+/****** Object:  User [sqlbackup]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE USER [sqlbackup] WITH DEFAULT_SCHEMA=[sqlbackup]
+GO
+/****** Object:  User [consulta]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE USER [consulta] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[consulta]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [wbuenano]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [user]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [sqlbackup]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [consulta]
+GO
+/****** Object:  Schema [consulta]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE SCHEMA [consulta]
+GO
+/****** Object:  Schema [sqlbackup]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE SCHEMA [sqlbackup]
+GO
+/****** Object:  Schema [user]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE SCHEMA [user]
+GO
+/****** Object:  Schema [wbuenano]    Script Date: 18/02/2023 19:50:59 ******/
+CREATE SCHEMA [wbuenano]
+GO
+/****** Object:  Table [dbo].[MST21]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST21](
+	[IDCAB_M02] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[EMPRE_M02] [char](2) NOT NULL,
+	[UBICA_M02] [nvarchar](7) NULL,
+	[CLASE_M02] [char](4) NULL,
+	[CODMA_M02] [nvarchar](9) NOT NULL,
+	[DESMA_M02] [varchar](100) NOT NULL,
+	[OLDMA_M02] [nvarchar](8) NULL,
+	[STACT_M02] [float] NULL,
+	[STMIN_M02] [float] NULL,
+	[STMAX_M02] [float] NULL,
+	[STCOM_M02] [float] NULL,
+	[PRECI_M02] [float] NULL,
+	[UNIDA_M02] [nvarchar](25) NOT NULL,
+	[UNIMX_M02] [nvarchar](25) NULL,
+	[CTAGA_M02] [nvarchar](5) NULL,
+	[FECHA_M02] [smalldatetime] NULL,
+	[USUAR_M02] [nvarchar](8) NULL,
+	[SOLIC_M02] [nvarchar](15) NULL,
+	[ANULA_M02] [bit] NULL,
+	[CODIG_M02] [char](4) NULL,
+	[CTACB_M02] [varchar](8) NULL,
+	[CAACT_M02] [char](1) NULL,
+	[CTAC2_M02] [varchar](8) NULL,
+	[FLDET_M02] [bit] NULL,
+	[CDDET_M02] [varchar](2) NULL,
+	[CTAC6_M02] [varchar](8) NULL,
+	[ACTIV_M02] [bit] NULL,
+	[FEBAJ_M02] [datetime] NULL,
+	[SBTN3_M02] [varchar](8) NULL,
+	[NPART_M02] [varchar](50) NULL,
+ CONSTRAINT [PK_MST21] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_M02] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[PRODUCTOS SIN RUBRO PPTO ASOCIADO]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[PRODUCTOS SIN RUBRO PPTO ASOCIADO]
+AS
+SELECT     TOP 100 PERCENT dbo.MST21.CODMA_M02, dbo.MST21.DESMA_M02, dbo.MST21.SBTN3_M02, PP.dbo.PPT04.ABREV_T04, 
+                      dbo.MST21.ACTIV_M02
+FROM         dbo.MST21 LEFT OUTER JOIN
+                      PP.dbo.PPT04 ON dbo.MST21.SBTN3_M02 = PP.dbo.PPT04.ABREV_T04
+WHERE     (LEFT(dbo.MST21.CODMA_M02, 2) = '24') AND (dbo.MST21.ACTIV_M02 = 1) AND (dbo.MST21.SBTN3_M02 IS NULL) OR
+                      (LEFT(dbo.MST21.CODMA_M02, 2) = '24') AND (dbo.MST21.ACTIV_M02 = 1) AND (LTRIM(RTRIM(dbo.MST21.SBTN3_M02)) = '')
+GROUP BY dbo.MST21.CODMA_M02, dbo.MST21.DESMA_M02, dbo.MST21.SBTN3_M02, PP.dbo.PPT04.ABREV_T04, dbo.MST21.ACTIV_M02
+ORDER BY dbo.MST21.CODMA_M02, dbo.MST21.DESMA_M02, dbo.MST21.SBTN3_M02, PP.dbo.PPT04.ABREV_T04, dbo.MST21.ACTIV_M02
+GO
+/****** Object:  Table [dbo].[MST22]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST22](
+	[CDITE_T02] [nvarchar](4) NULL,
+	[DSITE_T02] [nvarchar](50) NULL,
+	[COSCE_T02] [varchar](8) NULL,
+	[CUENT_T02] [varchar](8) NULL,
+	[CUEN2_T02] [varchar](8) NULL,
+	[CUEN6_T02] [varchar](8) NULL,
+	[APLIQ_T02] [bit] NULL,
+	[APPOL_T02] [bit] NULL,
+	[APFER_T02] [bit] NULL,
+	[CBGEN_T02] [bit] NULL,
+	[COSTO_T02] [bit] NULL,
+	[SUNAT_T02] [varchar](2) NULL,
+	[FLSN3_T02] [bit] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST26]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST26](
+	[IDDET_T26] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_T26] [int] NULL,
+	[NOTEC_T26] [char](4) NULL,
+	[NOLAB_T26] [char](4) NULL,
+	[RESEN_T26] [varchar](20) NULL,
+	[REING_T26] [float] NULL,
+	[OBSER_T26] [varchar](500) NULL,
+	[N_T26] [float] NULL,
+	[P_T26] [float] NULL,
+	[K_T26] [float] NULL,
+	[M_T26] [float] NULL,
+	[S_T26] [float] NULL,
+	[C_T26] [float] NULL,
+	[B_T26] [float] NULL,
+	[OBJET_T26] [char](3) NULL,
+	[CAREN_T26] [float] NULL,
+	[FOTO__T26] [varchar](250) NULL,
+	[FITEC_T26] [varchar](250) NULL,
+ CONSTRAINT [PK_MST26] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_T26] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[VISTA_VERIFICA_REINGRESO_A_CAMPO]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[VISTA_VERIFICA_REINGRESO_A_CAMPO]
+AS
+SELECT     TOP 100 PERCENT dbo.MST21.CLASE_M02 AS CLASE, dbo.MST22.DSITE_T02 AS DESC_CLASE, dbo.MST21.CODMA_M02 AS PRODUCTO, dbo.MST21.DESMA_M02 AS DESC_PRODUCTO, 
+                      dbo.MST26.REING_T26 AS REINGRESO
+FROM         dbo.MST21 INNER JOIN
+                      dbo.MST22 ON dbo.MST21.CLASE_M02 = dbo.MST22.CDITE_T02 LEFT OUTER JOIN
+                      dbo.MST26 ON dbo.MST21.IDCAB_M02 = dbo.MST26.IDCAB_T26
+WHERE     (LEFT(dbo.MST21.CLASE_M02, 2) = '24')
+ORDER BY dbo.MST21.CLASE_M02, dbo.MST21.CODMA_M02
+GO
+/****** Object:  View [dbo].[productos_sin_codigo_ppto_asociado_2021]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[productos_sin_codigo_ppto_asociado_2021]
+AS
+SELECT     TOP 100 PERCENT dbo.MST21.CODMA_M02 AS PRODUCTO, dbo.MST21.DESMA_M02 AS DESC_PRODUCTO, PP.dbo.PPT04.ABREV_T04 AS COMPONENTE, 
+                      PP.dbo.PPT04.DESCR_T04 AS DESC_COMPONENTE
+FROM         dbo.MST21 LEFT OUTER JOIN
+                      PP.dbo.PPT04 ON dbo.MST21.SBTN3_M02 = PP.dbo.PPT04.ABREV_T04
+WHERE     (LEFT(dbo.MST21.CLASE_M02, 2) = '24')
+ORDER BY dbo.MST21.CODMA_M02
+GO
+/****** Object:  Table [dbo].[__MST20_CP]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[__MST20_CP](
+	[CODANT] [nvarchar](255) NULL,
+	[DESCRIPCION] [nvarchar](255) NULL,
+	[DIRECCION] [nvarchar](255) NULL,
+	[CAMPO1] [nvarchar](255) NULL,
+	[CAMPO2] [nvarchar](255) NULL,
+	[RUC] [varchar](53) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CBM01_CP]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CBM01_CP](
+	[CUENTA] [nvarchar](255) NULL,
+	[DESCRIPCION] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST01]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST01](
+	[EMPRE_T01] [nvarchar](2) NULL,
+	[RAZON_T01] [nvarchar](40) NULL,
+	[ABREV_T01] [nvarchar](20) NULL,
+	[DIREC_T01] [nvarchar](100) NULL,
+	[NURUC_T01] [nvarchar](11) NULL,
+	[SERVI_T01] [varchar](50) NULL,
+	[RUTAA_T01] [varchar](100) NULL,
+	[RUTAR_T01] [varchar](100) NULL,
+	[RUTAE_T01] [varchar](100) NULL,
+	[IGV___T01] [float] NULL,
+	[ALMAC_T01] [varchar](5) NULL,
+	[LOCAL_T01] [varchar](2) NULL,
+	[ZONAP_T01] [nvarchar](3) NULL,
+	[REPAT_T01] [nvarchar](15) NULL,
+	[COBER_T01] [nvarchar](6) NULL,
+	[COEMP_T01] [nvarchar](15) NULL,
+	[IDCAB_T01] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PORET_T01] [float] NULL,
+	[BARET_T01] [float] NULL,
+	[CTRES_T01] [varchar](8) NULL,
+	[CTRED_T01] [varchar](8) NULL,
+	[NDPCP_T01] [int] NULL,
+	[RTZIP_T01] [varchar](250) NULL,
+	[FLGPA_T01] [bit] NULL,
+	[FLGEC_T01] [bit] NULL,
+	[FLGER_T01] [bit] NULL,
+ CONSTRAINT [PK_MST01] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_T01] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST02]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST02](
+	[APLIC_T02] [nvarchar](2) NOT NULL,
+	[DESCR_T02] [nvarchar](40) NULL,
+	[ABREV_T02] [nvarchar](20) NULL,
+	[RUTAC_T02] [nvarchar](30) NULL,
+	[USERI_T02] [nvarchar](50) NULL,
+ CONSTRAINT [PK_MST02] PRIMARY KEY CLUSTERED 
+(
+	[APLIC_T02] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST03]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST03](
+	[APLIC_T03] [nvarchar](2) NULL,
+	[MODUL_T03] [nvarchar](1) NULL,
+	[CORRE_T03] [float] NULL,
+	[CMENU_T03] [float] NULL,
+	[IMENU_T03] [float] NULL,
+	[ABREV_T03] [nvarchar](20) NULL,
+	[PROGR_T03] [nvarchar](8) NULL,
+	[NROME_T03] [float] NULL,
+	[PARAM_T03] [nvarchar](5) NULL,
+	[DESCR_T03] [nvarchar](60) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST04]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST04](
+	[ARCHI_T04] [nvarchar](8) NOT NULL,
+	[DESCR_T04] [nvarchar](50) NULL,
+	[NINDI_T04] [float] NULL,
+	[CAMPO_T04] [float] NULL,
+	[TMAIL_T04] [nvarchar](4) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST05]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST05](
+	[ARCHI_T05] [nvarchar](8) NULL,
+	[CORR1_T05] [float] NULL,
+	[CORR2_T05] [float] NULL,
+	[CAMPO_T05] [nvarchar](10) NULL,
+	[TPCAM_T05] [nvarchar](1) NULL,
+	[LONGI_T05] [float] NULL,
+	[DECIM_T05] [float] NULL,
+	[DESCR_T05] [nvarchar](40) NULL,
+	[INDI1_T05] [nvarchar](1) NULL,
+	[INDI2_T05] [nvarchar](1) NULL,
+	[INDI3_T05] [nvarchar](1) NULL,
+	[INDI4_T05] [nvarchar](1) NULL,
+	[INDI5_T05] [nvarchar](1) NULL,
+	[INDI6_T05] [nvarchar](1) NULL,
+	[INDI7_T05] [nvarchar](1) NULL,
+	[INDI8_T05] [nvarchar](1) NULL,
+	[INDI9_T05] [nvarchar](1) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST06]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST06](
+	[EMPRE_T06] [varchar](2) NULL,
+	[NOMBR_T06] [varchar](40) NULL,
+	[ABREV_T06] [varchar](20) NULL,
+	[COMEN_T06] [varchar](30) NULL,
+	[USUAR_T06] [varchar](8) NOT NULL,
+	[PASSW_T06] [varchar](8) NULL,
+	[PROCE_T06] [varchar](2) NULL,
+	[OPCI1_T06] [bit] NULL,
+	[OPCI2_T06] [bit] NULL,
+	[OPCI3_T06] [bit] NULL,
+	[OPCI4_T06] [bit] NULL,
+	[OPCI5_T06] [bit] NULL,
+	[OPCI6_T06] [bit] NULL,
+	[OPCIO_T06] [varchar](6) NULL,
+	[IPADD_T06] [varchar](15) NULL,
+	[PORT__T06] [char](4) NULL,
+	[EMAIL_T06] [varchar](50) NULL,
+	[FOTO__T06] [varchar](250) NULL,
+	[COMPU_T06] [varchar](50) NULL,
+	[ACTIV_T06] [bit] NULL,
+	[GRUPO_T06] [varchar](1) NULL,
+	[USCON_T06] [varchar](2) NULL,
+	[ADMTC_T06] [char](1) NULL,
+	[USGER_T06] [bit] NULL,
+	[COPIA_T06] [varchar](50) NULL,
+	[FLOCP_T06] [bit] NULL,
+	[FUCPW_T06] [datetime] NULL,
+	[BLOKD_T06] [bit] NULL,
+	[FLACT_T06] [bit] NULL,
+	[FLAMT_T06] [bit] NULL,
+	[FLAOR_T06] [bit] NULL,
+	[FLAOC_T06] [bit] NULL,
+	[SYSAD_T06] [bit] NULL,
+ CONSTRAINT [PK_MST06] PRIMARY KEY CLUSTERED 
+(
+	[USUAR_T06] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST07]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST07](
+	[MASCA_T07] [nvarchar](6) NULL,
+	[INTEN_T07] [nvarchar](6) NULL,
+	[REVER_T07] [nvarchar](6) NULL,
+	[BLINK_T07] [nvarchar](6) NULL,
+	[LEYEN_T07] [nvarchar](6) NULL,
+	[OPCIO_T07] [nvarchar](10) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST08]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST08](
+	[PROGR_T08] [nvarchar](8) NULL,
+	[DPROG_T08] [nvarchar](30) NULL,
+	[PGMDR_T08] [nvarchar](3) NULL,
+	[FECHA_T08] [smalldatetime] NULL,
+	[DESCR_T08] [ntext] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST09]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST09](
+	[PROGR_T09] [nvarchar](8) NULL,
+	[ARCHI_T09] [nvarchar](8) NULL,
+	[ALTE1_T09] [nvarchar](1) NULL,
+	[ALTE2_T09] [nvarchar](1) NULL,
+	[ALTE3_T09] [nvarchar](1) NULL,
+	[ALTE4_T09] [nvarchar](1) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST10]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST10](
+	[OSCOD_T10] [nvarchar](2) NULL,
+	[OSDES_T10] [nvarchar](45) NULL,
+	[UMESS_T10] [nvarchar](45) NULL,
+	[OMESS_T10] [nvarchar](45) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST11]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST11](
+	[SUBCO_T11] [nvarchar](11) NULL,
+	[SUBSY_T11] [nvarchar](45) NULL,
+	[DESCR_T11] [nvarchar](45) NULL,
+	[OPERA_T11] [nvarchar](10) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST12]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST12](
+	[GENCO_T12] [nvarchar](2) NULL,
+	[DESCR_T12] [nvarchar](45) NULL,
+	[UMESS_T12] [nvarchar](45) NULL,
+	[OMESS_T12] [nvarchar](45) NULL,
+	[ACCIO_T12] [nvarchar](30) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST13]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST13](
+	[ARCHI_T13] [nvarchar](8) NULL,
+	[REGIS_T13] [nvarchar](2) NULL,
+	[CORR1_T13] [float] NULL,
+	[CORR2_T13] [float] NULL,
+	[CAMPO_T13] [nvarchar](10) NULL,
+	[TPCAM_T13] [nvarchar](1) NULL,
+	[LONGI_T13] [float] NULL,
+	[DECIM_T13] [float] NULL,
+	[DESCR_T13] [nvarchar](40) NULL,
+	[FGETS_T13] [float] NULL,
+	[CGETS_T13] [float] NULL,
+	[MENSA_T13] [nvarchar](40) NULL,
+	[ROTUL_T13] [nvarchar](15) NULL,
+	[FROTU_T13] [float] NULL,
+	[CROTU_T13] [float] NULL,
+	[MASCA_T13] [nvarchar](15) NULL,
+	[VALID_T13] [nvarchar](70) NULL,
+	[TABLA_T13] [nvarchar](5) NULL,
+	[INDIC_T13] [float] NULL,
+	[CLAVE_T13] [nvarchar](50) NULL,
+	[EDITA_T13] [nvarchar](5) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST14]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST14](
+	[APLIC_T14] [nvarchar](7) NULL,
+	[FILAS_T14] [float] NULL,
+	[COLUM_T14] [float] NULL,
+	[OPCIO_T14] [nvarchar](3) NULL,
+	[ROTUL_T14] [nvarchar](20) NULL,
+	[FUNCI_T14] [nvarchar](20) NULL,
+	[NOVER_T14] [bit] NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST15]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST15](
+	[USUAR_T15] [nvarchar](8) NULL,
+	[PROGR_T15] [nvarchar](8) NULL,
+	[ACCES_T15] [bit] NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST19]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST19](
+	[CODIG_T19] [char](5) NULL,
+	[DESCR_T19] [varchar](25) NULL,
+	[EQUIV_T19] [char](2) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST20]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST20](
+	[EMPRE_M02] [nvarchar](2) NULL,
+	[CLASE_M02] [nvarchar](5) NOT NULL,
+	[MAEST_M02] [nvarchar](11) NOT NULL,
+	[NOMBR_M02] [nvarchar](50) NULL,
+	[DIREC_M02] [nvarchar](100) NULL,
+	[DEPAR_M02] [varchar](40) NULL,
+	[PROVI_M02] [nvarchar](40) NULL,
+	[DISTR_M02] [nvarchar](40) NULL,
+	[TELEF_M02] [varchar](20) NULL,
+	[NUFAX_M02] [varchar](20) NULL,
+	[NEXTE_M02] [varchar](8) NULL,
+	[EMAIL_M02] [varchar](50) NULL,
+	[CONTA_M02] [nvarchar](50) NULL,
+	[PERGP_M02] [bit] NULL,
+	[GRUPO_M02] [varchar](8) NULL,
+	[ACTIV_M02] [bit] NULL,
+	[USUAR_M02] [nvarchar](8) NULL,
+	[USUUM_M02] [nvarchar](8) NULL,
+	[FECHA_M02] [smalldatetime] NULL,
+	[FECUM_M02] [smalldatetime] NULL,
+	[PAIS__M02] [nvarchar](20) NULL,
+	[NURUC_M02] [nvarchar](11) NULL,
+	[ZONAP_M02] [nvarchar](4) NULL,
+	[FORPG_M02] [nvarchar](5) NULL,
+	[VENDE_M02] [nvarchar](5) NULL,
+	[CUENT_M02] [nvarchar](8) NULL,
+	[CALIF_M02] [nvarchar](5) NULL,
+	[LIMIT_M02] [float] NULL,
+	[SAFAC_M02] [float] NULL,
+	[SALET_M02] [float] NULL,
+	[CREDI_M02] [float] NULL,
+	[SITUA_M02] [nvarchar](5) NULL,
+	[MOTIV_M02] [nvarchar](5) NULL,
+	[UVENT_M02] [float] NULL,
+	[UPAGO_M02] [float] NULL,
+	[UFEVT_M02] [smalldatetime] NULL,
+	[UFEPG_M02] [smalldatetime] NULL,
+	[STATU_M02] [nvarchar](1) NULL,
+	[LOTES_M02] [float] NULL,
+	[CONRB_M02] [bit] NULL,
+	[CTADT_M02] [varchar](20) NULL,
+	[FENAC_M02] [datetime] NULL,
+	[MONCT_M02] [varchar](1) NULL,
+	[CTCTE_M02] [varchar](30) NULL,
+	[DIREN_M02] [nvarchar](100) NULL,
+	[ARETE_M02] [bit] NULL,
+	[APERC_M02] [bit] NULL,
+	[BCONT_M02] [bit] NULL,
+	[PLAZO_M02] [int] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST20_CP]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST20_CP](
+	[CODANT] [nvarchar](255) NULL,
+	[DESCRIPCION] [nvarchar](255) NULL,
+	[DIRECCION] [nvarchar](255) NULL,
+	[CAMPO1] [nvarchar](255) NULL,
+	[CAMPO2] [nvarchar](255) NULL,
+	[RUC] [float] NULL,
+	[NURUC] [varchar](50) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST22_CP]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST22_CP](
+	[TIPO] [nvarchar](255) NULL,
+	[CODIGO] [float] NULL,
+	[DESCRIPCION] [nvarchar](255) NULL,
+	[F4] [nvarchar](255) NULL,
+	[F5] [nvarchar](255) NULL,
+	[F6] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST23]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST23](
+	[PERIO_T23] [nvarchar](4) NULL,
+	[NUMES_T23] [nvarchar](2) NULL,
+	[FACTO_T23] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST24]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST24](
+	[CODIG_T24] [char](2) NULL,
+	[DESCR_T24] [char](30) NULL,
+	[ABREV_T24] [char](2) NULL,
+	[CLASE_T24] [char](5) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST25]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST25](
+	[BASED_T25] [varchar](50) NULL,
+	[EXTEN_T25] [char](3) NULL,
+	[SISTE_T25] [char](2) NULL,
+	[NOMBR_T25] [varchar](50) NULL,
+	[RUTAB_T25] [varchar](250) NULL,
+	[NOMBZ_T25] [varchar](50) NULL,
+	[RUTAZ_T25] [varchar](250) NULL,
+	[ACTIV_T25] [bit] NULL,
+	[COPYZ_T25] [bit] NULL,
+	[RUTCZ_T25] [varchar](250) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST27]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST27](
+	[IDCAB_T27] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[APLIC_T27] [char](2) NULL,
+	[FECHA_T27] [datetime] NULL,
+	[HORA__T27] [smalldatetime] NULL,
+	[OPCMG_T27] [char](1) NULL,
+	[OPERA_T27] [char](1) NULL,
+	[REFER_T27] [varchar](100) NULL,
+	[USUAR_T27] [varchar](20) NULL,
+	[TABLA_T27] [char](50) NULL,
+	[IDTAB_T27] [int] NULL,
+ CONSTRAINT [PK_MST27] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_T27] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST28]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST28](
+	[IDCAB_T28] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[APLIC_T28] [char](2) NULL,
+	[FECHA_T28] [datetime] NULL,
+	[HORA__T28] [smalldatetime] NULL,
+	[OPCMG_T28] [char](1) NULL,
+	[OPERA_T28] [char](1) NULL,
+	[REFER_T28] [varchar](100) NULL,
+	[USUAR_T28] [varchar](20) NULL,
+	[TABLA_T28] [char](5) NULL,
+	[IDTAB_T28] [int] NULL,
+	[ERRNU_T28] [int] NULL,
+	[ERRDE_T28] [varchar](100) NULL,
+	[ERRSO_T28] [varchar](50) NULL,
+	[ERRLA_T28] [varchar](50) NULL,
+	[FPORI_T28] [varchar](50) NULL,
+	[NOMBU_T28] [varchar](50) NULL,
+	[COMPU_T28] [varchar](50) NULL,
+	[NOTIF_T28] [bit] NULL,
+	[RUTAF_T28] [varchar](250) NULL,
+ CONSTRAINT [PK_MST28] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_T28] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST29]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST29](
+	[IDDET_T29] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_T29] [int] NULL,
+	[CULTI_T29] [char](4) NULL,
+	[CAREN_T29] [float] NULL,
+	[OBJET_T29] [varchar](15) NULL,
+	[DSOBJ_T29] [varchar](250) NULL,
+	[LMRES_T29] [float] NULL,
+ CONSTRAINT [PK_MST29] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_T29] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST30]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST30](
+	[IDCAB_T30] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[APLIC_T30] [char](2) NULL,
+	[FEINI_T30] [smalldatetime] NULL,
+	[FEFIN_T30] [smalldatetime] NULL,
+	[USUAR_T30] [varchar](20) NULL,
+	[COMPU_T30] [varchar](50) NULL,
+	[USCOM_T30] [varchar](50) NULL,
+	[ONLIN_T30] [char](1) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST31]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST31](
+	[IDCAB_T31] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PROCE_T31] [char](2) NULL,
+	[USUAR_T31] [varchar](10) NULL,
+	[FECRM_T31] [datetime] NULL,
+	[HORRM_T31] [datetime] NULL,
+	[FECAV_T31] [datetime] NULL,
+	[HORAV_T31] [datetime] NULL,
+	[DESCR_T31] [varchar](250) NULL,
+	[FRECU_T31] [varchar](50) NULL,
+	[ACTIV_T31] [bit] NULL,
+	[NOTCU_T31] [bit] NULL,
+	[NOTVE_T31] [bit] NULL,
+	[NOTVN_T31] [bit] NULL,
+	[SONID_T31] [varchar](250) NULL,
+	[IPADD_T31] [varchar](15) NULL,
+	[PORT__T31] [varchar](4) NULL,
+	[EMAIL_T31] [varchar](50) NULL,
+	[COMEN_T31] [varchar](250) NULL,
+	[COPIA_T31] [varchar](50) NULL,
+ CONSTRAINT [PK_MST31] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_T31] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST32]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST32](
+	[IDCAB_T32] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PROCE_T32] [char](2) NULL,
+	[USUAR_T32] [varchar](10) NULL,
+	[FECRM_T32] [datetime] NULL,
+	[HORRM_T32] [datetime] NULL,
+	[FECAV_T32] [datetime] NULL,
+	[HORAV_T32] [datetime] NULL,
+	[DESCR_T32] [varchar](250) NULL,
+	[FRECU_T32] [varchar](50) NULL,
+	[ACTIV_T32] [bit] NULL,
+	[NOTCU_T32] [bit] NULL,
+	[NOTVE_T32] [bit] NULL,
+	[NOTVN_T32] [bit] NULL,
+	[SONID_T32] [varchar](250) NULL,
+	[IPADD_T32] [varchar](15) NULL,
+	[PORT__T32] [varchar](4) NULL,
+	[EMAIL_T32] [varchar](50) NULL,
+	[COMEN_T32] [varchar](250) NULL,
+	[COPIA_T32] [varchar](50) NULL,
+	[COPI1_T32] [varchar](50) NULL,
+	[COPI2_T32] [varchar](50) NULL,
+	[COPI3_T32] [varchar](50) NULL,
+	[COPI4_T32] [varchar](50) NULL,
+	[COPI5_T32] [varchar](50) NULL,
+	[COPI6_T32] [varchar](50) NULL,
+	[ARCH1_T32] [varchar](100) NULL,
+	[ARCH2_T32] [varchar](100) NULL,
+	[ARCH3_T32] [varchar](100) NULL,
+	[ARCH4_T32] [varchar](100) NULL,
+	[ARCH5_T32] [varchar](100) NULL,
+	[LOCAL_T32] [char](2) NULL,
+ CONSTRAINT [PK_MST32] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_T32] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST33]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST33](
+	[IDCAB_T33] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PROCE_T33] [char](2) NULL,
+	[USUAR_T33] [varchar](10) NULL,
+	[FECRM_T33] [datetime] NULL,
+	[HORRM_T33] [datetime] NULL,
+	[FECAV_T33] [datetime] NULL,
+	[HORAV_T33] [datetime] NULL,
+	[DESCR_T33] [varchar](250) NULL,
+	[FRECU_T33] [varchar](50) NULL,
+	[ACTIV_T33] [bit] NULL,
+	[NOTCU_T33] [bit] NULL,
+	[NOTVE_T33] [bit] NULL,
+	[NOTVN_T33] [bit] NULL,
+	[SONID_T33] [varchar](250) NULL,
+	[IPADD_T33] [varchar](15) NULL,
+	[PORT__T33] [varchar](4) NULL,
+	[EMAIL_T33] [varchar](50) NULL,
+	[COMEN_T33] [varchar](250) NULL,
+	[COPIA_T33] [varchar](50) NULL,
+	[COPI1_T33] [varchar](50) NULL,
+	[COPI2_T33] [varchar](50) NULL,
+	[COPI3_T33] [varchar](50) NULL,
+	[COPI4_T33] [varchar](50) NULL,
+	[ARCH1_T33] [varchar](100) NULL,
+	[ARCH2_T33] [varchar](100) NULL,
+	[ARCH3_T33] [varchar](100) NULL,
+	[ARCH4_T33] [varchar](100) NULL,
+	[ARCH5_T33] [varchar](100) NULL,
+	[LOCAL_T33] [char](2) NULL,
+	[NUPRO_T33] [int] NULL,
+	[PARA1_T33] [varchar](50) NULL,
+	[PARA2_T33] [varchar](50) NULL,
+	[PARA3_T33] [varchar](50) NULL,
+ CONSTRAINT [PK_MST33] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_T33] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST34]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST34](
+	[IDCAB_T34] [int] NOT NULL,
+	[IDDET_T34] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[ANIO__T34] [varchar](4) NULL,
+ CONSTRAINT [PK_MST34] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_T34] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST35]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST35](
+	[IDCAB_T35] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[USUAR_T35] [varchar](50) NULL,
+	[FECHA_T35] [datetime] NULL,
+	[HORA__T35] [datetime] NULL,
+	[INTFA_T35] [bit] NULL,
+	[CAMSA_T35] [bit] NULL,
+	[CAMRE_T35] [bit] NULL,
+	[BLO3I_T35] [bit] NULL,
+	[OBSER_T35] [varchar](50) NULL,
+	[PASSA_T35] [varchar](50) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MSW01]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MSW01](
+	[DESMA_W01] [varchar](100) NULL,
+	[NOTEC_W01] [char](4) NULL,
+	[OBJE1_W01] [char](3) NULL,
+	[OBJE2_w01] [char](3) NULL,
+	[OBJE3_W01] [char](3) NULL,
+	[OBJE4_W01] [char](3) NULL,
+	[OBJE5_W01] [char](3) NULL,
+	[CAREN_W01] [float] NULL,
+	[LMRES_W01] [float] NULL,
+	[REING_W01] [float] NULL,
+	[UNIDA_W01] [varchar](50) NULL,
+	[DSITE_W01] [varchar](50) NULL,
+	[RESEN_W01] [varchar](50) NULL,
+	[NOLAB_W01] [char](2) NULL,
+	[CODMA_W01] [char](9) NULL,
+	[CDITE_W01] [char](4) NULL,
+	[CULTI_W01] [char](4) NULL,
+	[IDCAB_W01] [int] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MTAUTO51]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MTAUTO51](
+	[REGISTRO_SENASA] [nvarchar](255) NULL,
+	[CODIGO_CLASE] [varchar](4) NULL,
+	[CLASE_PRODUCTO] [nvarchar](255) NULL,
+	[CODIGO_PRODUCTO] [varchar](9) NULL,
+	[PRODUCTO] [nvarchar](255) NULL,
+	[CODIGO_NTECNICO] [varchar](4) NULL,
+	[NOMBRE_TECNICO] [nvarchar](255) NULL,
+	[CODIGO_LABORATORIO] [varchar](2) NULL,
+	[LABORATORIO] [nvarchar](255) NULL,
+	[CODIGO_REGISTRO_SENASA] [varchar](4) NULL,
+	[REGISTRO_SENASA1] [nvarchar](255) NULL,
+	[CODIGO_SENASA2] [varchar](4) NULL,
+	[REGISTRO_SENASA2] [nvarchar](255) NULL,
+	[F14] [nvarchar](255) NULL,
+	[AIB] [nvarchar](255) NULL,
+	[F16] [nvarchar](255) NULL,
+	[F17] [nvarchar](255) NULL,
+	[F18] [nvarchar](255) NULL,
+	[PC] [float] NULL,
+	[PRC] [float] NULL,
+	[TESCO] [nvarchar](255) NULL,
+	[OBJETIVO 1] [nvarchar](255) NULL,
+	[OBJETIVO 2] [nvarchar](255) NULL,
+	[OBJETIVO 3] [nvarchar](255) NULL,
+	[ONJETIVO 4] [nvarchar](255) NULL,
+	[OBJETIVO 5] [nvarchar](255) NULL,
+	[PC1] [float] NULL,
+	[OBJETIVOS] [nvarchar](255) NULL,
+	[PC2] [float] NULL,
+	[LMR] [float] NULL,
+	[PRC1] [float] NULL,
+	[F32] [nvarchar](255) NULL,
+	[REG SENASA] [nvarchar](255) NULL,
+	[F34] [nvarchar](255) NULL,
+	[F35] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MTAUTO51 1]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MTAUTO51 1](
+	[CLASE] [nvarchar](255) NULL,
+	[CODMA] [nvarchar](255) NULL,
+	[DESMA] [nvarchar](255) NULL,
+	[NTECN] [float] NULL,
+	[DESNT] [nvarchar](255) NULL,
+	[NLABO] [float] NULL,
+	[DESNL] [nvarchar](255) NULL,
+	[RSEN1] [float] NULL,
+	[DESR1] [nvarchar](255) NULL,
+	[RSEN2] [float] NULL,
+	[DESR2] [nvarchar](255) NULL,
+	[AIB] [nvarchar](255) NULL,
+	[OBJE1] [nvarchar](255) NULL,
+	[OBJE2] [nvarchar](255) NULL,
+	[OBJE3] [nvarchar](255) NULL,
+	[PC] [nvarchar](255) NULL,
+	[PRC] [nvarchar](255) NULL,
+	[TESCO] [nvarchar](255) NULL,
+	[OBJETIVO 1] [nvarchar](255) NULL,
+	[OBJETIVO 2] [nvarchar](255) NULL,
+	[OBJETIVO 3] [nvarchar](255) NULL,
+	[ONJETIVO 4] [nvarchar](255) NULL,
+	[OBJETIVO 5] [nvarchar](255) NULL,
+	[PC1] [float] NULL,
+	[OBJETIVOS] [nvarchar](255) NULL,
+	[PC2] [nvarchar](255) NULL,
+	[LMR] [float] NULL,
+	[PRC1] [nvarchar](255) NULL,
+	[F29] [nvarchar](255) NULL,
+	[REG SENASA] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MTAUTO51 2]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MTAUTO51 2](
+	[REGISTRO_SENASA] [nvarchar](255) NULL,
+	[CODIGO_CLASE] [char](4) NULL,
+	[CLASE_PRODUCTO] [nvarchar](255) NULL,
+	[CODIGO_PRODUCTO] [nvarchar](255) NULL,
+	[PRODUCTO] [nvarchar](255) NULL,
+	[CODIGO_NTECNICO] [char](4) NULL,
+	[NOMBRE_TECNICO] [nvarchar](255) NULL,
+	[CODIGO_LABORATORIO] [char](4) NULL,
+	[LABORATORIO] [nvarchar](255) NULL,
+	[CODIGO_REGISTRO_SENASA] [char](4) NULL,
+	[REGISTRO_SENASA1] [nvarchar](255) NULL,
+	[CODIGO_SENASA2] [char](30) NULL,
+	[REGISTRO_SENASA2] [nvarchar](255) NULL,
+	[F14] [nvarchar](255) NULL,
+	[AIB] [nvarchar](255) NULL,
+	[F16] [nvarchar](255) NULL,
+	[F17] [nvarchar](255) NULL,
+	[F18] [nvarchar](255) NULL,
+	[PC] [nvarchar](255) NULL,
+	[PRC] [nvarchar](255) NULL,
+	[TESCO] [nvarchar](255) NULL,
+	[OBJETIVO 1] [nvarchar](255) NULL,
+	[OBJETIVO 2] [nvarchar](255) NULL,
+	[OBJETIVO 3] [nvarchar](255) NULL,
+	[ONJETIVO 4] [nvarchar](255) NULL,
+	[OBJETIVO 5] [nvarchar](255) NULL,
+	[PC1] [float] NULL,
+	[OBJETIVOS] [nvarchar](255) NULL,
+	[PC2] [nvarchar](255) NULL,
+	[LMR] [float] NULL,
+	[PRC1] [nvarchar](255) NULL,
+	[F32] [nvarchar](255) NULL,
+	[REG SENASA] [nvarchar](255) NULL,
+	[F34] [nvarchar](255) NULL,
+	[F35] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MTAUTO51 3]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MTAUTO51 3](
+	[REGISTRO_SENASA] [nvarchar](255) NULL,
+	[CODIGO_CLASE] [nvarchar](4) NULL,
+	[CLASE_PRODUCTO] [nvarchar](255) NULL,
+	[CODIGO_PRODUCTO] [nvarchar](255) NULL,
+	[PRODUCTO] [nvarchar](255) NULL,
+	[CODIGO_NTECNICO] [nvarchar](4) NULL,
+	[NOMBRE_TECNICO] [nvarchar](255) NULL,
+	[CODIGO_LABORATORIO] [nvarchar](4) NULL,
+	[LABORATORIO] [nvarchar](255) NULL,
+	[CODIGO_REGISTRO_SENASA] [nvarchar](4) NULL,
+	[REGISTRO_SENASA1] [nvarchar](255) NULL,
+	[CODIGO_SENASA2] [nvarchar](4) NULL,
+	[REGISTRO_SENASA2] [nvarchar](255) NULL,
+	[F14] [nvarchar](255) NULL,
+	[AIB] [nvarchar](255) NULL,
+	[F16] [nvarchar](255) NULL,
+	[F17] [nvarchar](255) NULL,
+	[F18] [nvarchar](255) NULL,
+	[PC] [nvarchar](255) NULL,
+	[PRC] [nvarchar](255) NULL,
+	[TESCO] [nvarchar](255) NULL,
+	[OBJETIVO 1] [nvarchar](255) NULL,
+	[OBJETIVO 2] [nvarchar](255) NULL,
+	[OBJETIVO 3] [nvarchar](255) NULL,
+	[ONJETIVO 4] [nvarchar](255) NULL,
+	[OBJETIVO 5] [nvarchar](255) NULL,
+	[PC1] [float] NULL,
+	[OBJETIVOS] [nvarchar](255) NULL,
+	[PC2] [float] NULL,
+	[LMR] [float] NULL,
+	[PRC1] [nvarchar](255) NULL,
+	[F32] [nvarchar](255) NULL,
+	[REG SENASA] [nvarchar](255) NULL,
+	[F34] [nvarchar](255) NULL,
+	[F35] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PRODUCTOS_BAJA_31052018]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PRODUCTOS_BAJA_31052018](
+	[ITEM] [float] NULL,
+	[CODIGO] [nvarchar](255) NULL,
+	[DESCRIPCION] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PRODUCTOS_CP]    Script Date: 18/02/2023 19:50:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PRODUCTOS_CP](
+	[codigo] [nvarchar](255) NULL,
+	[tipo] [nvarchar](255) NULL,
+	[descripcion] [nvarchar](255) NULL,
+	[um] [nvarchar](255) NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_SERVI_T01]  DEFAULT (' ') FOR [SERVI_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_RUTAA_T01]  DEFAULT (' ') FOR [RUTAA_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_RUTAR_T01]  DEFAULT (' ') FOR [RUTAR_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_RUTAE_T01]  DEFAULT (' ') FOR [RUTAE_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_PORET_T01]  DEFAULT (0) FOR [PORET_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_BARET_T01]  DEFAULT (0) FOR [BARET_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_CTRES_T01]  DEFAULT (' ') FOR [CTRES_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_CTRED_T01]  DEFAULT (' ') FOR [CTRED_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_NDPCP_T01]  DEFAULT (0) FOR [NDPCP_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_FLGPA_T01]  DEFAULT (1) FOR [FLGPA_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_FLGEC_T01]  DEFAULT (1) FOR [FLGEC_T01]
+GO
+ALTER TABLE [dbo].[MST01] ADD  CONSTRAINT [DF_MST01_FLGER_T01]  DEFAULT (1) FOR [FLGER_T01]
+GO
+ALTER TABLE [dbo].[MST04] ADD  CONSTRAINT [DF_MST04_TMAIL_T04]  DEFAULT (' ') FOR [TMAIL_T04]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_EMPRE_T06]  DEFAULT ('64') FOR [EMPRE_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_NOMBR_T06]  DEFAULT (' ') FOR [NOMBR_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_ABREV_T06]  DEFAULT (' ') FOR [ABREV_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_COMEN_T06]  DEFAULT (' ') FOR [COMEN_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_USUAR_T06]  DEFAULT (' ') FOR [USUAR_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_PASSW_T06]  DEFAULT (' ') FOR [PASSW_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_PROCE_T06]  DEFAULT (' ') FOR [PROCE_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_OPCI1_T06]  DEFAULT (1) FOR [OPCI1_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_OPCI2_T06]  DEFAULT (1) FOR [OPCI2_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_OPCI3_T06]  DEFAULT (1) FOR [OPCI3_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_OPCI4_T06]  DEFAULT (1) FOR [OPCI4_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_OPCI5_T06]  DEFAULT (1) FOR [OPCI5_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_OPCI6_T06]  DEFAULT (1) FOR [OPCI6_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_OPCIO_T06]  DEFAULT ('IMACRU') FOR [OPCIO_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_IPADD_T06]  DEFAULT (' ') FOR [IPADD_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_PORT__T06]  DEFAULT (' ') FOR [PORT__T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_EMAIL_T06]  DEFAULT (' ') FOR [EMAIL_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_FOTO__T06]  DEFAULT (' ') FOR [FOTO__T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_COMPU_T06]  DEFAULT (' ') FOR [COMPU_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_ACTIV_T06_1]  DEFAULT (1) FOR [ACTIV_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_GRUPO_T06]  DEFAULT ('1') FOR [GRUPO_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_USCON_T06]  DEFAULT ('01') FOR [USCON_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_ADMTC_T06]  DEFAULT ('N') FOR [ADMTC_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_USGER_T06]  DEFAULT (0) FOR [USGER_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_COPIA_T06]  DEFAULT (' ') FOR [COPIA_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_FLOCP_T06]  DEFAULT (0) FOR [FLOCP_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_BLOKD_T06]  DEFAULT (0) FOR [BLOKD_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_FLACT_T06]  DEFAULT (0) FOR [FLACT_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_FLAMT_T06]  DEFAULT (0) FOR [FLAMT_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_FLAOC_T06]  DEFAULT (0) FOR [FLAOC_T06]
+GO
+ALTER TABLE [dbo].[MST06] ADD  CONSTRAINT [DF_MST06_SYSADM_T06]  DEFAULT (0) FOR [SYSAD_T06]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CLASE_M02]  DEFAULT (' ') FOR [CLASE_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_MAEST_M02]  DEFAULT (' ') FOR [MAEST_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_NOMBR_M02]  DEFAULT (' ') FOR [NOMBR_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_DIREC_M02]  DEFAULT (' ') FOR [DIREC_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_DEPAR_M02]  DEFAULT (' ') FOR [DEPAR_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_PROVI_M02]  DEFAULT (' ') FOR [PROVI_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_DISTR_M02]  DEFAULT (' ') FOR [DISTR_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_TELEF_M02]  DEFAULT (' ') FOR [TELEF_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_NUFAX_M02]  DEFAULT (' ') FOR [NUFAX_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_NEXTE_M02]  DEFAULT (' ') FOR [NEXTE_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_EMAIL_M02]  DEFAULT (' ') FOR [EMAIL_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CONTA_M02]  DEFAULT (' ') FOR [CONTA_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_PERGP_M02]  DEFAULT (0) FOR [PERGP_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_GRUPO_M02]  DEFAULT (' ') FOR [GRUPO_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_ACTIV_M02]  DEFAULT (1) FOR [ACTIV_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_USUAR_M02]  DEFAULT (' ') FOR [USUAR_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_USUUM_M02]  DEFAULT (' ') FOR [USUUM_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_PAIS__M02]  DEFAULT (' ') FOR [PAIS__M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_NURUC_M02]  DEFAULT (' ') FOR [NURUC_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_ZONAP_M02]  DEFAULT (' ') FOR [ZONAP_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_FORPG_M02]  DEFAULT (' ') FOR [FORPG_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_VENDE_M02]  DEFAULT (' ') FOR [VENDE_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CUENT_M02]  DEFAULT (' ') FOR [CUENT_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CALIF_M02]  DEFAULT (' ') FOR [CALIF_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_LIMIT_M02]  DEFAULT (0) FOR [LIMIT_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_SAFAC_M02]  DEFAULT (0) FOR [SAFAC_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_SALET_M02]  DEFAULT (0) FOR [SALET_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CREDI_M02]  DEFAULT (0) FOR [CREDI_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_SITUA_M02]  DEFAULT (' ') FOR [SITUA_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_MOTIV_M02]  DEFAULT (' ') FOR [MOTIV_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_UVENT_M02]  DEFAULT (0) FOR [UVENT_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_UPAGO_M02]  DEFAULT (0) FOR [UPAGO_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_STATU_M02]  DEFAULT (' ') FOR [STATU_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_LOTES_M02]  DEFAULT (' ') FOR [LOTES_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CONRB_M02]  DEFAULT (0) FOR [CONRB_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CTADT_M02]  DEFAULT (' ') FOR [CTADT_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_FENAC_M02]  DEFAULT ('01/01/1980') FOR [FENAC_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_MONCC_M02]  DEFAULT (' ') FOR [MONCT_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_CTCTE_M02]  DEFAULT (' ') FOR [CTCTE_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_DIREC_M021]  DEFAULT (' ') FOR [DIREN_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_ARETE_M02]  DEFAULT (0) FOR [ARETE_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_APERC_M02]  DEFAULT (0) FOR [APERC_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_BCONT_M02]  DEFAULT (0) FOR [BCONT_M02]
+GO
+ALTER TABLE [dbo].[MST20] ADD  CONSTRAINT [DF_MST20_PLAZO_M02]  DEFAULT (0) FOR [PLAZO_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_EMPRE_M02]  DEFAULT (' ') FOR [EMPRE_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_UBICA_M02]  DEFAULT (' ') FOR [UBICA_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CLASE_M02]  DEFAULT (' ') FOR [CLASE_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CODMA_M02]  DEFAULT (' ') FOR [CODMA_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_DESMA_M02]  DEFAULT (' ') FOR [DESMA_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_OLDMA_M02]  DEFAULT (' ') FOR [OLDMA_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_STACT_M02]  DEFAULT (0) FOR [STACT_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_STMIN_M02]  DEFAULT (0) FOR [STMIN_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_STMAX_M02]  DEFAULT (0) FOR [STMAX_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_STCOM_M02]  DEFAULT (0) FOR [STCOM_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_PRECI_M02]  DEFAULT (0) FOR [PRECI_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_UNIDA_M02]  DEFAULT (' ') FOR [UNIDA_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_UNIMX_M02]  DEFAULT (' ') FOR [UNIMX_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CTAGA_M02]  DEFAULT (' ') FOR [CTAGA_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_USUAR_M02]  DEFAULT (' ') FOR [USUAR_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_SOLIC_M02]  DEFAULT (' ') FOR [SOLIC_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_ANULA_M02]  DEFAULT (0) FOR [ANULA_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CODIG_M02]  DEFAULT (' ') FOR [CODIG_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CAACT_M02]  DEFAULT ('S') FOR [CAACT_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CTAC2_M02]  DEFAULT (' ') FOR [CTAC2_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_FLDET_M02]  DEFAULT (0) FOR [FLDET_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CDDET_M02]  DEFAULT (' ') FOR [CDDET_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_CTAC6_M02]  DEFAULT (' ') FOR [CTAC6_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_ACTIV_M02]  DEFAULT (1) FOR [ACTIV_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_SBTN3_M02]  DEFAULT (' ') FOR [SBTN3_M02]
+GO
+ALTER TABLE [dbo].[MST21] ADD  CONSTRAINT [DF_MST21_NPART_M02]  DEFAULT (' ') FOR [NPART_M02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_CDITE_T02]  DEFAULT (' ') FOR [CDITE_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_DSITE_T02]  DEFAULT (' ') FOR [DSITE_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_CUENT_T02]  DEFAULT (' ') FOR [CUENT_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_CUEN2_T02]  DEFAULT (' ') FOR [CUEN2_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_CUEN6_T02]  DEFAULT (' ') FOR [CUEN6_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_APLIQ_T02]  DEFAULT (0) FOR [APLIQ_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_APPOL_T02]  DEFAULT (0) FOR [APPOL_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_APFER_T02]  DEFAULT (0) FOR [APFER_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_CBGEN_T02]  DEFAULT (0) FOR [CBGEN_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_COSTO_T02]  DEFAULT (0) FOR [COSTO_T02]
+GO
+ALTER TABLE [dbo].[MST22] ADD  CONSTRAINT [DF_MST22_FLSN3_T02]  DEFAULT (0) FOR [FLSN3_T02]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_BASED_T25]  DEFAULT (' ') FOR [BASED_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_EXTEN_T25]  DEFAULT (' ') FOR [EXTEN_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_SISTE_T25]  DEFAULT (' ') FOR [SISTE_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_NOMBR_T25]  DEFAULT (' ') FOR [NOMBR_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_RUTAB_T25]  DEFAULT (' ') FOR [RUTAB_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_NOMBZ_T25]  DEFAULT (' ') FOR [NOMBZ_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_RUTAZ_T25]  DEFAULT (' ') FOR [RUTAZ_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_ACTIV_T25]  DEFAULT (1) FOR [ACTIV_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_COPYZ_T25]  DEFAULT (1) FOR [COPYZ_T25]
+GO
+ALTER TABLE [dbo].[MST25] ADD  CONSTRAINT [DF_MST25_RUTCZ_T25]  DEFAULT (' ') FOR [RUTCZ_T25]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_NOTEC_T26]  DEFAULT (' ') FOR [NOTEC_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_NOLAB_T26]  DEFAULT (' ') FOR [NOLAB_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_RESEN_T26]  DEFAULT (' ') FOR [RESEN_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_REING_T26]  DEFAULT (0) FOR [REING_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_OBSER_T26]  DEFAULT (' ') FOR [OBSER_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_N_T26]  DEFAULT (0) FOR [N_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_P_T26]  DEFAULT (0) FOR [P_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_K_T26]  DEFAULT (0) FOR [K_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_M_T26]  DEFAULT (0) FOR [M_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_S_T26]  DEFAULT (0) FOR [S_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_C_T26]  DEFAULT (0) FOR [C_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_B_T26]  DEFAULT (0) FOR [B_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_OBJET_T26]  DEFAULT (' ') FOR [OBJET_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_CAREN_T26]  DEFAULT (0) FOR [CAREN_T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_FOTO__T26]  DEFAULT (' ') FOR [FOTO__T26]
+GO
+ALTER TABLE [dbo].[MST26] ADD  CONSTRAINT [DF_MST26_FITEC_T26]  DEFAULT (' ') FOR [FITEC_T26]
+GO
+ALTER TABLE [dbo].[MST27] ADD  CONSTRAINT [DF_MST27_TABLA_T27]  DEFAULT (' ') FOR [TABLA_T27]
+GO
+ALTER TABLE [dbo].[MST27] ADD  CONSTRAINT [DF_MST27_IDTAB_T27]  DEFAULT (0) FOR [IDTAB_T27]
+GO
+ALTER TABLE [dbo].[MST28] ADD  CONSTRAINT [DF_MST28_NOTIF_T28]  DEFAULT (0) FOR [NOTIF_T28]
+GO
+ALTER TABLE [dbo].[MST28] ADD  CONSTRAINT [DF_MST28_RUTAF_T28]  DEFAULT (' ') FOR [RUTAF_T28]
+GO
+ALTER TABLE [dbo].[MST29] ADD  CONSTRAINT [DF_MST29_CULTI_T29]  DEFAULT (' ') FOR [CULTI_T29]
+GO
+ALTER TABLE [dbo].[MST29] ADD  CONSTRAINT [DF_MST29_CAREN_T29]  DEFAULT (0) FOR [CAREN_T29]
+GO
+ALTER TABLE [dbo].[MST29] ADD  CONSTRAINT [DF_MST29_OBJET_T29]  DEFAULT (' ') FOR [OBJET_T29]
+GO
+ALTER TABLE [dbo].[MST29] ADD  CONSTRAINT [DF_MST29_DSOBJ_T29]  DEFAULT (' ') FOR [DSOBJ_T29]
+GO
+ALTER TABLE [dbo].[MST29] ADD  CONSTRAINT [DF_MST29_LMRES_T29]  DEFAULT (0) FOR [LMRES_T29]
+GO
+ALTER TABLE [dbo].[MST30] ADD  CONSTRAINT [DF_MST30_ONLIN_T30]  DEFAULT ('N') FOR [ONLIN_T30]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_PROCE_T31]  DEFAULT (' ') FOR [PROCE_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_USUAR_T31]  DEFAULT (' ') FOR [USUAR_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_DESCR_T31]  DEFAULT (' ') FOR [DESCR_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_FRECU_T31]  DEFAULT (' ') FOR [FRECU_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_ACTIV_T31]  DEFAULT (1) FOR [ACTIV_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_NOTCU_T31]  DEFAULT (1) FOR [NOTCU_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_NOTVE_T31]  DEFAULT (1) FOR [NOTVE_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_NOTVN_T31]  DEFAULT (1) FOR [NOTVN_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_SONID_T31]  DEFAULT (' ') FOR [SONID_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_IPADD_T31]  DEFAULT (' ') FOR [IPADD_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_PORT__T31]  DEFAULT (' ') FOR [PORT__T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_EMAIL_T31]  DEFAULT (' ') FOR [EMAIL_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_COMEN_T31]  DEFAULT (' ') FOR [COMEN_T31]
+GO
+ALTER TABLE [dbo].[MST31] ADD  CONSTRAINT [DF_MST31_COPIA_T31]  DEFAULT (' ') FOR [COPIA_T31]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_PROCE_T32]  DEFAULT (' ') FOR [PROCE_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_USUAR_T32]  DEFAULT (' ') FOR [USUAR_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_DESCR_T32]  DEFAULT (' ') FOR [DESCR_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_FRECU_T32]  DEFAULT (' ') FOR [FRECU_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_ACTIV_T32]  DEFAULT (0) FOR [ACTIV_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_NOTCU_T32]  DEFAULT (0) FOR [NOTCU_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_NOTVE_T32]  DEFAULT (0) FOR [NOTVE_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_NOTVN_T32]  DEFAULT (0) FOR [NOTVN_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_SONID_T32]  DEFAULT (' ') FOR [SONID_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_IPADD_T32]  DEFAULT (' ') FOR [IPADD_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_PORT__T32]  DEFAULT (' ') FOR [PORT__T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_EMAIL_T32]  DEFAULT (' ') FOR [EMAIL_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_COMEN_T32]  DEFAULT (' ') FOR [COMEN_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_COPIA_T32]  DEFAULT (' ') FOR [COPIA_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_COPI1_T32]  DEFAULT (' ') FOR [COPI1_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_COPI2_T32]  DEFAULT (' ') FOR [COPI2_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_COPI3_T32]  DEFAULT (' ') FOR [COPI3_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_COPI4_T32]  DEFAULT (' ') FOR [COPI4_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_COPI5_T32]  DEFAULT (' ') FOR [COPI5_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_ARCHI1_T32]  DEFAULT (' ') FOR [ARCH1_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_ARCHI2_T32]  DEFAULT (' ') FOR [ARCH2_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_ARCHI3_T32]  DEFAULT (' ') FOR [ARCH3_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_ARCHI4_T32]  DEFAULT (' ') FOR [ARCH4_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_ARCH5_T32]  DEFAULT (' ') FOR [ARCH5_T32]
+GO
+ALTER TABLE [dbo].[MST32] ADD  CONSTRAINT [DF_MST32_LOCAL_T32]  DEFAULT (' ') FOR [LOCAL_T32]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_PROCE_T33]  DEFAULT (' ') FOR [PROCE_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_USUAR_T33]  DEFAULT (' ') FOR [USUAR_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_DESCR_T33]  DEFAULT (' ') FOR [DESCR_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_FRECU_T33]  DEFAULT (' ') FOR [FRECU_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_SONID_T33]  DEFAULT (' ') FOR [SONID_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_IPADD_T33]  DEFAULT (' ') FOR [IPADD_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_PORT__T33]  DEFAULT (' ') FOR [PORT__T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_EMAIL_T33]  DEFAULT (' ') FOR [EMAIL_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_COMEN_T33]  DEFAULT (' ') FOR [COMEN_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_COPIA_T33]  DEFAULT (' ') FOR [COPIA_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_COPI1_T33]  DEFAULT (' ') FOR [COPI1_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_COPI2_T33]  DEFAULT (' ') FOR [COPI2_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_COPI3_T33]  DEFAULT (' ') FOR [COPI3_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_COPI4_T33]  DEFAULT (' ') FOR [COPI4_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_ARCH1_T33]  DEFAULT (' ') FOR [ARCH1_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_ARCH2_T33]  DEFAULT (' ') FOR [ARCH2_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_ARCH3_T33]  DEFAULT (' ') FOR [ARCH3_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_ARCH4_T33]  DEFAULT (' ') FOR [ARCH4_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_ARCH5_T33]  DEFAULT (' ') FOR [ARCH5_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_LOCAL_T33]  DEFAULT (' ') FOR [LOCAL_T33]
+GO
+ALTER TABLE [dbo].[MST33] ADD  CONSTRAINT [DF_MST33_NUPRO_T33]  DEFAULT (0) FOR [NUPRO_T33]
+GO
+ALTER TABLE [dbo].[MST35] ADD  CONSTRAINT [DF_MST35_USUAR_T35]  DEFAULT (' ') FOR [USUAR_T35]
+GO
+ALTER TABLE [dbo].[MST35] ADD  CONSTRAINT [DF_MST35_INTFA_T35]  DEFAULT (0) FOR [INTFA_T35]
+GO
+ALTER TABLE [dbo].[MST35] ADD  CONSTRAINT [DF_MST35_CAMSA_T35]  DEFAULT (0) FOR [CAMSA_T35]
+GO
+ALTER TABLE [dbo].[MST35] ADD  CONSTRAINT [DF_MST35_CAMRE_T35]  DEFAULT (0) FOR [CAMRE_T35]
+GO
+ALTER TABLE [dbo].[MST35] ADD  CONSTRAINT [DF_MST35_BLO3I_T35]  DEFAULT (0) FOR [BLO3I_T35]
+GO
+ALTER TABLE [dbo].[MST35] ADD  CONSTRAINT [DF_MST35_OBSER_T35]  DEFAULT (' ') FOR [OBSER_T35]
+GO
+ALTER TABLE [dbo].[MST35] ADD  CONSTRAINT [DF_MST35_PASSA_T35]  DEFAULT (' ') FOR [PASSA_T35]
+GO
+ALTER TABLE [dbo].[MST26]  WITH NOCHECK ADD  CONSTRAINT [FK_MST26_MST21] FOREIGN KEY([IDCAB_T26])
+REFERENCES [dbo].[MST21] ([IDCAB_M02])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[MST26] CHECK CONSTRAINT [FK_MST26_MST21]
+GO
+ALTER TABLE [dbo].[MST29]  WITH NOCHECK ADD  CONSTRAINT [FK_MST29_MST21] FOREIGN KEY([IDCAB_T29])
+REFERENCES [dbo].[MST21] ([IDCAB_M02])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[MST29] CHECK CONSTRAINT [FK_MST29_MST21]
+GO
+ALTER TABLE [dbo].[MST34]  WITH NOCHECK ADD  CONSTRAINT [FK_MST34_MST01] FOREIGN KEY([IDCAB_T34])
+REFERENCES [dbo].[MST01] ([IDCAB_T01])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[MST34] CHECK CONSTRAINT [FK_MST34_MST01]
+GO
+/****** Object:  StoredProcedure [dbo].[SP_MST20]    Script Date: 18/02/2023 19:51:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE Procedure [dbo].[SP_MST20]
+@OP Int,
+@Empre_M02 Varchar(2),
+@Clase_M02 Varchar(5),
+@Maest_M02 Varchar(11),
+@Nombr_M02 Varchar(50),
+@Direc_M02 Varchar(40),
+@Conta_M02 Varchar(30),
+@GRUPO_M02 Varchar(12),
+@Provi_M02 Varchar(40),
+@Telef_M02 Float,
+@NuFax_M02 Float
+AS
+If @OP = 1
+   Begin
+	Insert Into MST20(Empre_M02,Clase_M02,Maest_M02,Nombr_M02,Direc_M02,Conta_M02,Distr_M02,Provi_M02,Telef_M02,NuFax_M02)
+	Values(@Empre_M02,@Clase_M02,@Maest_M02,@Nombr_M02,@Direc_M02,@Conta_M02,@GRUPO_M02,@Provi_M02,@Telef_M02,@NuFax_M02)
+   End
+If @OP = 2
+   Begin
+	Update MST20 Set
+	Nombr_M02 = @Nombr_M02,
+	Direc_M02 = @Direc_M02,
+	Conta_M02 = @Conta_M02,
+	GRUPO_M02 = @GRUPO_M02,
+	Provi_M02 = @Provi_M02,
+	Telef_M02 = @Telef_M02,
+	NuFax_M02 = @NuFax_M02
+	Where Maest_M02 = @Maest_M02
+   End
+If @OP = 3 
+   Begin
+	Select * From MST20
+	Where Maest_M02 = @Maest_M02 and Clase_M02 = @Clase_M02
+   End
+If @OP = 4
+   Begin
+	Select * From MST20
+	Where Clase_M02 = @Clase_M02
+	Order By Nombr_M02
+   End
+If @OP = 5
+   Begin
+	Delete From MST20
+	Where Maest_M02 = @Maest_M02 and Clase_M02 = @Clase_M02
+   End
+GO
+/****** Object:  StoredProcedure [dbo].[SP_MST21]    Script Date: 18/02/2023 19:51:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE Procedure [dbo].[SP_MST21]
+@Op 	smallint,
+@EMPRE_M02 VARCHAR(2),
+@UBICA_M02 VARCHAR(7),
+@CLASE_M02 VARCHAR(4),
+@CODMA_M02 Varchar(9), 
+@DESMA_M02 Varchar(50), 
+@OLDMA_M02 Varchar(8), 
+@STACT_M02 Float, 
+@STMIN_M02 Float, 
+@STMAX_M02 Float, 
+@STCOM_M02 Float, 
+@PRECI_M02 Float, 
+@UNIDA_M02 Varchar(20), 
+@UNIMX_M02 Varchar(20), 
+@CTAGA_M02 Varchar(5), 
+@FECHA_M02 DateTime, 
+@USUAR_M02 Varchar(8), 
+@SOLIC_M02 Varchar(15), 
+@ANULA_M02 Bit
+AS
+if @op=1	---Insertar
+   begin 
+	INSERT INTO MST21(EMPRE_M02,UBICA_M02,CLASE_M02,CODMA_M02, DESMA_M02, OLDMA_M02, STACT_M02, STMIN_M02, STMAX_M02, STCOM_M02, PRECI_M02, UNIDA_M02, UNIMX_M02, CTAGA_M02, FECHA_M02, USUAR_M02, SOLIC_M02, ANULA_M02)
+	VALUES(@EMPRE_M02,@UBICA_M02,@CLASE_M02,@CODMA_M02, @DESMA_M02, @OLDMA_M02, @STACT_M02, @STMIN_M02, @STMAX_M02, @STCOM_M02, @PRECI_M02, @UNIDA_M02, @UNIMX_M02, @CTAGA_M02, @FECHA_M02, @USUAR_M02, @SOLIC_M02, @ANULA_M02)
+   end
+if @op=2	---Actualizar
+    begin
+	Update MST21 set
+	DESMA_M02 = @DESMA_M02, 
+	OLDMA_M02 = @OLDMA_M02, 
+	STACT_M02 = @STACT_M02, 
+	STMIN_M02 = @STMIN_M02, 
+	STMAX_M02 = @STMAX_M02, 
+	STCOM_M02 = @STCOM_M02, 
+	PRECI_M02 = @PRECI_M02, 
+	UNIDA_M02 = @UNIDA_M02, 
+	UNIMX_M02 = @UNIMX_M02, 
+	CTAGA_M02 = @CTAGA_M02, 
+	FECHA_M02 = @FECHA_M02, 
+	USUAR_M02 = @USUAR_M02, 
+	SOLIC_M02 = @SOLIC_M02, 
+	ANULA_M02 = @ANULA_M02
+	Where CODMA_M02=@CODMA_M02
+    end
+if @op=3	---Localizar
+	Begin
+	Select * From MST21
+	Where CODMA_M02=@CODMA_M02
+	End
+if @op=4	---Listar
+	Begin
+	Select * From MST21
+	Order by CODMA_M02
+	End
+
+if @op=5	---Eliminar
+	Begin
+	Delete From MST21
+	Where CODMA_M02=@CODMA_M02
+	End
+GO
+/****** Object:  StoredProcedure [dbo].[Sp_MST22]    Script Date: 18/02/2023 19:51:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE Procedure [dbo].[Sp_MST22]
+@Op 		smallint,
+@CDITE_T02	VarChar(4),
+@DSITE_T02	varchar(35)
+AS
+if @op=1	---Insertar
+   begin 
+	INSERT INTO MST22(CDITE_T02,DSITE_T02)
+	VALUES(@CDITE_T02,@DSITE_T02)
+   end
+if @op=2	---Actualizar
+    begin
+	Update MST22 set
+	DSITE_T02 = @DSITE_T02
+	where CDITE_T02=@CDITE_T02
+    end
+if @op=3	---Localizar
+	begin
+	Select * From MST22
+	where CDITE_T02 = @CDITE_T02
+	end
+if @op=4	---Listar
+	begin
+	Select * From MST22
+	order by CDITE_T02
+	end
+
+if @op=5	---Eliminar
+	begin
+	Delete From MST22
+	where CDITE_T02 = @CDITE_T02
+	end
+
+
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'RUTA PARA LSO ARCHIVOS EXPORTADOS PDF, DOC, XLS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'RUTAE_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'PORCENTAJE DE RETENCION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'PORET_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'BASE AFECTA A RETENCION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'BARET_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CUENTA RETENCIONES SOLES' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'CTRES_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CUENTA RETENCIONES DOLARES' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'CTRED_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'NUMERO DE DIAS PARA CAMBIO DE PASSWORD' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'NDPCP_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG PROESOS AUTOMATICOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'FLGPA_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG ENVIO DE CORREOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'FLGEC_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FALG ENVIO RECORDATORIOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST01', @level2type=N'COLUMN',@level2name=N'FLGER_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CODIGO DE EMPRESA (DESCONTINUADO)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'EMPRE_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'NOMBRE DEL USUARIO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'NOMBR_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ABREVIATURA DEL USUARIO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'ABREV_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'COMENTARIOS: CARGO, ETC' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'COMEN_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CODIGO DE SUARIO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'USUAR_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CLAVE DE USUARIO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'PASSW_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'APLICACION PRINCIPAL, POR DEFECTO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'PROCE_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'INFRAESTRUCTURA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'OPCI1_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'MOVIMIENTOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'OPCI2_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ACTUALIZACIONES' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'OPCI3_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CONSULTAS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'OPCI4_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'REPORTES' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'OPCI5_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'UTILITARIOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'OPCI6_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'OPCIONES DE MENU ACTIVOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'OPCIO_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'DIRECCION IP DE LA ESTACION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'IPADD_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'PUERTO PARA NOTIFICACIONES' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'PORT__T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CORREO ELECTRONICO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'EMAIL_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'RUTA DE LA FOTO DEL USUARIO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'FOTO__T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ESTACION POR DEFECTO DEL USUARIO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'COMPU_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI ESTA ACTIVO O NO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'ACTIV_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CODIGO DE GRUPO (POR DESCONTINUAR)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'GRUPO_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'USUARIO CONTABLE (POR DESCONTINUAR)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'USCON_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ADMINISTRADOR SISTEMA TTECNICO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'ADMTC_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG QUE INDICA SI ES UN USUARIO GERENCIAL (NO REQUIERE VALIDAR LOGIN)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'USGER_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CON COPIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'COPIA_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG OBLIGAR A CAMBIAR EL PASSWORD' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'FLOCP_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FECHA ULTIMO CAMBIO DE PASSWORD' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'FUCPW_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI LA CUENTA ESTA BLOQUEADA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'BLOKD_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ADMINISTRADOR DE SISTEMA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST06', @level2type=N'COLUMN',@level2name=N'SYSAD_T06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG CONSOLIDA HUEVOS ROSADOS Y BLANCOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST20', @level2type=N'COLUMN',@level2name=N'CONRB_M02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N''' ''' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST21', @level2type=N'COLUMN',@level2name=N'CTACB_M02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG PARA INDICAR SI EL PRODUCTO AFECTA A LA CATNIDAD PARA EFECTOS DE COSTOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST21', @level2type=N'COLUMN',@level2name=N'CAACT_M02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FECHA DE BAJA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST21', @level2type=N'COLUMN',@level2name=N'FEBAJ_M02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'SUB TIPO NIVEL 3 PPTOS AGRICOLAS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST21', @level2type=N'COLUMN',@level2name=N'SBTN3_M02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CODIGO DE CLASE:  2,3 Y 4 DIGITOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'CDITE_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'DESCRIPCION DE LA CLASE' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'DSITE_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CODIGO OSCE' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'COSCE_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CUENTA CONTABLE ASOCIADA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'CUENT_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI INCLUYE CLASE PARA APLICACIONES DE LIQUIDOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'APLIQ_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI INCLUYE CLASE PARA APLICACIONES DE POLVOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'APPOL_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI INCLUYE CLASE PARA APLICACIONES DE FERTILIZANTES' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'APFER_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI LA CUENTA CONTABLE SE APLCIA A TODA LACALSE O NO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'CBGEN_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI LA CLASE SE INCLUYE EN REPORTES DE COSTOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'COSTO_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI VLIDA SUB TIPO NIVEL 3' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST22', @level2type=N'COLUMN',@level2name=N'FLSN3_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'BASE DE DATOS A SACAR BACKUP' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'BASED_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'EXTENSION DEL ARCHIVO A GENERAR' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'EXTEN_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'TIPO DE SISTEMA (ACCESS, SQL, ETC)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'SISTE_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'NOMBRE DEL ARCHIVO DE SQL A GENERAR' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'NOMBR_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'RUTA DONDE SE GRABARA LA BASE DE DATOS SQL' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'RUTAB_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'NOMBRE DEL ARCHIVO ZIP A GENERAR' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'NOMBZ_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'RUTA DEL ARCHIVO ZIP A GENERAR' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'RUTAZ_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FALG INDICA SI ESTA ACTIVO O NO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'ACTIV_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI SE COPIA EL ARCHIVO ZIP' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'COPYZ_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'RUTA HACIA DONDE SE COPIARA EL ARCHIVO ZIP' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST25', @level2type=N'COLUMN',@level2name=N'RUTCZ_T25'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N''' ''' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST31', @level2type=N'COLUMN',@level2name=N'DESCR_T31'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N''' ''' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST31', @level2type=N'COLUMN',@level2name=N'FRECU_T31'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CON COPIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST31', @level2type=N'COLUMN',@level2name=N'COPIA_T31'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CONTRASEÑA CAMBIADA SATISFACTORIAMENTE PARA PODER VERIFICAR QUE NO LA USEN NUEVAMENTE' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MST35', @level2type=N'COLUMN',@level2name=N'PASSA_T35'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[26] 4[20] 2[5] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "MST21"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 126
+               Right = 198
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "PPT04 (PP.dbo)"
+            Begin Extent = 
+               Top = 6
+               Left = 236
+               Bottom = 126
+               Right = 396
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+      Begin ColumnWidths = 9
+         Width = 284
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'productos_sin_codigo_ppto_asociado_2021'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'productos_sin_codigo_ppto_asociado_2021'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "MST21"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 126
+               Right = 198
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "MST22"
+            Begin Extent = 
+               Top = 6
+               Left = 236
+               Bottom = 126
+               Right = 396
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "MST26"
+            Begin Extent = 
+               Top = 6
+               Left = 434
+               Bottom = 126
+               Right = 594
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+      Begin ColumnWidths = 9
+         Width = 284
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 2355
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'VISTA_VERIFICA_REINGRESO_A_CAMPO'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'VISTA_VERIFICA_REINGRESO_A_CAMPO'
+GO
+USE [master]
+GO
+ALTER DATABASE [MS] SET  READ_WRITE 
+GO

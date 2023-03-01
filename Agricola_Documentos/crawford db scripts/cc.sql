@@ -1,0 +1,3352 @@
+USE [master]
+GO
+/****** Object:  Database [CC]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE DATABASE [CC]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'CC_Data', FILENAME = N'D:\MSSQL14.MSSQLSERVER\MSSQL\DATA\CC.MDF' , SIZE = 8128KB , MAXSIZE = UNLIMITED, FILEGROWTH = 10%)
+ LOG ON 
+( NAME = N'CC_Log', FILENAME = N'D:\MSSQL14.MSSQLSERVER\MSSQL\DATA\CC.LDF' , SIZE = 6272KB , MAXSIZE = UNLIMITED, FILEGROWTH = 10%)
+GO
+ALTER DATABASE [CC] SET COMPATIBILITY_LEVEL = 100
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [CC].[dbo].[sp_fulltext_database] @action = 'disable'
+end
+GO
+ALTER DATABASE [CC] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [CC] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [CC] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [CC] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [CC] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [CC] SET AUTO_CLOSE ON 
+GO
+ALTER DATABASE [CC] SET AUTO_SHRINK ON 
+GO
+ALTER DATABASE [CC] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [CC] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [CC] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [CC] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [CC] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [CC] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [CC] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [CC] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [CC] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [CC] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [CC] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [CC] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [CC] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [CC] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [CC] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [CC] SET RECOVERY SIMPLE 
+GO
+ALTER DATABASE [CC] SET  MULTI_USER 
+GO
+ALTER DATABASE [CC] SET PAGE_VERIFY TORN_PAGE_DETECTION  
+GO
+ALTER DATABASE [CC] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [CC] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [CC] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [CC] SET DELAYED_DURABILITY = DISABLED 
+GO
+ALTER DATABASE [CC] SET QUERY_STORE = OFF
+GO
+USE [CC]
+GO
+/****** Object:  User [usersql]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE USER [usersql] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[usersql]
+GO
+/****** Object:  User [user]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE USER [user] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[user]
+GO
+/****** Object:  User [sqlbackup]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE USER [sqlbackup] WITH DEFAULT_SCHEMA=[sqlbackup]
+GO
+/****** Object:  User [consulta]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE USER [consulta] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[consulta]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [user]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [consulta]
+GO
+/****** Object:  Schema [consulta]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE SCHEMA [consulta]
+GO
+/****** Object:  Schema [sqlbackup]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE SCHEMA [sqlbackup]
+GO
+/****** Object:  Schema [user]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE SCHEMA [user]
+GO
+/****** Object:  Schema [usersql]    Script Date: 18/02/2023 19:47:59 ******/
+CREATE SCHEMA [usersql]
+GO
+/****** Object:  UserDefinedFunction [dbo].[AUDIT_fn_HexToStr]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+create function [dbo].[AUDIT_fn_HexToStr](@hex varbinary(8000))
+returns varchar(8000)
+as
+begin
+declare 
+	@len int,
+	@counter int,
+	@res varchar(8000),
+	@string char(16),
+	@byte binary(1)
+	set @string = '0123456789ABCDEF'
+	set @res = '0x'
+	set @len = datalength(@hex)
+	set @counter = 1
+	while(@counter <= @len)
+	begin
+		set @byte = substring(@hex, @counter, 1)
+		set @res = @res + substring(@string, 1 + @byte/16, 1) + substring(@string, 1 + @byte - (@byte/16)*16, 1)
+		set @counter = @counter + 1
+	end
+	return @res
+end
+GO
+/****** Object:  UserDefinedFunction [dbo].[AUDIT_fn_SqlVariantToString]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+create function [dbo].[AUDIT_fn_SqlVariantToString](@var sql_variant, @string bit)
+returns nvarchar(4000)
+as
+begin
+declare
+@type varchar(20),
+@result nvarchar(4000)
+set @type = cast(SQL_VARIANT_PROPERTY(@var,'BaseType') as varchar(20))
+if (@type='binary' or @type='varbinary')
+	set @result = cast(dbo.AUDIT_fn_HexToStr(cast(@var as varbinary(8000))) as nvarchar(4000))
+else if (@type='float' or @type='real')
+	set @result = convert(nvarchar(4000), @var, 3)
+else if (@type='int'
+	or @type='tinyint'
+	or @type='smallint'
+	or @type='bigint'
+	or @type='bit'
+	or @type='decimal'
+	or @type='numeric'
+	)
+	set @result = convert(nvarchar(4000), @var)
+else if (@type='timestamp')
+	set @result = convert(nvarchar(4000), convert(bigint, @var))
+else if (@string = 1)
+	set @result = 'N''' + convert(nvarchar(4000), @var) + ''''
+else
+	set @result = convert(nvarchar(4000), @var)
+return @result
+end
+GO
+/****** Object:  Table [dbo].[AUDIT_LOG_TRANSACTIONS]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AUDIT_LOG_TRANSACTIONS](
+	[AUDIT_LOG_TRANSACTION_ID] [int] IDENTITY(1,1) NOT NULL,
+	[DATABASE] [nvarchar](128) NOT NULL,
+	[TABLE_NAME] [nvarchar](261) NOT NULL,
+	[TABLE_SCHEMA] [nvarchar](261) NOT NULL,
+	[AUDIT_ACTION_ID] [tinyint] NOT NULL,
+	[HOST_NAME] [varchar](128) NOT NULL,
+	[APP_NAME] [varchar](128) NOT NULL,
+	[MODIFIED_BY] [varchar](128) NOT NULL,
+	[MODIFIED_DATE] [datetime] NOT NULL,
+	[AFFECTED_ROWS] [int] NOT NULL,
+	[SYSOBJ_ID]  AS (object_id([TABLE_NAME])),
+PRIMARY KEY CLUSTERED 
+(
+	[AUDIT_LOG_TRANSACTION_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AUDIT_LOG_DATA]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AUDIT_LOG_DATA](
+	[AUDIT_LOG_DATA_ID] [int] IDENTITY(1,1) NOT NULL,
+	[AUDIT_LOG_TRANSACTION_ID] [int] NOT NULL,
+	[PRIMARY_KEY_DATA] [nvarchar](1500) NOT NULL,
+	[COL_NAME] [nvarchar](128) NOT NULL,
+	[OLD_VALUE_LONG] [ntext] NULL,
+	[NEW_VALUE_LONG] [ntext] NULL,
+	[NEW_VALUE_BLOB] [image] NULL,
+	[NEW_VALUE]  AS (isnull(convert(varchar(8000),[NEW_VALUE_LONG]),convert(varchar(8000),convert(varbinary(8000),substring([NEW_VALUE_BLOB],1,8000))))),
+	[OLD_VALUE]  AS (convert(varchar(8000),[OLD_VALUE_LONG])),
+	[PRIMARY_KEY]  AS ([PRIMARY_KEY_DATA]),
+	[DATA_TYPE] [char](1) NOT NULL,
+	[KEY1] [nvarchar](500) NULL,
+	[KEY2] [nvarchar](500) NULL,
+	[KEY3] [nvarchar](500) NULL,
+	[KEY4] [nvarchar](500) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[AUDIT_LOG_DATA_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[AUDIT_VIEW]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE VIEW [dbo].[AUDIT_VIEW] AS
+/* ------------------------------------------------------------
+VIEW:          AUDIT_VIEW
+DESCRIPTION:   Selects Audit Log records and groups by MODIFIED_DATE and PK
+               effectively grouping audit data by Audit transaction
+   ------------------------------------------------------------ */
+SELECT MAX(t.TABLE_NAME) AS TABLE_NAME,
+    CASE MAX(t.AUDIT_ACTION_ID) 
+    WHEN 1 THEN 'UPDATE' 
+    WHEN 2 THEN 'INSERT' 
+    WHEN 3 THEN 'DELETE' 
+    END AS ACTION, 
+    MAX(t.MODIFIED_BY) AS MODIFIED_BY, 
+    MAX(PRIMARY_KEY_DATA) AS PRIMARY_KEY,
+    COUNT(DISTINCT PRIMARY_KEY_DATA) AS REC_COUNT,
+    CONVERT(varchar(20), MODIFIED_DATE, 113) AS MODIFIED_DATE,
+    Max(HOST_NAME) AS COMPUTER,
+    Max(APP_NAME) as APPLICATION
+FROM dbo.AUDIT_LOG_TRANSACTIONS t
+INNER JOIN dbo.AUDIT_LOG_DATA r ON r.AUDIT_LOG_TRANSACTION_ID = t.AUDIT_LOG_TRANSACTION_ID
+GROUP BY MODIFIED_DATE, PRIMARY_KEY_DATA
+GO
+/****** Object:  View [dbo].[AUDIT_UNDO]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE VIEW [dbo].[AUDIT_UNDO] AS
+SELECT    
+	ALT.AUDIT_LOG_TRANSACTION_ID,    
+	TABLE_NAME = ALT.TABLE_NAME,
+	TABLE_SCHEMA = ALT.TABLE_SCHEMA,
+	CASE    
+		WHEN ALT.AUDIT_ACTION_ID = 3 THEN 'Delete' 
+		WHEN ALT.AUDIT_ACTION_ID = 2 THEN 'Insert'
+		WHEN ALT.AUDIT_ACTION_ID = 1 THEN 'Update'
+	END AS ACTION_NAME,
+	ALT.HOST_NAME,    
+	ALT.APP_NAME,    
+	ALT.MODIFIED_BY,    
+	ALT.MODIFIED_DATE,    
+	ALT.AFFECTED_ROWS,
+	AUDIT_LOG_DATA_ID,  
+	PRIMARY_KEY,  
+	COL_NAME,  
+	OLD_VALUE,  
+	NEW_VALUE,
+	DATA_TYPE      
+FROM AUDIT_LOG_TRANSACTIONS ALT
+	LEFT JOIN  AUDIT_LOG_DATA AD
+		ON AD.AUDIT_LOG_TRANSACTION_ID = ALT.AUDIT_LOG_TRANSACTION_ID
+GO
+/****** Object:  Table [dbo].[CCI01]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI01](
+	[IDCAB_I01] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PERIO_I01] [char](7) NULL,
+	[VOUCH_I01] [char](12) NULL,
+	[fereg_i01] [datetime] NULL,
+	[FEGUI_I01] [datetime] NULL,
+	[SEGUI_I01] [char](4) NULL,
+	[NUGUI_I01] [char](8) NULL,
+	[PPART_I01] [char](100) NULL,
+	[PLLEG_I01] [char](100) NULL,
+	[MAEST_I01] [char](11) NULL,
+	[TIDOC_I01] [char](2) NULL,
+	[SEDOC_I01] [char](4) NULL,
+	[NUDOC_I01] [char](8) NULL,
+	[CMINI_I01] [float] NULL,
+	[TRANS_I01] [char](11) NULL,
+	[DSTRA_I01] [char](50) NULL,
+	[MARCA_I01] [char](15) NULL,
+	[PLACA_I01] [char](10) NULL,
+	[CINSC_I01] [char](15) NULL,
+	[LCOND_I01] [char](15) NULL,
+	[CONDU_I01] [char](50) NULL,
+	[MTRAS_I01] [char](25) NULL,
+	[STATU_I01] [char](12) NULL,
+	[CULTI_I01] [char](4) NULL,
+	[USUAR_I01] [varchar](15) NULL,
+	[TIDES_I01] [char](2) NULL,
+ CONSTRAINT [PK_CCI01] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I01] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI02]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI02](
+	[IDDET_I02] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I02] [int] NOT NULL,
+	[PRODU_I02] [varchar](6) NULL,
+	[DESCR_I02] [varchar](50) NULL,
+	[CALID_I02] [varchar](15) NULL,
+	[CANTI_I02] [float] NULL,
+	[UNIDA_I02] [char](15) NULL,
+	[PESO__I02] [float] NULL,
+	[PORIG_I02] [float] NULL,
+	[FCASI_I02] [char](2) NULL,
+	[PCASI_I02] [float] NULL,
+	[CASIL_I02] [float] NULL,
+	[CAMPO_I02] [char](8) NULL,
+	[CTOTA_I02] [float] NULL,
+	[PACKI_I02] [char](13) NULL,
+	[OVENT_I02] [varchar](8) NULL,
+ CONSTRAINT [PK_CCI02] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I02] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI03]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI03](
+	[IDCAB_I03] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PERIO_I03] [char](7) NULL,
+	[LOCAL_I03] [varchar](2) NULL,
+	[CTPCB_I03] [varchar](8) NULL,
+	[VOUCH_I03] [char](12) NULL,
+	[FEREG_I03] [datetime] NULL,
+	[MAEST_I03] [varchar](11) NULL,
+	[DIREC_I03] [varchar](100) NULL,
+	[NULIQ_I03] [varchar](8) NULL,
+	[SEGUI_I03] [varchar](4) NULL,
+	[NUGUI_I03] [varchar](100) NULL,
+	[FEDOC_I03] [datetime] NULL,
+	[TIDOC_I03] [char](2) NULL,
+	[SEDOC_I03] [varchar](4) NULL,
+	[NUDOC_I03] [varchar](8) NULL,
+	[MONED_I03] [varchar](10) NULL,
+	[TICAM_I03] [float] NULL,
+	[SUBSO_I03] [float] NULL,
+	[IGVSO_I03] [float] NULL,
+	[VALSO_I03] [float] NULL,
+	[SUBDO_I03] [float] NULL,
+	[IGVDO_I03] [float] NULL,
+	[VALDO_I03] [float] NULL,
+	[STATU_I03] [varchar](12) NULL,
+	[CONTA_I03] [char](1) NULL,
+	[FECON_I03] [datetime] NULL,
+	[USUAR_I03] [varchar](12) NULL,
+	[VOUSS_I03] [varchar](8) NULL,
+	[CANFT_I03] [char](1) NULL,
+	[CFTSD_I03] [float] NULL,
+	[CANNF_I03] [char](1) NULL,
+	[CNFSD_I03] [float] NULL,
+	[SUBNF_I03] [float] NULL,
+	[IGVNF_I03] [float] NULL,
+	[VALNF_I03] [float] NULL,
+	[CABCO_I03] [char](1) NULL,
+	[CACAJ_I03] [char](1) NULL,
+	[PRECI_I03] [float] NULL,
+	[IDBCO_I03] [int] NULL,
+	[IDCAJ_I03] [int] NULL,
+	[CULTI_I03] [char](6) NULL,
+	[TIDES_I03] [char](2) NULL,
+	[CANCE_I03] [char](1) NULL,
+	[RENOV_I03] [datetime] NULL,
+	[SALDO_I03] [float] NULL,
+	[POIGV_I03] [float] NULL,
+ CONSTRAINT [PK_CCI03] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I03] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI04]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI04](
+	[IDDET_I04] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I04] [int] NULL,
+	[CANTI_I04] [float] NULL,
+	[UNIDA_I04] [varchar](15) NULL,
+	[PRODU_I04] [varchar](6) NULL,
+	[DESCR_I04] [varchar](50) NULL,
+	[PRECI_I04] [float] NULL,
+	[PACKI_I04] [char](13) NULL,
+	[CTOTA_I04] [float] NULL,
+	[PORIG_I04] [float] NULL,
+	[OVENT_I04] [char](8) NULL,
+	[FCASI_I04] [char](2) NULL,
+	[PCASI_I04] [float] NULL,
+	[SUBTO_I04] [float] NULL,
+	[CASIL_I04] [float] NULL,
+	[CAMPO_I04] [varchar](8) NULL,
+	[COSTO_I04] [varchar](8) NULL,
+	[SUBNF_I04] [float] NULL,
+ CONSTRAINT [PK_CCI04] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I04] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI05]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI05](
+	[IDCAB_I05] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PERIO_I05] [char](7) NULL,
+	[TIVOU_I05] [char](10) NULL,
+	[VOUCH_I05] [char](12) NULL,
+	[FEREG_I05] [datetime] NULL,
+	[TICAM_I05] [float] NULL,
+	[FECHA_I05] [datetime] NULL,
+	[OPERA_I05] [char](50) NULL,
+	[BANCO_I05] [char](8) NULL,
+	[CTCTE_I05] [char](70) NULL,
+	[MAEST_I05] [char](11) NULL,
+	[TIDOC_I05] [char](2) NULL,
+	[NUDOC_I05] [char](8) NULL,
+	[MONED_I05] [char](10) NULL,
+	[ABOSO_I05] [float] NULL,
+	[CARSO_I05] [float] NULL,
+	[ABODO_I05] [float] NULL,
+	[CARDO_I05] [float] NULL,
+	[GLOSA_I05] [char](100) NULL,
+	[IDVSS_I05] [char](12) NULL,
+ CONSTRAINT [PK_CCI05] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I05] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI06]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI06](
+	[IDDET_I06] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I06] [int] NULL,
+	[FDREF_I06] [datetime] NULL,
+	[TDREF_I06] [char](2) NULL,
+	[SDREF_I06] [char](4) NULL,
+	[NDREF_I06] [char](8) NULL,
+	[CAREF_I06] [float] NULL,
+	[UMREF_I06] [char](5) NULL,
+	[DSREF_I06] [char](50) NULL,
+	[PRREF_I06] [float] NULL,
+	[TODRE_I06] [float] NULL,
+	[ICDRE_I06] [float] NULL,
+	[IDFAC_I06] [int] NULL,
+ CONSTRAINT [PK_CCI06] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I06] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI07]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI07](
+	[IDCAB_I07] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PERIO_I07] [char](7) NULL,
+	[TIVOU_I07] [char](10) NULL,
+	[VOUCH_I07] [char](12) NULL,
+	[FEREG_I07] [datetime] NULL,
+	[TICAM_I07] [float] NULL,
+	[FECHA_I07] [datetime] NULL,
+	[OPERA_I07] [char](50) NULL,
+	[BANCO_I07] [char](8) NULL,
+	[CTCTE_I07] [char](70) NULL,
+	[MAEST_I07] [char](11) NULL,
+	[TIDOC_I07] [char](2) NULL,
+	[NUDOC_I07] [char](8) NULL,
+	[MONED_I07] [char](10) NULL,
+	[ABOSO_I07] [float] NULL,
+	[CARSO_I07] [float] NULL,
+	[ABODO_I07] [float] NULL,
+	[CARDO_I07] [float] NULL,
+	[GLOSA_I07] [char](100) NULL,
+ CONSTRAINT [PK_CCI07] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I07] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI08]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI08](
+	[IDDET_I08] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I08] [int] NULL,
+	[FDREF_I08] [datetime] NULL,
+	[TDREF_I08] [char](2) NULL,
+	[SDREF_I08] [char](4) NULL,
+	[NDREF_I08] [char](8) NULL,
+	[CAREF_I08] [float] NULL,
+	[UMREF_I08] [char](5) NULL,
+	[DSREF_I08] [char](50) NULL,
+	[PRREF_I08] [float] NULL,
+	[TODRE_I08] [float] NULL,
+	[ICDRE_I08] [float] NULL,
+	[IDFAC_I08] [int] NULL,
+ CONSTRAINT [PK_CCI08] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I08] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI09]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI09](
+	[IDCAB_I09] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PERIO_I09] [char](7) NULL,
+	[TIVOU_I09] [char](10) NULL,
+	[VOUCH_I09] [char](12) NULL,
+	[FEREG_I09] [datetime] NULL,
+	[TICAM_I09] [float] NULL,
+	[FECHA_I09] [datetime] NULL,
+	[OPERA_I09] [char](50) NULL,
+	[BANCO_I09] [char](8) NULL,
+	[CTCTE_I09] [char](70) NULL,
+	[MAEST_I09] [char](11) NULL,
+	[TIDOC_I09] [char](2) NULL,
+	[NUDOC_I09] [char](8) NULL,
+	[MONED_I09] [char](10) NULL,
+	[ABOSO_I09] [float] NULL,
+	[CARSO_I09] [float] NULL,
+	[ABODO_I09] [float] NULL,
+	[CARDO_I09] [float] NULL,
+	[GLOSA_I09] [char](100) NULL,
+ CONSTRAINT [PK_CCI09] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I09] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI10]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI10](
+	[IDDET_I10] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I10] [int] NULL,
+	[FDREF_I10] [datetime] NULL,
+	[TDREF_I10] [char](2) NULL,
+	[SDREF_I10] [char](4) NULL,
+	[NDREF_I10] [char](8) NULL,
+	[CAREF_I10] [float] NULL,
+	[UMREF_I10] [char](5) NULL,
+	[DSREF_I10] [char](50) NULL,
+	[PRREF_I10] [float] NULL,
+	[TODRE_I10] [float] NULL,
+	[ICDRE_I10] [float] NULL,
+	[IDFAC_I10] [int] NULL,
+ CONSTRAINT [PK_CCI10] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I10] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI11]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI11](
+	[IDCAB_I11] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[LOCAL_I11] [char](2) NULL,
+	[PERIO_I11] [char](7) NULL,
+	[TIVOU_I11] [char](10) NULL,
+	[VOUCH_I11] [char](12) NULL,
+	[FEREG_I11] [datetime] NULL,
+	[TICAM_I11] [float] NULL,
+	[FECHA_I11] [datetime] NULL,
+	[OPERA_I11] [char](50) NULL,
+	[BANCO_I11] [char](8) NULL,
+	[CTCTE_I11] [char](70) NULL,
+	[MAEST_I11] [char](11) NULL,
+	[TIDOC_I11] [char](2) NULL,
+	[NUDOC_I11] [char](8) NULL,
+	[MONED_I11] [char](10) NULL,
+	[ABOSO_I11] [float] NULL,
+	[CARSO_I11] [float] NULL,
+	[ABODO_I11] [float] NULL,
+	[CARDO_I11] [float] NULL,
+	[GLOSA_I11] [char](100) NULL,
+	[DESTI_I11] [char](100) NULL,
+	[RECIB_I11] [char](100) NULL,
+	[APROB_I11] [char](1) NULL,
+	[CONTB_I11] [char](1) NULL,
+ CONSTRAINT [PK_CCI11] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I11] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI12]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI12](
+	[IDDET_I12] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I12] [int] NULL,
+	[FDREF_I12] [datetime] NULL,
+	[TDREF_I12] [char](2) NULL,
+	[SDREF_I12] [char](4) NULL,
+	[NDREF_I12] [char](8) NULL,
+	[CAREF_I12] [float] NULL,
+	[UMREF_I12] [char](5) NULL,
+	[DSREF_I12] [char](50) NULL,
+	[PRREF_I12] [float] NULL,
+	[TODRE_I12] [float] NULL,
+	[ICDRE_I12] [float] NULL,
+	[IDFAC_I12] [int] NULL,
+ CONSTRAINT [PK_CCI12] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I12] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI13]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI13](
+	[IDDET_I13] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I13] [int] NOT NULL,
+	[ITEM__I13] [char](5) NOT NULL,
+	[CUENT_I13] [varchar](8) NOT NULL,
+	[COSTO_I13] [char](8) NULL,
+	[MAEST_I13] [char](11) NULL,
+	[TIDOC_I13] [char](2) NOT NULL,
+	[SEDOC_I13] [char](4) NOT NULL,
+	[NUDOC_I13] [char](10) NOT NULL,
+	[FEDOC_I13] [datetime] NOT NULL,
+	[DEFEC_I13] [char](1) NOT NULL,
+	[SOLES_I13] [float] NOT NULL,
+	[DOLAR_I13] [float] NOT NULL,
+	[REFER_I13] [char](100) NULL,
+ CONSTRAINT [PK_CCI13] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I13] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI18]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI18](
+	[PERIO_I18] [char](7) NULL,
+	[MAEST_I18] [char](11) NULL,
+	[CUENT_I18] [varchar](8) NULL,
+	[FEDOC_I18] [datetime] NULL,
+	[TIMOV_I18] [char](1) NULL,
+	[VOUCH_I18] [char](12) NULL,
+	[TIDOC_I18] [char](2) NULL,
+	[SEDOC_I18] [char](4) NULL,
+	[NUDOC_I18] [varchar](20) NULL,
+	[MONED_I18] [char](1) NULL,
+	[CARSO_I18] [float] NULL,
+	[CARDO_I18] [float] NULL,
+	[TICAM_I18] [float] NULL,
+	[DEFEC_I18] [char](1) NULL,
+	[REFER_I18] [varchar](100) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI30]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI30](
+	[IDCAB_I30] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[VOUCH_I30] [char](12) NULL,
+	[PERIO_I30] [char](7) NULL,
+	[FEREG_I30] [datetime] NULL,
+	[NULIQ_I30] [char](8) NULL,
+	[FEINI_I30] [datetime] NULL,
+	[FEFIN_I30] [datetime] NULL,
+	[MAEST_I30] [char](11) NULL,
+	[TOTKG_I30] [float] NULL,
+	[TOTSO_I30] [float] NULL,
+	[TOTDO_I30] [float] NULL,
+	[MONED_I30] [char](12) NULL,
+	[STATU_I30] [char](12) NULL,
+	[PRLIQ_I30] [float] NULL,
+	[CULTI_I30] [char](4) NULL,
+ CONSTRAINT [PK_CCI30] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I30] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI31]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI31](
+	[FECHA_I31] [datetime] NULL,
+	[RUBRO_I31] [varchar](2) NULL,
+	[SUBRU_I31] [varchar](10) NULL,
+	[PRODU_I31] [varchar](17) NULL,
+	[CONCE_I31] [varchar](50) NULL,
+	[CJDIA_I31] [float] NULL,
+	[KGDIA_I31] [float] NULL,
+	[PODIA_I31] [float] NULL,
+	[CJACU_I31] [float] NULL,
+	[KGACU_I31] [float] NULL,
+	[POACU_I31] [float] NULL,
+	[CULTI_I31] [varchar](4) NULL,
+	[CAMPO_I31] [varchar](8) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI32]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI32](
+	[NULIQ_I32] [varchar](12) NULL,
+	[FECHA_I32] [datetime] NULL,
+	[NGUIA_I32] [varchar](12) NULL,
+	[NBOLE_I32] [varchar](12) NULL,
+	[NENTR_I32] [int] NULL,
+	[PNETO_I32] [int] NULL,
+	[CALI1_I32] [varchar](10) NULL,
+	[KILO1_I32] [float] NULL,
+	[PORC1_I32] [float] NULL,
+	[CALI2_I32] [varchar](10) NULL,
+	[KILO2_I32] [float] NULL,
+	[PORC2_I32] [float] NULL,
+	[CALI3_I32] [varchar](10) NULL,
+	[KILO3_I32] [float] NULL,
+	[PORC3_I32] [float] NULL,
+	[CALI4_I32] [varchar](10) NULL,
+	[KILO4_I32] [float] NULL,
+	[PORC4_I32] [float] NULL,
+	[CALI5_I32] [varchar](10) NULL,
+	[KILO5_I32] [float] NULL,
+	[PORC5_I32] [float] NULL,
+	[CALI6_I32] [varchar](10) NULL,
+	[KILO6_I32] [float] NULL,
+	[PORC6_I32] [float] NULL,
+	[CALI7_I32] [varchar](10) NULL,
+	[KILO7_I32] [float] NULL,
+	[PORC7_I32] [float] NULL,
+	[CALI8_I32] [varchar](10) NULL,
+	[KILO8_I32] [float] NULL,
+	[PORC8_I32] [float] NULL,
+	[CALI9_I32] [varchar](10) NULL,
+	[KILO9_I32] [float] NULL,
+	[PORC9_I32] [float] NULL,
+	[CAMPO_I32] [varchar](8) NULL,
+	[TRANS_I32] [bit] NULL,
+	[IDTRA_I32] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PRECI_I32] [float] NULL,
+ CONSTRAINT [PK_CCI32] PRIMARY KEY CLUSTERED 
+(
+	[IDTRA_I32] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCI33]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCI33](
+	[FECHA_I33] [datetime] NULL,
+	[NENTR_I33] [int] NULL,
+	[PNETO_I33] [int] NULL,
+	[CAL01_I33] [varchar](10) NULL,
+	[POR01_I33] [float] NULL,
+	[CAL02_I33] [varchar](10) NULL,
+	[POR02_I33] [float] NULL,
+	[CAL03_I33] [varchar](10) NULL,
+	[POR03_I33] [float] NULL,
+	[CAL04_I33] [varchar](10) NULL,
+	[POR04_I33] [float] NULL,
+	[CAL05_I33] [varchar](10) NULL,
+	[POR05_I33] [float] NULL,
+	[CAL06_I33] [varchar](10) NULL,
+	[POR06_I33] [float] NULL,
+	[CAL07_I33] [varchar](10) NULL,
+	[POR07_I33] [float] NULL,
+	[CAL08_I33] [varchar](10) NULL,
+	[POR08_I33] [float] NULL,
+	[CAL09_I33] [varchar](10) NULL,
+	[POR09_I33] [float] NULL,
+	[CAL10_I33] [varchar](10) NULL,
+	[POR10_I33] [float] NULL,
+	[CAL11_I33] [varchar](10) NULL,
+	[POR11_I33] [float] NULL,
+	[CAL12_I33] [varchar](10) NULL,
+	[POR12_I33] [float] NULL,
+	[CAL13_I33] [varchar](10) NULL,
+	[POR13_I33] [float] NULL,
+	[CAL14_I33] [varchar](10) NULL,
+	[POR14_I33] [float] NULL,
+	[CAL15_I33] [varchar](10) NULL,
+	[POR15_I33] [float] NULL,
+	[CAL16_I33] [varchar](10) NULL,
+	[POR16_I33] [float] NULL,
+	[CAMPO_I33] [varchar](8) NULL,
+	[TRANS_I33] [bit] NULL,
+	[IDTRA_I33] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCM01]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCM01](
+	[CODIG_M01] [char](8) NULL,
+	[DESCR_M01] [char](50) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCR01]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCR01](
+	[PERIO_R01] [char](7) NULL,
+	[MAEST_R01] [char](11) NULL,
+	[FEDOC_R01] [datetime] NULL,
+	[TIMOV_R01] [char](1) NULL,
+	[CUENT_R01] [char](25) NULL,
+	[TIDOC_R01] [char](2) NULL,
+	[VOUCH_R01] [char](12) NULL,
+	[MONED_R01] [char](1) NULL,
+	[DEFEC_R01] [char](1) NULL,
+	[NUSER_R01] [char](4) NULL,
+	[NUDOC_R01] [char](8) NULL,
+	[ABOSO_R01] [float] NULL,
+	[CARSO_R01] [float] NULL,
+	[ABODO_R01] [float] NULL,
+	[CARDO_R01] [float] NULL,
+	[TICAM_R01] [float] NULL,
+	[OVENT_R01] [char](8) NULL,
+	[CANTI_R01] [float] NULL,
+	[DESCR_R01] [char](60) NULL,
+	[PRECI_R01] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCR0205]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCR0205](
+	[EMPRE_R02] [char](2) NULL,
+	[CLASE_R02] [char](5) NULL,
+	[MAEST_R02] [char](11) NULL,
+	[DEB00_R02] [float] NULL,
+	[HAB00_R02] [float] NULL,
+	[DEB01_R02] [float] NULL,
+	[HAB01_R02] [float] NULL,
+	[DEB02_R02] [float] NULL,
+	[HAB02_R02] [float] NULL,
+	[DEB03_R02] [float] NULL,
+	[HAB03_R02] [float] NULL,
+	[DEB04_R02] [float] NULL,
+	[HAB04_R02] [float] NULL,
+	[DEB05_R02] [float] NULL,
+	[HAB05_R02] [float] NULL,
+	[DEB06_R02] [float] NULL,
+	[HAB06_R02] [float] NULL,
+	[DEB07_R02] [float] NULL,
+	[HAB07_R02] [float] NULL,
+	[DEB08_R02] [float] NULL,
+	[HAB08_R02] [float] NULL,
+	[DEB09_R02] [float] NULL,
+	[HAB09_R02] [float] NULL,
+	[DEB10_R02] [float] NULL,
+	[HAB10_R02] [float] NULL,
+	[DEB11_R02] [float] NULL,
+	[HAB11_R02] [float] NULL,
+	[DEB12_R02] [float] NULL,
+	[HAB12_R02] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCR0206]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCR0206](
+	[EMPRE_R02] [char](2) NULL,
+	[CLASE_R02] [char](5) NULL,
+	[MAEST_R02] [char](11) NULL,
+	[DEB00_R02] [float] NULL,
+	[HAB00_R02] [float] NULL,
+	[DEB01_R02] [float] NULL,
+	[HAB01_R02] [float] NULL,
+	[DEB02_R02] [float] NULL,
+	[HAB02_R02] [float] NULL,
+	[DEB03_R02] [float] NULL,
+	[HAB03_R02] [float] NULL,
+	[DEB04_R02] [float] NULL,
+	[HAB04_R02] [float] NULL,
+	[DEB05_R02] [float] NULL,
+	[HAB05_R02] [float] NULL,
+	[DEB06_R02] [float] NULL,
+	[HAB06_R02] [float] NULL,
+	[DEB07_R02] [float] NULL,
+	[HAB07_R02] [float] NULL,
+	[DEB08_R02] [float] NULL,
+	[HAB08_R02] [float] NULL,
+	[DEB09_R02] [float] NULL,
+	[HAB09_R02] [float] NULL,
+	[DEB10_R02] [float] NULL,
+	[HAB10_R02] [float] NULL,
+	[DEB11_R02] [float] NULL,
+	[HAB11_R02] [float] NULL,
+	[DEB12_R02] [float] NULL,
+	[HAB12_R02] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCR0207]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCR0207](
+	[EMPRE_R02] [char](2) NOT NULL,
+	[CLASE_R02] [char](5) NOT NULL,
+	[MAEST_R02] [char](11) NOT NULL,
+	[DEB00_R02] [float] NULL,
+	[HAB00_R02] [float] NULL,
+	[DEB01_R02] [float] NULL,
+	[HAB01_R02] [float] NULL,
+	[DEB02_R02] [float] NULL,
+	[HAB02_R02] [float] NULL,
+	[DEB03_R02] [float] NULL,
+	[HAB03_R02] [float] NULL,
+	[DEB04_R02] [float] NULL,
+	[HAB04_R02] [float] NULL,
+	[DEB05_R02] [float] NULL,
+	[HAB05_R02] [float] NULL,
+	[DEB06_R02] [float] NULL,
+	[HAB06_R02] [float] NULL,
+	[DEB07_R02] [float] NULL,
+	[HAB07_R02] [float] NULL,
+	[DEB08_R02] [float] NULL,
+	[HAB08_R02] [float] NULL,
+	[DEB09_R02] [float] NULL,
+	[HAB09_R02] [float] NULL,
+	[DEB10_R02] [float] NULL,
+	[HAB10_R02] [float] NULL,
+	[DEB11_R02] [float] NULL,
+	[HAB11_R02] [float] NULL,
+	[DEB12_R02] [float] NULL,
+	[HAB12_R02] [float] NULL,
+ CONSTRAINT [PK_CCR0207] PRIMARY KEY CLUSTERED 
+(
+	[EMPRE_R02] ASC,
+	[CLASE_R02] ASC,
+	[MAEST_R02] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCR0208]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCR0208](
+	[EMPRE_R02] [char](2) NOT NULL,
+	[CLASE_R02] [char](5) NOT NULL,
+	[MAEST_R02] [char](11) NOT NULL,
+	[DEB00_R02] [float] NULL,
+	[HAB00_R02] [float] NULL,
+	[DEB01_R02] [float] NULL,
+	[HAB01_R02] [float] NULL,
+	[DEB02_R02] [float] NULL,
+	[HAB02_R02] [float] NULL,
+	[DEB03_R02] [float] NULL,
+	[HAB03_R02] [float] NULL,
+	[DEB04_R02] [float] NULL,
+	[HAB04_R02] [float] NULL,
+	[DEB05_R02] [float] NULL,
+	[HAB05_R02] [float] NULL,
+	[DEB06_R02] [float] NULL,
+	[HAB06_R02] [float] NULL,
+	[DEB07_R02] [float] NULL,
+	[HAB07_R02] [float] NULL,
+	[DEB08_R02] [float] NULL,
+	[HAB08_R02] [float] NULL,
+	[DEB09_R02] [float] NULL,
+	[HAB09_R02] [float] NULL,
+	[DEB10_R02] [float] NULL,
+	[HAB10_R02] [float] NULL,
+	[DEB11_R02] [float] NULL,
+	[HAB11_R02] [float] NULL,
+	[DEB12_R02] [float] NULL,
+	[HAB12_R02] [float] NULL,
+ CONSTRAINT [PK_CCR0208] PRIMARY KEY CLUSTERED 
+(
+	[EMPRE_R02] ASC,
+	[CLASE_R02] ASC,
+	[MAEST_R02] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCT01]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCT01](
+	[CODIG_T01] [char](11) NULL,
+	[DESCR_T01] [char](50) NULL,
+	[MARCA_T01] [char](15) NULL,
+	[PLACA_T01] [char](10) NULL,
+	[CINSC_T01] [char](15) NULL,
+	[LCOND_T01] [char](15) NULL,
+	[CONDU_T01] [char](50) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCT02]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCT02](
+	[CODIG_T02] [varchar](8) NULL,
+	[DESCR_T02] [char](40) NULL,
+	[MONED_T02] [char](1) NULL,
+	[NUMER_T02] [char](20) NULL,
+	[SUBDI_T02] [char](2) NULL,
+	[BANCO_T02] [char](2) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCT03]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCT03](
+	[CODIG_T03] [char](2) NULL,
+	[DESCR_T03] [char](30) NULL,
+	[ABREV_T03] [char](2) NULL,
+	[TIPOP_T03] [char](1) NULL,
+	[SUBDI_T03] [char](2) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCT04]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCT04](
+	[CODIG_T04] [char](2) NULL,
+	[DESCR_T04] [char](30) NULL,
+	[ABREV_T04] [char](2) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCT05]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCT05](
+	[CODIG_T05] [char](8) NOT NULL,
+	[DESCR_T05] [char](50) NULL,
+	[MONED_T05] [char](1) NULL,
+	[SUBDI_T05] [char](2) NULL,
+	[CUENT_T05] [varchar](8) NULL,
+	[CTIGV_T05] [varchar](8) NULL,
+	[TANEX_T05] [char](2) NULL,
+	[TIDOC_T05] [char](2) NULL,
+	[TGIRO_T05] [char](2) NULL,
+	[CONVE_T05] [char](3) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCT06]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCT06](
+	[CODIG_T06] [char](2) NULL,
+	[DESCR_T06] [varchar](50) NULL,
+	[ABREV_T06] [varchar](10) NOT NULL,
+ CONSTRAINT [PK_CCT06] PRIMARY KEY CLUSTERED 
+(
+	[ABREV_T06] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCT11]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCT11](
+	[CODIG_T11] [char](2) NOT NULL,
+	[DESCR_T11] [varchar](50) NULL,
+	[ABREV_T11] [varchar](5) NOT NULL,
+ CONSTRAINT [PK_CCT11] PRIMARY KEY CLUSTERED 
+(
+	[CODIG_T11] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCW01]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCW01](
+	[EMPRE_W01] [char](2) NULL,
+	[CLASE_W01] [char](5) NULL,
+	[MAEST_W01] [char](11) NULL,
+	[NOMBR_W01] [char](50) NULL,
+	[CARGO_W01] [float] NULL,
+	[ABONO_W01] [float] NULL,
+	[SALDO_W01] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCW02]    Script Date: 18/02/2023 19:47:59 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCW02](
+	[GRUPO_W02] [char](12) NULL,
+	[PERIO_W02] [char](7) NULL,
+	[MAEST_W02] [char](11) NULL,
+	[NOMBR_W02] [char](50) NULL,
+	[FEDOC_W02] [datetime] NULL,
+	[TIMOV_W02] [char](1) NULL,
+	[CUENT_W02] [char](25) NULL,
+	[TIDOC_W02] [char](2) NULL,
+	[VOUCH_W02] [char](12) NULL,
+	[MONED_W02] [char](1) NULL,
+	[DEFEC_W02] [char](1) NULL,
+	[NUSER_W02] [char](4) NULL,
+	[NUDOC_W02] [char](8) NULL,
+	[ABOSO_W02] [float] NULL,
+	[CARSO_W02] [float] NULL,
+	[ABODO_W02] [float] NULL,
+	[CARDO_W02] [float] NULL,
+	[SALDO_W02] [float] NULL,
+	[TICAM_W02] [float] NULL,
+	[OVENT_W02] [char](8) NULL,
+	[CANTI_W02] [float] NULL,
+	[DESCR_W02] [char](60) NULL,
+	[PRECI_W02] [float] NULL,
+	[SECUE_W02] [int] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCW03]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCW03](
+	[CAMPO_W03] [char](8) NULL,
+	[SEGUI_W03] [char](4) NULL,
+	[NUGUI_W03] [char](8) NULL,
+	[FECHA_W03] [datetime] NULL,
+	[KILOS_W03] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCW04]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCW04](
+	[CAMPO_W04] [char](8) NULL,
+	[SEGUI_W04] [char](4) NULL,
+	[NUGUI_W04] [char](8) NULL,
+	[FECHA_W04] [datetime] NULL,
+	[KILOS_W04] [float] NULL,
+	[VENTA_W04] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CCW05]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CCW05](
+	[RUBRO_W05] [varchar](2) NULL,
+	[SUBRU_W05] [varchar](10) NULL,
+	[PRODU_W05] [varchar](17) NULL,
+	[CONCE_W05] [varchar](50) NULL,
+	[FECHA_W05] [datetime] NULL,
+	[CJDIA_W05] [float] NULL,
+	[KGDIA_W05] [float] NULL,
+	[PODIA_W05] [float] NULL,
+	[CULTI_W05] [varchar](4) NULL,
+	[USUAR_W05] [varchar](20) NULL,
+	[COMPU_W05] [varchar](20) NULL,
+	[CAMPO_W05] [varchar](8) NULL
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IDX1_AUDIT_LOG_DATA]    Script Date: 18/02/2023 19:48:00 ******/
+CREATE NONCLUSTERED INDEX [IDX1_AUDIT_LOG_DATA] ON [dbo].[AUDIT_LOG_DATA]
+(
+	[COL_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IDX2_AUDIT_LOG_DATA]    Script Date: 18/02/2023 19:48:00 ******/
+CREATE NONCLUSTERED INDEX [IDX2_AUDIT_LOG_DATA] ON [dbo].[AUDIT_LOG_DATA]
+(
+	[AUDIT_LOG_TRANSACTION_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IDX1_AUDIT_LOG_TRANSACTIONS]    Script Date: 18/02/2023 19:48:00 ******/
+CREATE NONCLUSTERED INDEX [IDX1_AUDIT_LOG_TRANSACTIONS] ON [dbo].[AUDIT_LOG_TRANSACTIONS]
+(
+	[TABLE_NAME] ASC,
+	[AUDIT_ACTION_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IDX2_AUDIT_LOG_TRANSACTIONS]    Script Date: 18/02/2023 19:48:00 ******/
+CREATE NONCLUSTERED INDEX [IDX2_AUDIT_LOG_TRANSACTIONS] ON [dbo].[AUDIT_LOG_TRANSACTIONS]
+(
+	[MODIFIED_DATE] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IDX3_AUDIT_LOG_TRANSACTIONS]    Script Date: 18/02/2023 19:48:00 ******/
+CREATE NONCLUSTERED INDEX [IDX3_AUDIT_LOG_TRANSACTIONS] ON [dbo].[AUDIT_LOG_TRANSACTIONS]
+(
+	[MODIFIED_BY] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IDX4_AUDIT_LOG_TRANSACTIONS]    Script Date: 18/02/2023 19:48:00 ******/
+CREATE NONCLUSTERED INDEX [IDX4_AUDIT_LOG_TRANSACTIONS] ON [dbo].[AUDIT_LOG_TRANSACTIONS]
+(
+	[HOST_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[AUDIT_LOG_DATA] ADD  DEFAULT ('A') FOR [DATA_TYPE]
+GO
+ALTER TABLE [dbo].[AUDIT_LOG_TRANSACTIONS] ADD  DEFAULT (db_name()) FOR [DATABASE]
+GO
+ALTER TABLE [dbo].[CCI01] ADD  CONSTRAINT [DF_CCI01_STATU_I01]  DEFAULT ('01 PENDIENTE') FOR [STATU_I01]
+GO
+ALTER TABLE [dbo].[CCI01] ADD  CONSTRAINT [DF_CCI01_CULTI_I01]  DEFAULT (' ') FOR [CULTI_I01]
+GO
+ALTER TABLE [dbo].[CCI01] ADD  CONSTRAINT [DF_CCI01_TIDES_I01]  DEFAULT (' ') FOR [TIDES_I01]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_DESCR_I02]  DEFAULT ('HUEVOS ROSADOS') FOR [DESCR_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_CANTI_I02]  DEFAULT (0) FOR [CANTI_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_UNIDA_I02]  DEFAULT ('K.G.') FOR [UNIDA_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_PESO__I02]  DEFAULT (0) FOR [PESO__I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_PORIG_I02]  DEFAULT (0) FOR [PORIG_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_FCASI_I02]  DEFAULT ('SI') FOR [FCASI_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_PCASI_I02]  DEFAULT (12) FOR [PCASI_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_CASIL_I02]  DEFAULT (0) FOR [CASIL_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_CTOTA_I02]  DEFAULT (0) FOR [CTOTA_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_PACKI_I02]  DEFAULT ('000') FOR [PACKI_I02]
+GO
+ALTER TABLE [dbo].[CCI02] ADD  CONSTRAINT [DF_CCI02_OVENT_I02]  DEFAULT ('0000') FOR [OVENT_I02]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_LOCAL_I03]  DEFAULT (' ') FOR [LOCAL_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CTPCB_I03]  DEFAULT (' ') FOR [CTPCB_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_NULIQ_I03]  DEFAULT (' ') FOR [NULIQ_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_MONED_I03]  DEFAULT (' ') FOR [MONED_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_TICAM_I03]  DEFAULT (0) FOR [TICAM_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_SUBSO_I03]  DEFAULT (0) FOR [SUBSO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_IGVSO_I03]  DEFAULT (0) FOR [IGVSO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_VALSO_I03]  DEFAULT (0) FOR [VALSO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_SUBDO_I03]  DEFAULT (0) FOR [SUBDO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_IGVDO_I03]  DEFAULT (0) FOR [IGVDO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_VALDO_I03]  DEFAULT (0) FOR [VALDO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_STATU_I03]  DEFAULT (' ') FOR [STATU_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CONTA_I03]  DEFAULT ('N') FOR [CONTA_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_USUAR_I03]  DEFAULT (' ') FOR [USUAR_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_VOUSS_I03]  DEFAULT (' ') FOR [VOUSS_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CANFT_I03]  DEFAULT ('N') FOR [CANFT_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CFTSD_I03]  DEFAULT (0) FOR [CFTSD_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CANNF_I03]  DEFAULT ('N') FOR [CANNF_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CNFSD_I03]  DEFAULT (0) FOR [CNFSD_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_SUBNF_I03]  DEFAULT (0) FOR [SUBNF_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_IGVNF_I03]  DEFAULT (0) FOR [IGVNF_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_VALNF_I03]  DEFAULT (0) FOR [VALNF_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CABCO_I03]  DEFAULT ('N') FOR [CABCO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CACAJ_I03]  DEFAULT ('N') FOR [CACAJ_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_PRECI_I03]  DEFAULT (0) FOR [PRECI_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_IDBCO_I03]  DEFAULT (0) FOR [IDBCO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_IDCAJ_I03]  DEFAULT (0) FOR [IDCAJ_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CULTI_I03]  DEFAULT (' ') FOR [CULTI_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_TIDES_I03]  DEFAULT (' ') FOR [TIDES_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_CANCE_I03]  DEFAULT ('N') FOR [CANCE_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_SALDO_I03]  DEFAULT (0) FOR [SALDO_I03]
+GO
+ALTER TABLE [dbo].[CCI03] ADD  CONSTRAINT [DF_CCI03_POIGV_I03]  DEFAULT (0.19) FOR [POIGV_I03]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_CANTI_I04]  DEFAULT (0) FOR [CANTI_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_UNIDA_I04]  DEFAULT ('K.G.') FOR [UNIDA_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_PRODU_I04]  DEFAULT (' ') FOR [PRODU_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_DESCR_I04]  DEFAULT ('HUEVOS ROSADOS') FOR [DESCR_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_PRECI_I04]  DEFAULT (0) FOR [PRECI_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_PACKI_I04]  DEFAULT (0) FOR [PACKI_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_CTOTA_I04]  DEFAULT (0) FOR [CTOTA_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_PORIG_I04]  DEFAULT (0) FOR [PORIG_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_OVENT_I04]  DEFAULT (0) FOR [OVENT_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_FCASI_I04]  DEFAULT ('SI') FOR [FCASI_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_PCASI_I04]  DEFAULT (12) FOR [PCASI_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_SUBTO_I04]  DEFAULT (0) FOR [SUBTO_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_COSTO_I04]  DEFAULT (' ') FOR [COSTO_I04]
+GO
+ALTER TABLE [dbo].[CCI04] ADD  CONSTRAINT [DF_CCI04_SUBNF_I04]  DEFAULT (0) FOR [SUBNF_I04]
+GO
+ALTER TABLE [dbo].[CCI05] ADD  CONSTRAINT [DF_CCI05_TICAM_I05]  DEFAULT (0) FOR [TICAM_I05]
+GO
+ALTER TABLE [dbo].[CCI05] ADD  CONSTRAINT [DF_CCI05_ABOSO_I05]  DEFAULT (0) FOR [ABOSO_I05]
+GO
+ALTER TABLE [dbo].[CCI05] ADD  CONSTRAINT [DF_CCI05_CARSO_I05]  DEFAULT (0) FOR [CARSO_I05]
+GO
+ALTER TABLE [dbo].[CCI05] ADD  CONSTRAINT [DF_CCI05_ABODO_I05]  DEFAULT (0) FOR [ABODO_I05]
+GO
+ALTER TABLE [dbo].[CCI05] ADD  CONSTRAINT [DF_CCI05_CARDO_I05]  DEFAULT (0) FOR [CARDO_I05]
+GO
+ALTER TABLE [dbo].[CCI06] ADD  CONSTRAINT [DF_CCI06_CAREF_I06]  DEFAULT (0) FOR [CAREF_I06]
+GO
+ALTER TABLE [dbo].[CCI06] ADD  CONSTRAINT [DF_CCI06_PRREF_I06]  DEFAULT (0) FOR [PRREF_I06]
+GO
+ALTER TABLE [dbo].[CCI06] ADD  CONSTRAINT [DF_CCI06_TODRE_I06]  DEFAULT (0) FOR [TODRE_I06]
+GO
+ALTER TABLE [dbo].[CCI06] ADD  CONSTRAINT [DF_CCI06_ICDRE_I06]  DEFAULT (0) FOR [ICDRE_I06]
+GO
+ALTER TABLE [dbo].[CCI07] ADD  CONSTRAINT [DF_CCI07_TICAM_I07]  DEFAULT (0) FOR [TICAM_I07]
+GO
+ALTER TABLE [dbo].[CCI07] ADD  CONSTRAINT [DF_CCI06_ABOSO_I06]  DEFAULT (0) FOR [ABOSO_I07]
+GO
+ALTER TABLE [dbo].[CCI07] ADD  CONSTRAINT [DF_CCI06_CARSO_I06]  DEFAULT (0) FOR [CARSO_I07]
+GO
+ALTER TABLE [dbo].[CCI07] ADD  CONSTRAINT [DF_CCI06_ABODO_I06]  DEFAULT (0) FOR [ABODO_I07]
+GO
+ALTER TABLE [dbo].[CCI07] ADD  CONSTRAINT [DF_CCI06_CARDO_I06]  DEFAULT (0) FOR [CARDO_I07]
+GO
+ALTER TABLE [dbo].[CCI30] ADD  CONSTRAINT [DF_CCI30_TOTKG_I30]  DEFAULT (0) FOR [TOTKG_I30]
+GO
+ALTER TABLE [dbo].[CCI30] ADD  CONSTRAINT [DF_CCI30_TOTSO_I30]  DEFAULT (0) FOR [TOTSO_I30]
+GO
+ALTER TABLE [dbo].[CCI30] ADD  CONSTRAINT [DF_CCI30_TOTDO_I30]  DEFAULT (0) FOR [TOTDO_I30]
+GO
+ALTER TABLE [dbo].[CCI30] ADD  CONSTRAINT [DF_CCI30_PRLIQ_I30]  DEFAULT (0) FOR [PRLIQ_I30]
+GO
+ALTER TABLE [dbo].[CCI30] ADD  CONSTRAINT [DF_CCI30_CULTI_I30]  DEFAULT (' ') FOR [CULTI_I30]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_RUBRO_I31]  DEFAULT (' ') FOR [RUBRO_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_SUBRU_I31]  DEFAULT (' ') FOR [SUBRU_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_PRODU_I31]  DEFAULT (' ') FOR [PRODU_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_CONCE_I31]  DEFAULT (' ') FOR [CONCE_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_CJDIA_I31]  DEFAULT (0) FOR [CJDIA_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_KGDIA_I31]  DEFAULT (0) FOR [KGDIA_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_PODIA_I31]  DEFAULT (0) FOR [PODIA_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_CJACU_I31]  DEFAULT (0) FOR [CJACU_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_KGACU_I31]  DEFAULT (0) FOR [KGACU_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_POACU_I31]  DEFAULT (0) FOR [POACU_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_CULTI_I31]  DEFAULT (' ') FOR [CULTI_I31]
+GO
+ALTER TABLE [dbo].[CCI31] ADD  CONSTRAINT [DF_CCI31_CAMPO_I31]  DEFAULT (' ') FOR [CAMPO_I31]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_NGUIA_I32]  DEFAULT (' ') FOR [NGUIA_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_NBOLE_I32]  DEFAULT (' ') FOR [NBOLE_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_NENTR_I32]  DEFAULT (0) FOR [NENTR_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PNETO_I32]  DEFAULT (0) FOR [PNETO_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB1_I32]  DEFAULT (' ') FOR [CALI1_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO1_I32]  DEFAULT (0) FOR [KILO1_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC1_I32]  DEFAULT (0) FOR [PORC1_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB2_I32]  DEFAULT (' ') FOR [CALI2_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO2_I32]  DEFAULT (0) FOR [KILO2_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC2_I32]  DEFAULT (0) FOR [PORC2_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB3_I32]  DEFAULT (' ') FOR [CALI3_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO3_I32]  DEFAULT (0) FOR [KILO3_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC3_I32]  DEFAULT (0) FOR [PORC3_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB4_I32]  DEFAULT (' ') FOR [CALI4_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO4_I32]  DEFAULT (0) FOR [KILO4_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC4_I32]  DEFAULT (0) FOR [PORC4_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB5_I32]  DEFAULT (' ') FOR [CALI5_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO5_I32]  DEFAULT (0) FOR [KILO5_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC5_I32]  DEFAULT (0) FOR [PORC5_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB6_I32]  DEFAULT (' ') FOR [CALI6_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO6_I32]  DEFAULT (0) FOR [KILO6_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC6_I32]  DEFAULT (0) FOR [PORC6_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB7_I32]  DEFAULT (' ') FOR [CALI7_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO7_I32]  DEFAULT (0) FOR [KILO7_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC7_I32]  DEFAULT (0) FOR [PORC7_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB8_I32]  DEFAULT (' ') FOR [CALI8_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO8_I32]  DEFAULT (0) FOR [KILO8_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC8_I32]  DEFAULT (0) FOR [PORC8_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CALIB9_I32]  DEFAULT (' ') FOR [CALI9_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_KILO9_I32]  DEFAULT (0) FOR [KILO9_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PORC9_I32]  DEFAULT (0) FOR [PORC9_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_CAMPO_I32]  DEFAULT (' ') FOR [CAMPO_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_TRANS_I32]  DEFAULT (0) FOR [TRANS_I32]
+GO
+ALTER TABLE [dbo].[CCI32] ADD  CONSTRAINT [DF_CCI32_PRECI_I32]  DEFAULT (0) FOR [PRECI_I32]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_FECHA_I33]  DEFAULT (0) FOR [FECHA_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_NENTR_I33]  DEFAULT (0) FOR [NENTR_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_PNETO_I33]  DEFAULT (0) FOR [PNETO_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL01_I33]  DEFAULT (' ') FOR [CAL01_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR01_I33]  DEFAULT (0) FOR [POR01_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL02_I33]  DEFAULT (' ') FOR [CAL02_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR02_I33]  DEFAULT (0) FOR [POR02_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL03_I33]  DEFAULT (' ') FOR [CAL03_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR03_I33]  DEFAULT (0) FOR [POR03_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL04_I33]  DEFAULT (' ') FOR [CAL04_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR04_I33]  DEFAULT (0) FOR [POR04_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL05_I33]  DEFAULT (' ') FOR [CAL05_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR05_I33]  DEFAULT (0) FOR [POR05_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL06_I33]  DEFAULT (' ') FOR [CAL06_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR06_I33]  DEFAULT (0) FOR [POR06_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL07_I33]  DEFAULT (' ') FOR [CAL07_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR07_I33]  DEFAULT (0) FOR [POR07_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL08_I33]  DEFAULT (' ') FOR [CAL08_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR08_I33]  DEFAULT (0) FOR [POR08_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL09_I33]  DEFAULT (' ') FOR [CAL09_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR09_I33]  DEFAULT (0) FOR [POR09_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL10_I33]  DEFAULT (' ') FOR [CAL10_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR10_I33]  DEFAULT (0) FOR [POR10_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL11_I33]  DEFAULT (' ') FOR [CAL11_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR11_I33]  DEFAULT (0) FOR [POR11_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL12_I33]  DEFAULT (' ') FOR [CAL12_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR12_I33]  DEFAULT (0) FOR [POR12_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL13_I33]  DEFAULT (' ') FOR [CAL13_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR13_I33]  DEFAULT (0) FOR [POR13_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL14_I33]  DEFAULT (' ') FOR [CAL14_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR14_I33]  DEFAULT (0) FOR [POR14_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL15_I33]  DEFAULT (' ') FOR [CAL15_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR15_I33]  DEFAULT (0) FOR [POR15_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_CAL16_I33]  DEFAULT (' ') FOR [CAL16_I33]
+GO
+ALTER TABLE [dbo].[CCI33] ADD  CONSTRAINT [DF_CCI33_POR16_I33]  DEFAULT (0) FOR [POR16_I33]
+GO
+ALTER TABLE [dbo].[CCR01] ADD  CONSTRAINT [DF_CCR01_SOLES_R01]  DEFAULT (0) FOR [ABODO_R01]
+GO
+ALTER TABLE [dbo].[CCR01] ADD  CONSTRAINT [DF_CCR01_DOLAR_R01]  DEFAULT (0) FOR [CARDO_R01]
+GO
+ALTER TABLE [dbo].[CCR01] ADD  CONSTRAINT [DF_CCR01_TICAM_R01]  DEFAULT (0) FOR [TICAM_R01]
+GO
+ALTER TABLE [dbo].[CCR01] ADD  CONSTRAINT [DF_CCR01_CANTI_R01]  DEFAULT (0) FOR [CANTI_R01]
+GO
+ALTER TABLE [dbo].[CCR01] ADD  CONSTRAINT [DF_CCR01_PRECI_R01]  DEFAULT (0) FOR [PRECI_R01]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB00_R02]  DEFAULT (0) FOR [DEB00_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB00_R02]  DEFAULT (0) FOR [HAB00_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB01_R02]  DEFAULT (0) FOR [DEB01_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB01_R02]  DEFAULT (0) FOR [HAB01_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB02_R02]  DEFAULT (0) FOR [DEB02_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB02_R02]  DEFAULT (0) FOR [HAB02_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB03_R02]  DEFAULT (0) FOR [DEB03_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB03_R02]  DEFAULT (0) FOR [HAB03_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB04_R02]  DEFAULT (0) FOR [DEB04_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB04_R02]  DEFAULT (0) FOR [HAB04_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB05_R02]  DEFAULT (0) FOR [DEB05_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB05_R02]  DEFAULT (0) FOR [HAB05_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB06_R02]  DEFAULT (0) FOR [DEB06_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB06_R02]  DEFAULT (0) FOR [HAB06_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB07_R02]  DEFAULT (0) FOR [DEB07_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB07_R02]  DEFAULT (0) FOR [HAB07_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB08_R02]  DEFAULT (0) FOR [DEB08_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB08_R02]  DEFAULT (0) FOR [HAB08_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB09_R02]  DEFAULT (0) FOR [DEB09_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB09_R02]  DEFAULT (0) FOR [HAB09_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB10_R02]  DEFAULT (0) FOR [DEB10_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB10_R02]  DEFAULT (0) FOR [HAB10_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB11_R02]  DEFAULT (0) FOR [DEB11_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB11_R02]  DEFAULT (0) FOR [HAB11_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_DEB12_R02]  DEFAULT (0) FOR [DEB12_R02]
+GO
+ALTER TABLE [dbo].[CCR0205] ADD  CONSTRAINT [DF_CCR02_HAB12_R02]  DEFAULT (0) FOR [HAB12_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB00_R02]  DEFAULT (0) FOR [DEB00_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB00_R02]  DEFAULT (0) FOR [HAB00_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB01_R02]  DEFAULT (0) FOR [DEB01_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB01_R02]  DEFAULT (0) FOR [HAB01_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB02_R02]  DEFAULT (0) FOR [DEB02_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB02_R02]  DEFAULT (0) FOR [HAB02_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB03_R02]  DEFAULT (0) FOR [DEB03_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB03_R02]  DEFAULT (0) FOR [HAB03_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB04_R02]  DEFAULT (0) FOR [DEB04_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB04_R02]  DEFAULT (0) FOR [HAB04_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB05_R02]  DEFAULT (0) FOR [DEB05_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB05_R02]  DEFAULT (0) FOR [HAB05_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB06_R02]  DEFAULT (0) FOR [DEB06_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB06_R02]  DEFAULT (0) FOR [HAB06_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB07_R02]  DEFAULT (0) FOR [DEB07_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB07_R02]  DEFAULT (0) FOR [HAB07_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB08_R02]  DEFAULT (0) FOR [DEB08_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB08_R02]  DEFAULT (0) FOR [HAB08_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB09_R02]  DEFAULT (0) FOR [DEB09_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB09_R02]  DEFAULT (0) FOR [HAB09_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB10_R02]  DEFAULT (0) FOR [DEB10_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB10_R02]  DEFAULT (0) FOR [HAB10_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB11_R02]  DEFAULT (0) FOR [DEB11_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB11_R02]  DEFAULT (0) FOR [HAB11_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_DEB12_R02]  DEFAULT (0) FOR [DEB12_R02]
+GO
+ALTER TABLE [dbo].[CCR0206] ADD  CONSTRAINT [DF_CCR0206_HAB12_R02]  DEFAULT (0) FOR [HAB12_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB00_R02]  DEFAULT (0) FOR [DEB00_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB00_R02]  DEFAULT (0) FOR [HAB00_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB01_R02]  DEFAULT (0) FOR [DEB01_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB01_R02]  DEFAULT (0) FOR [HAB01_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB02_R02]  DEFAULT (0) FOR [DEB02_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB02_R02]  DEFAULT (0) FOR [HAB02_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB03_R02]  DEFAULT (0) FOR [DEB03_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB03_R02]  DEFAULT (0) FOR [HAB03_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB04_R02]  DEFAULT (0) FOR [DEB04_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB04_R02]  DEFAULT (0) FOR [HAB04_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB05_R02]  DEFAULT (0) FOR [DEB05_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB05_R02]  DEFAULT (0) FOR [HAB05_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB06_R02]  DEFAULT (0) FOR [DEB06_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB06_R02]  DEFAULT (0) FOR [HAB06_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB07_R02]  DEFAULT (0) FOR [DEB07_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB07_R02]  DEFAULT (0) FOR [HAB07_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB08_R02]  DEFAULT (0) FOR [DEB08_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB08_R02]  DEFAULT (0) FOR [HAB08_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB09_R02]  DEFAULT (0) FOR [DEB09_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB09_R02]  DEFAULT (0) FOR [HAB09_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB10_R02]  DEFAULT (0) FOR [DEB10_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB10_R02]  DEFAULT (0) FOR [HAB10_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB11_R02]  DEFAULT (0) FOR [DEB11_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB11_R02]  DEFAULT (0) FOR [HAB11_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_DEB12_R02]  DEFAULT (0) FOR [DEB12_R02]
+GO
+ALTER TABLE [dbo].[CCR0208] ADD  CONSTRAINT [DF_CCR0208_HAB12_R02]  DEFAULT (0) FOR [HAB12_R02]
+GO
+ALTER TABLE [dbo].[CCT06] ADD  CONSTRAINT [DF_CCT06_CODIG_T06]  DEFAULT (' ') FOR [CODIG_T06]
+GO
+ALTER TABLE [dbo].[CCT06] ADD  CONSTRAINT [DF_CCT06_DESCR_T06]  DEFAULT (' ') FOR [DESCR_T06]
+GO
+ALTER TABLE [dbo].[CCT06] ADD  CONSTRAINT [DF_CCT06_ABREV_T06]  DEFAULT (' ') FOR [ABREV_T06]
+GO
+ALTER TABLE [dbo].[CCT11] ADD  CONSTRAINT [DF_CCT05_CODIG_T05]  DEFAULT (' ') FOR [CODIG_T11]
+GO
+ALTER TABLE [dbo].[CCT11] ADD  CONSTRAINT [DF_CCT05_DESCR_T05]  DEFAULT (' ') FOR [DESCR_T11]
+GO
+ALTER TABLE [dbo].[CCT11] ADD  CONSTRAINT [DF_CCT05_ABREV_T05]  DEFAULT (' ') FOR [ABREV_T11]
+GO
+ALTER TABLE [dbo].[CCW01] ADD  CONSTRAINT [DF_CCW01_CARGO_W01]  DEFAULT (0) FOR [CARGO_W01]
+GO
+ALTER TABLE [dbo].[CCW01] ADD  CONSTRAINT [DF_CCW01_ABONO_W01]  DEFAULT (0) FOR [ABONO_W01]
+GO
+ALTER TABLE [dbo].[CCW01] ADD  CONSTRAINT [DF_CCW01_SALDO_W01]  DEFAULT (0) FOR [SALDO_W01]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_ABOSO_W02]  DEFAULT (0) FOR [ABOSO_W02]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_CARSO_W02]  DEFAULT (0) FOR [CARSO_W02]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_ABODO_W02]  DEFAULT (0) FOR [ABODO_W02]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_CARDO_W02]  DEFAULT (0) FOR [CARDO_W02]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_SALDO_W02]  DEFAULT (0) FOR [SALDO_W02]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_TICAM_W02]  DEFAULT (0) FOR [TICAM_W02]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_CANTI_W02]  DEFAULT (0) FOR [CANTI_W02]
+GO
+ALTER TABLE [dbo].[CCW02] ADD  CONSTRAINT [DF_CCW02_PRECI_W02]  DEFAULT (0) FOR [PRECI_W02]
+GO
+ALTER TABLE [dbo].[CCW03] ADD  CONSTRAINT [DF_CCW03_KILOS_W03]  DEFAULT (0) FOR [KILOS_W03]
+GO
+ALTER TABLE [dbo].[CCW04] ADD  CONSTRAINT [DF_CCW04_KILOS_W04]  DEFAULT (0) FOR [KILOS_W04]
+GO
+ALTER TABLE [dbo].[CCW04] ADD  CONSTRAINT [DF_CCW04_VENTA_W04]  DEFAULT (0) FOR [VENTA_W04]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_RUBRO_W05]  DEFAULT (' ') FOR [RUBRO_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_SUBRU_W05]  DEFAULT (' ') FOR [SUBRU_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_PRODU_W05]  DEFAULT (' ') FOR [PRODU_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_CONCE_W05]  DEFAULT (' ') FOR [CONCE_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_CJDIA_W05]  DEFAULT (0) FOR [CJDIA_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_KGDIA_W05]  DEFAULT (0) FOR [KGDIA_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_PODIA_W05]  DEFAULT (0) FOR [PODIA_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_CULTI_W05]  DEFAULT (' ') FOR [CULTI_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_USUAR_W05]  DEFAULT (' ') FOR [USUAR_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_COMPU_W05]  DEFAULT (' ') FOR [COMPU_W05]
+GO
+ALTER TABLE [dbo].[CCW05] ADD  CONSTRAINT [DF_CCW05_CAMPO_W05]  DEFAULT (' ') FOR [CAMPO_W05]
+GO
+ALTER TABLE [dbo].[AUDIT_LOG_DATA]  WITH CHECK ADD  CONSTRAINT [FK_AUDIT_LOG_TRANSACTION_ID] FOREIGN KEY([AUDIT_LOG_TRANSACTION_ID])
+REFERENCES [dbo].[AUDIT_LOG_TRANSACTIONS] ([AUDIT_LOG_TRANSACTION_ID])
+GO
+ALTER TABLE [dbo].[AUDIT_LOG_DATA] CHECK CONSTRAINT [FK_AUDIT_LOG_TRANSACTION_ID]
+GO
+ALTER TABLE [dbo].[CCI02]  WITH NOCHECK ADD  CONSTRAINT [FK_CCI02_CCI01] FOREIGN KEY([IDCAB_I02])
+REFERENCES [dbo].[CCI01] ([IDCAB_I01])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CCI02] CHECK CONSTRAINT [FK_CCI02_CCI01]
+GO
+ALTER TABLE [dbo].[CCI04]  WITH NOCHECK ADD  CONSTRAINT [FK_CCI04_CCI03] FOREIGN KEY([IDCAB_I04])
+REFERENCES [dbo].[CCI03] ([IDCAB_I03])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CCI04] CHECK CONSTRAINT [FK_CCI04_CCI03]
+GO
+ALTER TABLE [dbo].[CCI06]  WITH NOCHECK ADD  CONSTRAINT [FK_CCI06_CCI05] FOREIGN KEY([IDCAB_I06])
+REFERENCES [dbo].[CCI05] ([IDCAB_I05])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CCI06] CHECK CONSTRAINT [FK_CCI06_CCI05]
+GO
+ALTER TABLE [dbo].[CCI08]  WITH NOCHECK ADD  CONSTRAINT [FK_CCI08_CCI07] FOREIGN KEY([IDCAB_I08])
+REFERENCES [dbo].[CCI07] ([IDCAB_I07])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CCI08] CHECK CONSTRAINT [FK_CCI08_CCI07]
+GO
+ALTER TABLE [dbo].[CCI10]  WITH NOCHECK ADD  CONSTRAINT [FK_CCI10_CCI09] FOREIGN KEY([IDCAB_I10])
+REFERENCES [dbo].[CCI09] ([IDCAB_I09])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CCI10] CHECK CONSTRAINT [FK_CCI10_CCI09]
+GO
+ALTER TABLE [dbo].[CCI12]  WITH CHECK ADD  CONSTRAINT [FK_CCI12_CCI11] FOREIGN KEY([IDCAB_I12])
+REFERENCES [dbo].[CCI11] ([IDCAB_I11])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CCI12] CHECK CONSTRAINT [FK_CCI12_CCI11]
+GO
+ALTER TABLE [dbo].[CCI13]  WITH NOCHECK ADD  CONSTRAINT [FK_CCI13_CCI03] FOREIGN KEY([IDCAB_I13])
+REFERENCES [dbo].[CCI03] ([IDCAB_I03])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CCI13] CHECK CONSTRAINT [FK_CCI13_CCI03]
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_AddAuditUndoItem]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROC [dbo].[AUDIT_prc_AddAuditUndoItem]
+@AUDIT_LOG_TRANSACTION_ID nvarchar(4000),
+@AUDIT_LOG_DATA_ID nvarchar(4000) = null
+AS
+DECLARE @AUDIT_ACTION_ID tinyint
+DECLARE @AUDIT_NextAction_Id tinyint
+DECLARE @PK_data nvarchar(4000)
+DECLARE @COL_NAME sysname
+DECLARE @NextMODIFIED_DATE datetime
+DECLARE @OLD_VALUE nvarchar(4000)
+DECLARE @HOST_NAME nvarchar(25)
+DECLARE @APP_NAME nvarchar(100)
+DECLARE @MODIFIED_BY nvarchar(30)
+DECLARE @MODIFIED_DATE datetime
+DECLARE @TabName nvarchar(261)
+DECLARE @UndoStatus tinyint
+DECLARE @UndoComment nvarchar(4000)
+DECLARE @UndoLogId int
+DECLARE @SqlString nvarchar(4000)
+DECLARE @Message nvarchar(4000)
+IF @AUDIT_LOG_DATA_ID is null
+BEGIN
+  -- For all PKs in the transaction
+  DECLARE TransactionData CURSOR FOR
+    SELECT t.AUDIT_LOG_TRANSACTION_ID, AUDIT_LOG_DATA_ID 
+      FROM dbo.AUDIT_LOG_TRANSACTIONS t
+      INNER JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID=t.AUDIT_LOG_TRANSACTION_ID
+      WHERE t.AUDIT_LOG_TRANSACTION_ID = @AUDIT_LOG_TRANSACTION_ID
+  OPEN TransactionData
+  FETCH NEXT FROM TransactionData INTO @AUDIT_LOG_TRANSACTION_ID, @AUDIT_LOG_DATA_ID
+  WHILE @@FETCH_STATUS = 0
+  BEGIN
+    EXEC dbo.AUDIT_prc_AddAuditUndoItem @AUDIT_LOG_TRANSACTION_ID, @AUDIT_LOG_DATA_ID
+    FETCH NEXT FROM TransactionData INTO @AUDIT_LOG_TRANSACTION_ID, @AUDIT_LOG_DATA_ID
+  END
+  DEALLOCATE TransactionData
+  RETURN
+END
+SELECT @AUDIT_ACTION_ID = AUDIT_ACTION_ID, @COL_NAME = [COL_NAME], @TabName = '['+t.TABLE_SCHEMA+'].['+t.TABLE_NAME+']',
+       @OLD_VALUE = OLD_VALUE, @PK_data = PRIMARY_KEY_DATA,
+       @HOST_NAME = [HOST_NAME], @APP_NAME = [APP_NAME], @MODIFIED_BY = MODIFIED_BY, @MODIFIED_DATE = MODIFIED_DATE
+  FROM dbo.AUDIT_LOG_TRANSACTIONS t 
+  INNER JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID=t.AUDIT_LOG_TRANSACTION_ID
+  WHERE t.AUDIT_LOG_TRANSACTION_ID = @AUDIT_LOG_TRANSACTION_ID
+  AND AUDIT_LOG_DATA_ID = @AUDIT_LOG_DATA_ID
+IF @@ROWCOUNT = 0
+BEGIN
+  --RAISERROR ('The log record does not exist in the AUDIT_LOG_TRANSACTIONS', 16, 1)
+  RETURN -1 -- do nothing, just say error number
+END
+-- For INSERT
+IF @AUDIT_ACTION_ID = 2
+BEGIN
+  SELECT 1 FROM ##UndoLog WHERE UndoAction = 3 AND TabName = @TabName AND PK_data = @PK_data
+  IF @@ROWCOUNT > 0	
+  BEGIN
+    RETURN 0 -- do nothing, the record for DELETE (undo for INSERT) is already in the ##UndoLog. It's just another column
+  END
+END
+-- For DELETE
+ELSE IF @AUDIT_ACTION_ID = 3
+BEGIN
+  SELECT @UndoLogId = UndoLogId FROM ##UndoLog WHERE UndoAction = 2 AND TabName = @TabName AND PK_data = @PK_data
+  IF @@ROWCOUNT > 0
+  BEGIN
+    IF EXISTS (SELECT * FROM dbo.sysobjects o
+               INNER JOIN dbo.syscolumns c ON c.id = o.id
+               WHERE o.id = OBJECT_ID(@TabName) AND c.name = @COL_NAME AND (c.xtype = 189 OR c.iscomputed=1))
+      SET @OLD_VALUE = null -- timestamp or computed column in INSERT must be null
+    IF NOT EXISTS(SELECT * FROM ##UndoColumns 
+	  WHERE @UndoLogId=UndoLogId AND @TabName=TabName AND @COL_NAME=ColName)
+      INSERT INTO ##UndoColumns (UndoLogId, TabName, ColName, OLD_VALUE)
+        VALUES (@UndoLogId, @TabName, @COL_NAME, @OLD_VALUE)
+    RETURN 0 -- nothing must be done in the ##UndoLog, the record is already in there. It's just another column
+  END
+END
+ELSE IF @AUDIT_ACTION_ID = 1
+BEGIN
+  IF EXISTS (SELECT * FROM dbo.sysobjects o
+             INNER JOIN dbo.syscolumns c ON c.id = o.id
+             WHERE o.id = OBJECT_ID(@TabName) AND c.name = @COL_NAME AND (c.xtype = 189 OR c.iscomputed=1))
+  BEGIN
+    RETURN -- timestamp or computed column cannot be in SET of an UPDATE statement
+  END
+END  
+INSERT INTO ##UndoLog (UndoAction, TabName, PK_data, ColName, OLD_VALUE,
+                       [HOST_NAME], [APP_NAME], MODIFIED_BY, MODIFIED_DATE, UndoStatus, Comment)
+  VALUES (CASE @AUDIT_ACTION_ID WHEN 2 THEN 3 WHEN 3 THEN 2 ELSE @AUDIT_ACTION_ID END,
+          @TabName, @PK_data, @COL_NAME, @OLD_VALUE, 
+          @HOST_NAME, @APP_NAME, @MODIFIED_BY, @MODIFIED_DATE, null, null)
+IF @AUDIT_ACTION_ID = 3
+BEGIN
+  INSERT INTO ##UndoColumns (UndoLogId, TabName, ColName, OLD_VALUE)
+    VALUES (@@IDENTITY, @TabName, @COL_NAME, @OLD_VALUE)
+END
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_AggregateReport]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_AggregateReport]
+	@DATE_FROM 			nvarchar(50)	= NULL,
+	@DATE_TO 			nvarchar(50)	= NULL,
+    @WHERE				nvarchar(4000)	= NULL,
+	@ROW_COUNT 			int 			= NULL,
+	@GroupByDate 		tinyint 		= 1,
+	@GroupByTableName 	bit 			= 0,
+	@GroupByMODIFIED_BY bit 			= 0,
+	@GroupByACTION 		bit 			= 0,
+	@GroupByAPPLICATION bit 			= 0,
+	@GroupByCOMPUTER 	bit 			= 0
+AS
+DECLARE	@sqlstr nvarchar(4000)
+DECLARE	@DateExpression varchar(8000)
+DECLARE	@DateFieldName varchar(20)
+DECLARE @SearcheableName nvarchar(261)
+declare @len int
+declare @ver7 bit
+declare @ver2000 bit
+declare @WhereSql nvarchar(4000)
+declare @cmptlvl int
+Select @cmptlvl = t1.cmptlevel 
+from master.dbo.sysdatabases t1
+where t1.[name]=DB_NAME()
+set @ver7 = 0
+IF @cmptlvl < 80 set @ver7 = 1
+set @ver2000 = 0
+IF @cmptlvl < 90 set @ver2000 = 1
+IF @GroupByDate not in (0,1,2,3,4) 
+BEGIN
+  RAISERROR ('@GroupByDate must be one of: 0,1,2,3,4',16,1)
+  RETURN -1
+END
+if (select count(*) from ##Filter where [index]='DATABASE') = 0
+	insert into ##Filter([index], [value]) values('DATABASE', '%')
+if (select count(*) from ##Filter where [index]='TABLE_NAME') = 0
+	insert into ##Filter([index], [value]) values('TABLE_NAME', '%')
+if (select count(*) from ##Filter where [index]='TABLE_OWNER') = 0
+	insert into ##Filter([index], [value]) values('TABLE_OWNER', '%')
+if (select count(*) from ##Filter where [index]='USER_NAME') = 0
+	insert into ##Filter([index], [value]) values('USER_NAME', '%')
+if (select count(*) from ##Filter where [index]='ACTION_ID') = 0
+	insert into ##Filter([index], [value]) values('ACTION_ID', '%')
+if (select count(*) from ##Filter where [index]='HOST_NAME') = 0
+	insert into ##Filter([index], [value]) values('HOST_NAME', '%')
+if (select count(*) from ##Filter where [index]='APP_NAME') = 0
+	insert into ##Filter([index], [value]) values('APP_NAME', '%')
+SET @DateExpression = 
+  CASE
+   WHEN @GroupByDate = 0 
+    THEN ''
+   WHEN @GroupByDate = 1 
+    THEN 'LEFT(CONVERT(varchar(20), convert(datetime,MODIFIED_DATE), 100),14) + RIGHT(CONVERT(varchar(20), convert(datetime,MODIFIED_DATE), 100),2) '
+   WHEN @GroupByDate = 2
+    THEN 'CONVERT(varchar(20), CONVERT(datetime,MODIFIED_DATE), 107) '
+   WHEN @GroupByDate = 3 
+    THEN 'LEFT(CONVERT(varchar(20), CONVERT(datetime,MODIFIED_DATE), 107),4)+RIGHT(CONVERT(varchar(20), CONVERT(datetime,MODIFIED_DATE), 107),4) '
+   WHEN @GroupByDate = 4
+    THEN 'RIGHT(CONVERT(varchar(20), CONVERT(datetime,MODIFIED_DATE), 107),4) '
+  END  
+SET @DateFieldName = 
+  CASE
+   WHEN @GroupByDate = 0 
+    THEN ''
+   WHEN @GroupByDate = 1 
+    THEN ' AS ''Hour'''
+   WHEN @GroupByDate = 2
+    THEN ' AS ''Date'''
+   WHEN @GroupByDate = 3 
+    THEN ' AS ''Month'''
+   WHEN @GroupByDate = 4
+    THEN ' AS ''Year'''
+  END  
+SET @sqlstr = '
+select TOP'+STR(CASE WHEN @ROW_COUNT is null THEN 99999 ELSE @ROW_COUNT END)+' * from (
+SELECT sum(DATA_COUNT) AS [#], t.[DATABASE] as ''Database'''+
+ CASE
+  WHEN @GroupByTableName = 0 THEN ''
+  ELSE ', TABLE_NAME as [Table Name], TABLE_SCHEMA as [' +
+	CASE @ver2000 WHEN 1 THEN 'Owner' ELSE 'Table Schema' END +']'
+ END +
+ CASE
+  WHEN @GroupByMODIFIED_BY = 0 THEN ''
+  ELSE ', MODIFIED_BY as [Modified By]'
+ END +
+ CASE
+  WHEN @GroupByACTION = 0 THEN ''
+  ELSE ', CASE t.AUDIT_ACTION_ID 
+              WHEN 1 THEN ''Update'' 
+              WHEN 2 THEN ''Insert'' 
+              WHEN 3 THEN ''Delete'' 
+          END AS [Action]'
+ END +
+ CASE
+  WHEN @GroupByAPPLICATION = 0 THEN ''
+  ELSE ', APPLICATION as [Application]'
+ END +
+ CASE
+  WHEN @GroupByCOMPUTER = 0 THEN ''
+  ELSE ', COMPUTER as [Computer]'
+ END +
+ CASE
+  WHEN @DateExpression <> '' 
+  THEN ', '
+  ELSE ''
+ END +
+@DateExpression+
+@DateFieldName
+set @sqlstr = @sqlstr +
+ ' FROM (
+		SELECT 
+			  [DATABASE],
+			  TABLE_NAME,
+			  TABLE_SCHEMA,
+			  AUDIT_ACTION_ID, 
+			  MODIFIED_BY, 
+			  CONVERT(varchar(20), MODIFIED_DATE, 113) AS MODIFIED_DATE,
+			  HOST_NAME AS COMPUTER,
+			  APP_NAME as APPLICATION,
+   			  count(distinct convert(nvarchar(100), t.AUDIT_LOG_TRANSACTION_ID)) [DATA_COUNT]
+		from dbo.AUDIT_LOG_TRANSACTIONS t 
+			inner join dbo.AUDIT_LOG_DATA d
+			on t.AUDIT_LOG_TRANSACTION_ID=d.AUDIT_LOG_TRANSACTION_ID
+		group by 
+			[DATABASE] ,
+			[TABLE_NAME] ,
+			[TABLE_SCHEMA] ,
+			[AUDIT_ACTION_ID] ,
+			[HOST_NAME] ,
+			[APP_NAME] ,
+			[MODIFIED_BY] ,
+			[MODIFIED_DATE] 
+	) t
+	inner join ##Filter f1 on f1.[index]=''TABLE_NAME'' and t.TABLE_NAME like Replace(f1.[value]' + case @ver7 when 0 then ' collate database_default' else '' end + ', ''['', ''[[]'')
+	inner join ##Filter f2 on f2.[index]=''TABLE_OWNER'' and t.TABLE_SCHEMA like Replace(f2.[value]' + case @ver7 when 0 then ' collate database_default' else '' end + ', ''['', ''[[]'')
+	inner join ##Filter f3 on f3.[index]=''APP_NAME'' and t.APPLICATION like Replace(f3.[value]' + case @ver7 when 0 then ' collate database_default' else '' end + ', ''['', ''[[]'')
+	inner join ##Filter f4 on f4.[index]=''HOST_NAME'' and t.COMPUTER like Replace(f4.[value]' + case @ver7 when 0 then ' collate database_default' else '' end + ', ''['', ''[[]'')
+	inner join ##Filter f5 on f5.[index]=''USER_NAME'' and t.MODIFIED_BY like Replace(f5.[value]' + case @ver7 when 0 then ' collate database_default' else '' end + ', ''['', ''[[]'')
+	inner join ##Filter f6 on f6.[index]=''ACTION_ID'' and Cast(t.AUDIT_ACTION_ID as char(1)) like Replace(f6.[value]' + case @ver7 when 0 then ' collate database_default' else '' end + ', ''['', ''[[]'')
+	inner join ##Filter f7 on f7.[index]=''DATABASE'' and t.[DATABASE] like Replace(f7.[value]' + case @ver7 when 0 then ' collate database_default' else '' end + ', ''['', ''[[]'')
+	where [DATA_COUNT]=[DATA_COUNT]
+' +
+ CASE
+  WHEN @DATE_FROM is NULL THEN ''
+  ELSE ' AND CONVERT(DATETIME,MODIFIED_DATE) >= '''+CONVERT(varchar(20),@DATE_FROM,120)+''''
+ END +
+ CASE
+  WHEN @DATE_TO is NULL THEN ''
+  ELSE ' AND CONVERT(DATETIME,MODIFIED_DATE) < '''+CONVERT(varchar(20),@DATE_TO,120)+''''
+ END +
+CASE
+  WHEN @DateExpression = ''  THEN ' GROUP BY '
+  ELSE ' GROUP BY ' + @DateExpression + ','
+ END
+ + '[DATABASE], ' +
+ CASE WHEN @GroupByTableName 	= 1 	THEN ' TABLE_SCHEMA, TABLE_NAME,' 	ELSE '' END +
+ CASE WHEN @GroupByMODIFIED_BY 	= 1 	THEN ' MODIFIED_BY,' 	ELSE '' END +
+ CASE WHEN @GroupByACTION 	= 1 	THEN ' AUDIT_ACTION_ID,' 	ELSE '' END +
+ CASE WHEN @GroupByAPPLICATION 	= 1 	THEN ' APPLICATION,' 	ELSE '' END +
+ CASE WHEN @GroupByCOMPUTER 	= 1 	THEN ' COMPUTER,' 	ELSE '' END
+set @len = len(@sqlstr)
+if substring(@sqlstr, @len, 1) = ','
+begin
+	set @sqlstr = substring(@sqlstr,1,@len-1)
+end
+set @sqlstr = @sqlstr + ') [table]'
+if @WHERE IS NOT NULL
+begin
+	set @WhereSql = @sqlstr+' where '+@WHERE
+	exec sp_executesql @WhereSql
+end
+else
+begin
+	exec sp_executesql @sqlstr
+end
+RETURN @@ERROR
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_Analyze]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_Analyze]
+	@DDL	  	bit	output,
+	@Identity 	bit	output,
+	@View	  	bit	output,
+	@standard 	bit	output,
+	@aggregate 	bit	output,
+	@purge	  	bit	output,
+	@undo		bit	output,
+	@Delete		bit	output,
+	@Analyze	bit	output
+as
+	declare @cmptlvl int
+    set @Identity=1 --now always
+	Select @cmptlvl = t1.cmptlevel 
+		from master.dbo.sysdatabases t1
+		where t1.[name]=DB_NAME()
+	--	DDL
+	set @DDL=1	
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_LOG_DATA]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+		BEGIN
+			set @DDL = 0
+			PRINT '     AUDIT_LOG_DATA is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_LOG_TRANSACTIONS]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+		BEGIN
+			set @DDL = 0
+			PRINT '     AUDIT_LOG_TRANSACTIONS is Missing'
+		END
+		IF @cmptlvl > 70
+		BEGIN
+		IF OBJECTPROPERTY(OBJECT_ID('dbo.AUDIT_fn_HexToStr'), 'IsScalarFunction') IS NULL 
+		BEGIN
+			set @DDL = 0
+			PRINT '     dbo.AUDIT_fn_HexToStr is Missing'
+		END
+		IF OBJECTPROPERTY(OBJECT_ID('dbo.AUDIT_fn_SqlVariantToString'), 'IsScalarFunction') IS NULL
+		BEGIN
+			set @DDL = 0
+			PRINT '     dbo.AUDIT_fn_SqlVariantToString is Missing'
+		END
+		END
+				IF @DDL = 0 
+				BEGIN
+					PRINT 'DDL Script(s) Missing or Incomplete'
+				END
+				ELSE
+				BEGIN
+					PRINT 'DDL Script(s) OK'
+				END
+	--	Indentity
+	set @View = 1
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_VIEW]') and OBJECTPROPERTY(id, N'IsView') = 1)
+		BEGIN
+			set @View = 0
+			PRINT '     AUDIT_VIEW is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_UNDO]') and OBJECTPROPERTY(id, N'IsView') = 1)
+		BEGIN
+			set @View = 0
+			PRINT '     AUDIT_UNDO is Missing'
+		END
+					IF @View = 0 
+					BEGIN
+						PRINT 'Audit View Script(s) Missing or Incomplete'
+					END
+					ELSE
+					BEGIN
+						PRINT 'Audit View  Script(s) OK'
+					END
+	set @aggregate = 1
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_AggregateReport]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @aggregate  = 0
+			PRINT '     AUDIT_prc_AggregateReport is Missing'
+		END
+		if not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingStart]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @aggregate  = 0
+			PRINT '     AUDIT_prc_ReportingStart is Missing'
+		END
+		if not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingEnd]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @aggregate  = 0
+			PRINT '     AUDIT_prc_ReportingEnd is Missing'
+		END
+		if not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingAddFilterValue]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @aggregate  = 0
+			PRINT '     AUDIT_prc_ReportingAddFilterValue is Missing'
+		END
+				IF @aggregate = 0 
+				BEGIN
+					PRINT 'Aggregate Reporting Script(s) Missing or Incomplete'
+				END
+				ELSE
+				BEGIN
+					PRINT 'Aggregate Reporting Script(s) OK'
+				END
+	set @standard = 1
+		if not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_StandardReport]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @standard = 0
+			PRINT '     AUDIT_prc_StandardReport is Missing'
+		END
+		if not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingEnd]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @standard  = 0
+			PRINT '     AUDIT_prc_ReportingEnd is Missing'
+		END
+		if not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingStart]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @standard  = 0
+			PRINT '     AUDIT_prc_ReportingStart is Missing'
+		END
+		if not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingAddFilterValue]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @standard  = 0
+			PRINT '     AUDIT_prc_ReportingAddFilterValue is Missing'
+		END
+				IF @standard = 0 
+				BEGIN
+					PRINT 'Standard Reporting Script(s) Missing or Incomplete'
+				END
+				ELSE
+				BEGIN
+					PRINT 'Standard Reporting Script(s) OK'
+				END
+	set @purge = 1
+		if NOT exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_Purge_AUDIT_LOG]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @purge = 0
+			PRINT '     AUDIT_prc_Purge_AUDIT_LOG'
+		END
+				IF @purge = 0 
+				BEGIN
+					PRINT 'Audit Data Purge Script(s) Missing or Incomplete'
+				END
+				ELSE
+				BEGIN
+					PRINT 'Audit Data Purge Script(s) OK'
+				END
+	set @undo = 1
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_AddAuditUndoItem]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @undo = 0
+			PRINT '     AUDIT_prc_AddAuditUndoItem is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_CheckAuditUndo]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @undo = 0
+			PRINT '     AUDIT_prc_CheckAuditUndo is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_CommitUndo]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_CommitUndo is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ExecUndo]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_ExecUndo is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_GetAuditUndoReport]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_GetAuditUndoReport is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_RollbackUndo]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_RollbackUndo is Missing'
+		END
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_RunUndo]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_RunUndo is Missing'
+		END		
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_UndoGenerateCommand]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_UndoGenerateCommand is Missing'
+		END		
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_UndoCheck]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_UndoCheck is Missing'
+		END		
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_CreateAuditUndoReport]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_CreateAuditUndoReport is Missing'
+		END		
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_UndoAddTriggersCheck]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN			
+			set @undo = 0
+			PRINT '     AUDIT_prc_UndoAddTriggersCheck is Missing'
+		END		
+				IF @undo = 0 
+				BEGIN
+					PRINT 'UnDo Transaction Script(s) Missing or Incomplete'
+				END
+				ELSE
+				BEGIN
+					PRINT 'UnDo Transaction Script(s) OK'
+				END
+	set @Delete = 1
+		if NOT EXISTS (select * from dbo.sysobjects where name = 'AUDIT_prc_DeleteArchitecture')
+		BEGIN			
+			set @Delete = 0
+			PRINT '     AUDIT_prc_DeleteArchitecture is Missing'
+		END
+				IF @Delete = 0 
+				BEGIN
+					PRINT 'Delete Architecture Script(s) Missing or Incomplete'
+				END
+				ELSE
+				BEGIN
+					PRINT 'Delete Architecture Script(s) OK'
+				END
+	set @Analyze = 1
+		if NOT EXISTS (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_Analyze]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+		BEGIN
+			set @Delete = 0
+			PRINT '     AUDIT_prc_Analyze is Missing'
+		END
+				IF @Analyze = 0 
+				BEGIN
+					PRINT 'Analyze Script(s) Missing or Incomplete'
+				END
+				ELSE
+				BEGIN
+					PRINT 'Analyze Script(s) OK'
+				END
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_CommitUndo]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROC [dbo].[AUDIT_prc_CommitUndo]
+AS
+COMMIT TRAN
+SET IMPLICIT_TRANSACTIONS OFF
+DROP TABLE ##UndoLog
+DROP TABLE ##UndoColumns
+RETURN @@ERROR
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_CreateAuditUndoReport]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_CreateAuditUndoReport]
+AS
+SET NOCOUNT ON	--	IE2002-05-10: MUST BE HERE BECAUSE UNDO CLIENT CHOCKES OTHERWISE
+DECLARE @UndoLogId int
+DECLARE @UndoAction tinyint -- 1-Update, 2-Undelete, 3-Delete
+DECLARE @TabName nvarchar(261)
+DECLARE @PK_data nvarchar(4000)
+DECLARE @ColName nvarchar(128)
+DECLARE @MODIFIED_DATE datetime
+declare @print nvarchar(4000)
+declare @sql nvarchar(4000)
+declare @status tinyint
+declare @comment nvarchar(4000)
+declare @error int
+DECLARE UndeleteTables CURSOR LOCAL FOR 
+  SELECT UndoLogId, UndoAction, TabName, PK_data, ColName, MODIFIED_DATE 
+  FROM ##UndoLog 
+-- begin transaction to change to allow tables data
+set XACT_ABORT OFF
+begin transaction CHANGES
+OPEN UndeleteTables
+FETCH NEXT FROM UndeleteTables INTO @UndoLogId, @UndoAction, @TabName, @PK_data, @ColName, @MODIFIED_DATE
+WHILE @@FETCH_STATUS = 0
+BEGIN
+exec dbo.AUDIT_prc_UndoGenerateCommand @UndoLogId, 1, @print output, @sql output
+exec dbo.[AUDIT_prc_UndoCheck] @UndoLogId, @status output, @comment output
+if @status=1
+begin
+    exec dbo.AUDIT_prc_ExecUndo @sql, @error output
+	if @error<>0 or @@ERROR<>0
+    begin
+      set @status=0
+      set @comment='Undoable operation'
+    end
+    else
+      set @comment=''
+end
+  UPDATE ##UndoLog SET UndoStatus = @status, Comment = @comment
+    WHERE CURRENT OF UndeleteTables
+  FETCH NEXT FROM UndeleteTables INTO @UndoLogId, @UndoAction, @TabName, @PK_data, @ColName, @MODIFIED_DATE
+END
+DEALLOCATE UndeleteTables
+RETURN @@ERROR
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_CheckAuditUndo]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROC [dbo].[AUDIT_prc_CheckAuditUndo]
+AS
+IF EXISTS (SELECT 1 FROM tempdb.dbo.sysobjects WHERE name like '##UndoLog')
+BEGIN
+  RAISERROR ('AuditUndo function is currently running (##UndoLog exists). A second instance connot be submitted', 16,1)
+  RETURN -1
+END
+CREATE TABLE ##UndoLog (
+  UndoLogId int IDENTITY (1,1),
+  UndoAction tinyint, -- 1-Update, 2-Undelete, 3-Delete
+  TabName nvarchar(261),
+  PK_data nvarchar(4000),
+  ColName sysname null,
+  OLD_VALUE nvarchar(4000) null,
+  [HOST_NAME] [nvarchar] (25) NULL,
+  [APP_NAME] [nvarchar] (100) NULL,
+  [MODIFIED_BY][nvarchar] (30) NOT NULL,
+  [MODIFIED_DATE] [datetime] NOT NULL,
+  UndoStatus tinyint null, -- 0-NotDoable, 1-Doable
+  Comment nvarchar(4000) null)
+CREATE TABLE ##UndoColumns (
+  UndoLogId int,
+  TabName sysname,
+  ColName sysname,
+  OLD_VALUE nvarchar(4000))
+SELECT backup_finish_date, user_name FROM msdb..backupset 
+  WHERE database_name = db_name()
+    AND backup_finish_date = (SELECT MAX(backup_finish_date) FROM msdb..backupset WHERE database_name = db_name())
+RETURN @@ERROR
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_DeleteArchitecture]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_DeleteArchitecture]
+	@RemoveServer bit 
+AS
+declare @cmptlvl int
+-- Delete Audit Tables
+IF  EXISTS (SELECT * FROM sysobjects WHERE id = OBJECT_ID(N'[dbo].[AUDIT_LOG_DATA]') AND type in (N'U')) DROP TABLE [dbo].[AUDIT_LOG_DATA]
+IF  EXISTS (SELECT * FROM sysobjects WHERE id = OBJECT_ID(N'[dbo].[AUDIT_LOG_TRANSACTIONS]') AND type in (N'U')) DROP TABLE [dbo].[AUDIT_LOG_TRANSACTIONS]
+Select @cmptlvl = t1.cmptlevel 
+from master.dbo.sysdatabases t1
+where t1.[name]=DB_NAME()
+IF @cmptlvl > 70
+BEGIN
+declare 
+@fn_sql nvarchar(4000)
+set @fn_sql = 'DROP FUNCTION dbo.AUDIT_fn_HexToStr'
+IF OBJECTPROPERTY(OBJECT_ID('dbo.AUDIT_fn_HexToStr'), 'IsScalarFunction') IS NOT NULL 
+	exec sp_executesql @fn_sql 
+set @fn_sql = 'DROP FUNCTION dbo.AUDIT_fn_SqlVariantToString'
+IF OBJECTPROPERTY(OBJECT_ID('dbo.AUDIT_fn_SqlVariantToString'), 'IsScalarFunction') IS NOT NULL
+	exec sp_executesql @fn_sql
+END
+-- Delete Audit View
+IF OBJECT_ID('dbo.AUDIT_VIEW', 'V') IS NOT NULL DROP VIEW dbo.AUDIT_VIEW
+IF OBJECT_ID('dbo.AUDIT_UNDO', 'V') IS NOT NULL DROP VIEW dbo.AUDIT_UNDO
+-- Delete Common Reporting functions
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingStart]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[AUDIT_prc_ReportingStart]
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingEnd]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[AUDIT_prc_ReportingEnd]
+-- Delete Aggregate Report
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingStart]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	drop procedure [dbo].[AUDIT_prc_ReportingStart]
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingAddFilterValue]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	drop procedure [dbo].[AUDIT_prc_ReportingAddFilterValue]
+IF OBJECT_ID('dbo.AUDIT_prc_AggregateReport','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_AggregateReport
+-- Delete Standard Report
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingStart]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	drop procedure [dbo].[AUDIT_prc_ReportingStart]
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[AUDIT_prc_ReportingAddFilterValue]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	drop procedure [dbo].[AUDIT_prc_ReportingAddFilterValue]
+IF OBJECT_ID('dbo.AUDIT_prc_StandardReport','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_StandardReport
+-- Delete Purge Data Sproc
+IF OBJECT_ID('dbo.AUDIT_prc_Purge_AUDIT_LOG','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_Purge_AUDIT_LOG
+-- Delete Undo Procedures
+IF OBJECT_ID('dbo.AUDIT_prc_AddAuditUndoItem','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_AddAuditUndoItem
+IF OBJECT_ID('dbo.AUDIT_prc_CheckAuditUndo','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_CheckAuditUndo
+IF OBJECT_ID('dbo.AUDIT_prc_CommitUndo','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_CommitUndo
+IF OBJECT_ID('dbo.AUDIT_prc_RollbackUndo','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_RollbackUndo
+IF OBJECT_ID('dbo.AUDIT_prc_UndoGenerateCommand','P') IS NOT NULL DROP PROCEDURE [dbo].[AUDIT_prc_UndoGenerateCommand]
+IF OBJECT_ID('dbo.AUDIT_prc_UndoCheck','P') IS NOT NULL DROP PROCEDURE [dbo].[AUDIT_prc_UndoCheck]
+IF OBJECT_ID('dbo.AUDIT_prc_GetAuditUndoReport','P') IS NOT NULL DROP PROCEDURE [dbo].[AUDIT_prc_GetAuditUndoReport]
+IF OBJECT_ID('dbo.AUDIT_prc_RunUndo','P') IS NOT NULL DROP PROCEDURE [dbo].[AUDIT_prc_RunUndo]
+IF OBJECT_ID('dbo.AUDIT_prc_ExecUndo','P') IS NOT NULL DROP PROCEDURE [dbo].[AUDIT_prc_ExecUndo]
+IF OBJECT_ID('dbo.AUDIT_prc_CreateAuditUndoReport','P') IS NOT NULL DROP PROCEDURE [dbo].[AUDIT_prc_CreateAuditUndoReport]
+IF OBJECT_ID('dbo.AUDIT_prc_UndoAddTriggersCheck','P') IS NOT NULL DROP PROCEDURE [dbo].[AUDIT_prc_UndoAddTriggersCheck]
+-- Delete Analyze Procedures
+IF OBJECT_ID('dbo.AUDIT_prc_Analyze','P') IS NOT NULL DROP PROCEDURE dbo.AUDIT_prc_Analyze
+-- Delete Audit Triggers
+DECLARE @trname nvarchar(261)
+DECLARE @usname nvarchar(261)
+DECLARE @sql nvarchar(4000)
+create table #names(username nvarchar(2000), name nvarchar(2000));
+IF @cmptlvl < 90
+set @sql='insert into #names select u.name, o.name 
+from sysobjects o, syscomments c, sysusers u 
+  where o.xtype = ''TR'' 
+  and o.id = c.id 
+  and c.colid = 1 
+  and u.uid=o.uid 
+  and c.text like ''%<TAG>SQLAUDIT GENERATED - DO NOT REMOVE</TAG>%'''
+else
+set @sql='insert into #names select u.name, o.name 
+from sysobjects o, syscomments c, sys.schemas u 
+  where o.xtype = ''TR'' 
+  and o.id = c.id 
+  and c.colid = 1 
+  and u.schema_id=o.uid 
+  and c.text like ''%<TAG>SQLAUDIT GENERATED - DO NOT REMOVE</TAG>%'''
+EXEC sp_executesql @sql
+DECLARE CRTR CURSOR LOCAL FAST_FORWARD READ_ONLY FOR
+  SELECT distinct username, name
+  FROM #names
+OPEN CRTR
+FETCH CRTR INTO @usname, @trname
+WHILE @@FETCH_STATUS=0
+BEGIN
+   SET @sql=N'DROP TRIGGER ['+@usname+'].['+@trname+']'
+   print @sql
+   EXEC sp_executesql @sql
+   FETCH CRTR INTO @usname, @trname
+END
+CLOSE CRTR DEALLOCATE CRTR
+drop table #names;
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_ExecUndo]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROC [dbo].[AUDIT_prc_ExecUndo]
+@SQL nvarchar(4000),
+@ERROR int output
+AS
+DECLARE @SqlString nvarchar(4000)
+SELECT @SqlString = 'Set Quoted_identifier on ' + @SQL
+exec sp_executesql @SqlString, N'@ERROR int output', @ERROR output
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_GetAuditUndoReport]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_GetAuditUndoReport]
+AS
+SELECT UndoLogId, UndoAction, Parsename(TabName, 1) TabName, PK_data, ColName, OLD_VALUE, [HOST_NAME], [APP_NAME], [MODIFIED_BY], [MODIFIED_DATE], UndoStatus, Comment FROM ##UndoLog
+-- rollback transaction to undo changes in tables
+rollback
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_Purge_AUDIT_LOG]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+/* ------------------------------------------------------------
+   PROCEDURE:     AUDIT_prc_Purge_AUDIT_LOG
+   AUTHOR:        ApexSQL 
+   UPDATED:	  	  19 Apr 2004
+   CHANGES:       Version 2.10
+		  		  Added @DELETE_ALL Parameter which will delete ALL Audit 
+		  		  Log data regardless of what other parameters were specifiec
+		  		  Fixed some problems where data in AUDIT_LOG_DATA was not being deleted only AUDIT_LOG_TRANSACTIONS
+------------------------------------------------------------ */
+CREATE PROCEDURE [dbo].[AUDIT_prc_Purge_AUDIT_LOG]
+(
+	@DELETE_ALL BIT,			--	This will delete all data
+	@OLDER_THAN INT = NULL,			--	pass NULL to skip this check
+	@OLDER_THAN_TYPE TINYINT = NULL,	-- 	1 - DAY, 2 - WEEK, 3 - MONTH; if @older_than is NULL, this parameter is not important
+	@MAX_ROWS INT = NULL			--	pass NULL to skip this check
+)
+AS
+BEGIN
+	If @DELETE_ALL = 1 
+	BEGIN
+		DELETE FROM dbo.AUDIT_LOG_DATA
+		DELETE FROM dbo.AUDIT_LOG_TRANSACTIONS
+	END
+	IF @OLDER_THAN IS NOT NULL
+	BEGIN
+		-- Get the cut off date and time
+		DECLARE @CUTOFF_DATETIME DATETIME
+		SET @CUTOFF_DATETIME =
+			CASE @OLDER_THAN_TYPE
+				WHEN 1 THEN DATEADD(DAY, -@OLDER_THAN, GETDATE())
+				WHEN 2 THEN DATEADD(WEEK,-@OLDER_THAN, GETDATE())
+				WHEN 3 THEN DATEADD(MONTH, -@OLDER_THAN, GETDATE())
+			END
+		-- Delete all rows from maindb.dbo.AUDIT_LOG_TRANSACTIONS that are older than 1 day(s)
+		PRINT CONVERT(VARCHAR,@CUTOFF_DATETIME)
+		DELETE
+		FROM dbo.AUDIT_LOG_DATA
+		WHERE AUDIT_LOG_TRANSACTION_ID IN
+		(SELECT AUDIT_LOG_TRANSACTION_ID FROM dbo.AUDIT_LOG_TRANSACTIONS
+		WHERE	MODIFIED_DATE < @CUTOFF_DATETIME)
+		DELETE
+		FROM dbo.AUDIT_LOG_TRANSACTIONS
+		WHERE
+			MODIFIED_DATE < @CUTOFF_DATETIME
+	END
+    -- Check if we should check for max number of rows
+	IF @MAX_ROWS IS NOT NULL
+	BEGIN
+		-- Get AUDIT_LOG_TRANSACTIONS row count
+		DECLARE @ROW_COUNT INT
+		SELECT @ROW_COUNT = COUNT(*)
+		FROM dbo.AUDIT_LOG_TRANSACTIONS
+		-- Check if there are more than 1 rows in the database
+		IF @ROW_COUNT > @MAX_ROWS
+		BEGIN
+			-- Create temporary table to hold ids of records to be purged
+			CREATE TABLE #AUDIT_LOG_PURGE_PROCESS_TEMP_TABLE (AUDIT_LOG_TRANSACTION_ID nvarchar(100))
+			-- Create dynamic query to fill the temporary table
+			DECLARE @SQL NVARCHAR(4000)
+			SET @SQL ='
+			INSERT
+			INTO #AUDIT_LOG_PURGE_PROCESS_TEMP_TABLE
+			SELECT TOP ' + CAST((@ROW_COUNT - @MAX_ROWS) AS varchar(10)) + ' AUDIT_LOG_TRANSACTION_ID
+			FROM dbo.AUDIT_LOG_TRANSACTIONS
+			ORDER BY MODIFIED_DATE'
+			--PRINT @SQL
+			-- Fill temporary table
+			EXEC sp_executesql @SQL
+			-- Delete records from AUDIT_LOG_TRANSACTIONS
+			DELETE
+			FROM dbo.AUDIT_LOG_DATA
+			WHERE AUDIT_LOG_TRANSACTION_ID IN
+				    (SELECT AUDIT_LOG_TRANSACTION_ID
+					 FROM #AUDIT_LOG_PURGE_PROCESS_TEMP_TABLE)
+			DELETE
+			FROM dbo.AUDIT_LOG_TRANSACTIONS
+			WHERE AUDIT_LOG_TRANSACTION_ID IN
+				(SELECT AUDIT_LOG_TRANSACTION_ID
+				 FROM #AUDIT_LOG_PURGE_PROCESS_TEMP_TABLE)
+			-- Drop temporary table
+			DROP TABLE #AUDIT_LOG_PURGE_PROCESS_TEMP_TABLE
+		END
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_ReportingAddFilterValue]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+create procedure [dbo].[AUDIT_prc_ReportingAddFilterValue]
+@index nvarchar(100),
+@value nvarchar(4000)
+as
+begin
+if not exists (select [value] from ##Filter where [index]=@index and [value] like Replace(@value collate database_default, '[', '[[]'))
+	insert into ##Filter([index], [value]) values(@index, @value)
+end
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_ReportingEnd]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+create procedure [dbo].[AUDIT_prc_ReportingEnd]
+as
+begin
+drop table ##Filter
+end
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_ReportingStart]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+create procedure [dbo].[AUDIT_prc_ReportingStart]
+as
+begin
+create table ##Filter([index] nvarchar(20), [value] nvarchar(4000))
+end
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_RollbackUndo]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROC [dbo].[AUDIT_prc_RollbackUndo]
+AS
+IF @@TRANCOUNT > 0
+  ROLLBACK TRAN
+SET IMPLICIT_TRANSACTIONS OFF
+DROP TABLE ##UndoLog
+DROP TABLE ##UndoColumns
+RETURN @@ERROR
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_RunUndo]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROC [dbo].[AUDIT_prc_RunUndo] 
+AS
+DECLARE @errors int
+DECLARE @UndoLogId int
+DECLARE @n int
+declare @print nvarchar(4000)
+declare @sql nvarchar(4000)
+declare @sql_err nvarchar(4000)
+declare @status tinyint
+declare @comment nvarchar(4000)
+declare @error int
+SET NOCOUNT OFF
+set @errors = 0
+SET @n = 0
+SET IMPLICIT_TRANSACTIONS ON
+DECLARE UndoItems CURSOR LOCAL FAST_FORWARD READ_ONLY FOR
+  SELECT UndoLogId FROM ##UndoLog ORDER BY UndoLogId
+OPEN UndoItems
+FETCH NEXT FROM UndoItems INTO @UndoLogId
+WHILE @@FETCH_STATUS = 0
+BEGIN
+exec dbo.AUDIT_prc_UndoGenerateCommand @UndoLogId, 0, @print output, @sql output
+exec dbo.[AUDIT_prc_UndoCheck] @UndoLogId, @status output, @comment output
+print @print
+exec dbo.AUDIT_prc_UndoGenerateCommand @UndoLogId, 1, @print output, @sql_err output
+if(len(@sql_err)<3999)
+begin
+  if @status=1
+  begin
+    print @sql
+    exec dbo.AUDIT_prc_ExecUndo @sql_err, @error output
+	if @error<>0 or @@ERROR<>0
+    begin
+      print 'Undoable operation'
+      set @errors=@errors+1
+    end
+    else
+    begin
+      print 'No errors returned'
+    end
+  end
+  else
+  begin
+    print 'Undoable operation: ' + @comment
+    set @errors=@errors+1
+  end
+end
+else
+BEGIN
+  print 'Error: result query more then 4000 characters length'
+  set @errors=@errors+1
+END
+set @n = @n + 1
+FETCH NEXT FROM UndoItems INTO @UndoLogId
+END
+DEALLOCATE UndoItems
+if @errors <> 0
+begin
+if(@errors = @n)
+  RaisError ('All operations with errors or undoable', 16, 1)
+end
+select @errors
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_StandardReport]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_StandardReport]
+  (	@DATE_FROM 			nvarchar(50)	= NULL,
+	@DATE_TO 			nvarchar(50)	= NULL,
+    @OLD_VALUE			varchar(8000)    = NULL,    
+    @NEW_VALUE			varchar(8000)    = NULL,    
+    @WHERE				nvarchar(4000)   = NULL,
+    @ROW_COUNT			int              = NULL)
+AS
+declare 
+@strSql nvarchar(4000),
+@ver7 bit,
+@ver2000 bit,
+@WhereSql nvarchar(4000),
+@cmptlvl int
+Select @cmptlvl = t1.cmptlevel 
+from master.dbo.sysdatabases t1
+where t1.[name]=DB_NAME()
+set @ver7 = 0
+IF @cmptlvl < 80 set @ver7 = 1
+set @ver2000 = 0
+IF @cmptlvl < 90 set @ver2000 = 1
+set nocount on
+/* Set replacement values for filter parameter */
+if (select count(*) from ##Filter where [index]='DATABASE') = 0
+	insert into ##Filter([index], [value]) values('DATABASE', '%')
+if (select count(*) from ##Filter where [index]='TABLE_OWNER') = 0
+	insert into ##Filter([index], [value]) values('TABLE_OWNER', '%')
+if (select count(*) from ##Filter where [index]='TABLE_NAME') = 0
+	insert into ##Filter([index], [value]) values('TABLE_NAME', '%')
+if (select count(*) from ##Filter where [index]='FIELD_NAME') = 0
+	insert into ##Filter([index], [value]) values('FIELD_NAME', '%')
+if (select count(*) from ##Filter where [index]='USER_NAME') = 0
+	insert into ##Filter([index], [value]) values('USER_NAME', '%')
+if (select count(*) from ##Filter where [index]='ACTION_ID') = 0
+	insert into ##Filter([index], [value]) values('ACTION_ID', '%')
+if (select count(*) from ##Filter where [index]='HOST_NAME') = 0
+	insert into ##Filter([index], [value]) values('HOST_NAME', '%')
+if (select count(*) from ##Filter where [index]='APP_NAME') = 0
+	insert into ##Filter([index], [value]) values('APP_NAME', '%')
+IF @DATE_FROM IS NULL
+   SET @DATE_FROM= '1/1/1900'
+IF @DATE_TO IS NULL
+   SET @DATE_TO = '1/1/3900'
+IF @OLD_VALUE IS NULL
+   SET @OLD_VALUE = '%'
+IF @NEW_VALUE IS NULL
+   SET @NEW_VALUE = '%'
+IF @ROW_COUNT IS NULL
+   SET @ROW_COUNT = 99999
+/* Get Object ID */
+--SELECT @obj_id = object_id(@full_table_name)
+set @strSql = '
+declare
+@DATE_FROM      datetime,
+@DATE_TO        datetime,
+@OLD_VALUE      varchar(8000),
+@NEW_VALUE      varchar(8000),
+@ROW_COUNT      int
+set @DATE_FROM = '''+convert(nvarchar(100), @DATE_FROM, 120)+'''
+set @DATE_TO = '''+convert(nvarchar(100), @DATE_TO, 120)+'''
+set @OLD_VALUE = '''+@OLD_VALUE+'''
+set @NEW_VALUE = '''+@NEW_VALUE+'''
+set @ROW_COUNT = '+cast(@ROW_COUNT as nvarchar(100))+'
+select top '+cast(@ROW_COUNT as nvarchar(100))+' * from (
+   SELECT  t.[DATABASE] ''Database'',
+		   t.TABLE_NAME ''Table Name'',
+		   t.TABLE_SCHEMA ''' +
+	CASE @ver2000 WHEN 1 THEN 'Owner' ELSE 'Table Schema' END +''',
+           CASE    t.AUDIT_ACTION_ID
+               WHEN 2 then ''Insert''
+               WHEN 1 then ''Update''
+               WHEN 3 then ''Delete''
+           END         ''Action'',
+           KEY1 as ''Key 1'',
+           KEY2 as ''Key 2'',
+           KEY3 as ''Key 3'',
+           KEY4 as ''Key 4'',
+           d.COL_NAME ''Column Name'',
+           d.OLD_VALUE ''Old Value'',
+           d.NEW_VALUE ''New Value'',
+           t.MODIFIED_BY ''Modified By'',
+           t.MODIFIED_DATE ''Modified Date'',
+           t.HOST_NAME ''Computer'',
+           t.APP_NAME ''Application''
+    FROM dbo.AUDIT_LOG_TRANSACTIONS t
+    JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID = t.AUDIT_LOG_TRANSACTION_ID,
+	(select [value] from ##Filter where [index]=''DATABASE'') t_db,-- database
+	(select [value] from ##Filter where [index]=''TABLE_OWNER'') t_owners,-- owners
+	(select [value] from ##Filter where [index]=''TABLE_NAME'') t_tables,-- tables
+	(select [value] from ##Filter where [index]=''FIELD_NAME'') t_columns,-- columns
+	(select [value] from ##Filter where [index]=''USER_NAME'') t_users,-- users
+	(select [value] from ##Filter where [index]=''ACTION_ID'') t_actions,-- actions
+	(select [value] from ##Filter where [index]=''HOST_NAME'') t_hosts,-- hosts
+	(select [value] from ##Filter where [index]=''APP_NAME'') t_apps -- applications
+    WHERE  
+	t.[DATABASE] like Replace(t_db.[value] ' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'') 
+	  AND t.TABLE_SCHEMA like Replace(t_owners.[value] ' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'') 
+	  AND t.TABLE_NAME like Replace(t_tables.[value] ' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'') 
+      AND d.COL_NAME like Replace(t_columns.[value] 
+	' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'')
+      AND t.MODIFIED_BY like Replace(t_users.[value] ' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'')
+      AND t.MODIFIED_DATE >= @DATE_FROM
+      AND t.MODIFIED_DATE < @DATE_TO
+      AND Cast(t.AUDIT_ACTION_ID as char(1)) like Replace(t_actions.[value] ' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'')
+      AND ((d.OLD_VALUE IS NULL AND @OLD_VALUE = ''%'') OR (d.OLD_VALUE LIKE @OLD_VALUE))
+      AND ((d.NEW_VALUE IS NULL AND @NEW_VALUE = ''%'') OR (d.NEW_VALUE LIKE @NEW_VALUE))
+      AND t.HOST_NAME like Replace(t_hosts.[value] ' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'')
+      AND t.APP_NAME like Replace(t_apps.[value] ' +
+	case @ver7 when 0 then ' collate database_default'
+		else '' end +
+		', ''['', ''[[]'')
+) [table]'
+if @WHERE IS NOT NULL
+begin
+	set @WhereSql = @strSql+' where '+@WHERE
+	exec sp_executesql @WhereSql
+end
+else
+	exec sp_executesql @strSql
+RETURN @@ERROR
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_UndoAddTriggersCheck]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROC [dbo].[AUDIT_prc_UndoAddTriggersCheck]
+@TabName nvarchar(4000),
+@action int,
+@script nvarchar(4000),
+@result_script nvarchar(4000) output
+as
+begin
+	declare @trigger_name nvarchar(4000)
+	declare @use_disable bit
+	set @use_disable = 0
+	if @action=1 --update trigger
+	begin
+		set @trigger_name='[tr_u_AUDIT_'+PARSENAME(@TabName,1)+']'
+		if(OBJECTPROPERTY(OBJECT_ID(@trigger_name), 'ExecIsUpdateTrigger')=1)
+		if(OBJECTPROPERTY(OBJECT_ID(@trigger_name), 'ExecIsTriggerDisabled')=0)
+			set @use_disable = 1
+	end
+	else if @action=2 --insert trigger
+	begin
+		set @trigger_name='[tr_i_AUDIT_'+PARSENAME(@TabName,1)+']'
+		if(OBJECTPROPERTY(OBJECT_ID(@trigger_name), 'ExecIsInsertTrigger')=1)
+		if(OBJECTPROPERTY(OBJECT_ID(@trigger_name), 'ExecIsTriggerDisabled')=0)
+			set @use_disable = 1
+	end
+	else if @action=3 --delete trigger
+	begin
+		set @trigger_name='[tr_d_AUDIT_'+PARSENAME(@TabName,1)+']'
+		if(OBJECTPROPERTY(OBJECT_ID(@trigger_name), 'ExecIsDeleteTrigger')=1)
+		if(OBJECTPROPERTY(OBJECT_ID(@trigger_name), 'ExecIsTriggerDisabled')=0)
+			set @use_disable = 1
+	end
+	if @use_disable=1
+	begin
+		set @result_script = 'ALTER TABLE '+@TabName+'
+  DISABLE TRIGGER '+@trigger_name+' 
+' + @script +'
+ALTER TABLE '+@TabName+'
+  ENABLE TRIGGER '+@trigger_name+' 
+'
+	end
+	else
+	begin
+		set @result_script=@script
+	end
+end
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_UndoCheck]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_UndoCheck]
+@UndoLogId int,
+@UndoStatus tinyint OUTPUT,
+@UndoComment nvarchar(4000) OUTPUT
+AS
+BEGIN
+DECLARE @UndoAction tinyint -- 1-Update, 2-Undelete, 3-Delete
+DECLARE @TabName sysname
+DECLARE @PK_data nvarchar(4000)
+DECLARE @ColName sysname
+DECLARE @MODIFIED_DATE datetime
+DECLARE @NextMODIFIED_DATE datetime	
+DECLARE @ROWEXISTS bit
+DECLARE @SqlString nvarchar(4000)
+  SELECT @UndoAction=UndoAction, @TabName=TabName, @PK_data=PK_data, @ColName=ColName, @MODIFIED_DATE=MODIFIED_DATE 
+    FROM ##UndoLog 
+    WHERE @UndoLogId=UndoLogId
+  -- For UPDATE
+  IF @UndoAction = 1
+  BEGIN
+    SET @SqlString = 'SET @ROWEXISTS = CASE WHEN EXISTS(SELECT * FROM '+@TabName+' WHERE '+@PK_data+') THEN 1 ELSE 0 END'
+    EXEC sp_executesql @SqlString, N'@ROWEXISTS bit OUTPUT', @ROWEXISTS OUTPUT
+    IF @ROWEXISTS = 0
+    BEGIN
+      SET @UndoStatus = 0
+      SET @UndoComment = 'The row does not exist anymore'    
+      GOTO ReturnLabel
+    END
+    -- If there was an action against the Tab/PK/Col afterward
+    SELECT TOP 1 @NextMODIFIED_DATE = MODIFIED_DATE
+      FROM dbo.AUDIT_LOG_TRANSACTIONS t
+      INNER JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID = t.AUDIT_LOG_TRANSACTION_ID
+      WHERE MODIFIED_DATE > @MODIFIED_DATE
+        AND TABLE_NAME = @TabName
+        AND PRIMARY_KEY_DATA = @PK_data
+        AND AUDIT_ACTION_ID = 3
+    IF @@ROWCOUNT > 0
+    BEGIN
+      SET @UndoStatus = 1
+      SET @UndoComment = 'The row was deleted after the update. Date: '+CONVERT(varchar(40),@NextMODIFIED_DATE,109)
+      GOTO ReturnLabel
+    END
+    SELECT TOP 1 @NextMODIFIED_DATE = MODIFIED_DATE
+      FROM dbo.AUDIT_LOG_TRANSACTIONS t 
+      INNER JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID = t.AUDIT_LOG_TRANSACTION_ID
+      WHERE MODIFIED_DATE > @MODIFIED_DATE
+        AND TABLE_NAME = @TabName
+        AND PRIMARY_KEY_DATA = @PK_data
+        AND AUDIT_ACTION_ID = 1
+        AND [COL_NAME] = @ColName
+    IF @@ROWCOUNT > 0
+    BEGIN      
+      SET @UndoStatus = 1
+      SET @UndoComment = 'The value for the column in a row with the PK was updated later. Date: '+CONVERT(varchar(40),@NextMODIFIED_DATE,109)
+      GOTO ReturnLabel
+    END
+    -- The Tab/PK/Col wasn't toughed
+    SET @UndoStatus = 1
+    SET @UndoComment = ''
+    GOTO ReturnLabel
+  END
+  -- For Un-Delete
+  ELSE IF @UndoAction = 2
+  BEGIN
+    -- Check if the Tab/PK row is still in the table
+    SET @SqlString = 'SET @ROWEXISTS = CASE WHEN EXISTS(SELECT * FROM '+@TabName+' WHERE '+@PK_data+') THEN 1 ELSE 0 END'
+    EXEC sp_executesql @SqlString, N'@ROWEXISTS bit OUTPUT', @ROWEXISTS OUTPUT
+    IF @ROWEXISTS = 1
+    BEGIN
+      SET @UndoStatus = 0
+      SET @UndoComment = 'The row with the PK already exists'    
+      GOTO ReturnLabel
+    END
+    -- Check if all column values are available
+    -- If there was an action against the Tab/PK/Col afterward
+    SELECT TOP 1 @NextMODIFIED_DATE = MODIFIED_DATE
+      FROM dbo.AUDIT_LOG_TRANSACTIONS t 
+      INNER JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID = t.AUDIT_LOG_TRANSACTION_ID
+      WHERE MODIFIED_DATE > @MODIFIED_DATE
+        AND TABLE_NAME = @TabName
+        AND PRIMARY_KEY_DATA = @PK_data
+    IF @@ROWCOUNT > 0
+    BEGIN      
+      SET @UndoStatus = 1
+      SET @UndoComment = 'There were actions against the Tab/PK after the deletion. Date: '+CONVERT(varchar(40),@NextMODIFIED_DATE,109)
+      GOTO ReturnLabel
+    END
+    -- The Tab/PK wasn't toughed
+    SET @UndoStatus = 1
+    SET @UndoComment = ''
+    GOTO ReturnLabel
+  END
+  -- For Un-Insert
+  ELSE IF @UndoAction = 3
+  BEGIN
+    -- Check if the Tab/PK row is still in the table
+    SET @SqlString = 'SELECT ['+@ColName+'] INTO #tmp FROM '+@TabName+' WHERE '+@PK_data
+    EXEC (@SqlString)
+    IF @@ROWCOUNT = 0
+    BEGIN
+      SET @UndoStatus = 0
+      SET @UndoComment = 'The row does not exist anymore'    
+      GOTO ReturnLabel
+    END
+    -- If there was an action against the Tab/PK/Col afterward
+    SELECT TOP 1 @NextMODIFIED_DATE = MODIFIED_DATE
+      FROM dbo.AUDIT_LOG_TRANSACTIONS t 
+      INNER JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID = t.AUDIT_LOG_TRANSACTION_ID
+      WHERE MODIFIED_DATE > @MODIFIED_DATE
+        AND TABLE_NAME = @TabName
+        AND PRIMARY_KEY_DATA = @PK_data
+        AND AUDIT_ACTION_ID = 3
+    IF @@ROWCOUNT > 0
+    BEGIN
+      SET @UndoStatus = 1
+      SET @UndoComment = 'The row was deleted after the insertion. Date: '+CONVERT(varchar(40),@NextMODIFIED_DATE,109)
+      GOTO ReturnLabel
+    END
+    SELECT TOP 1 @NextMODIFIED_DATE = MODIFIED_DATE
+      FROM dbo.AUDIT_LOG_TRANSACTIONS t 
+      INNER JOIN dbo.AUDIT_LOG_DATA d ON d.AUDIT_LOG_TRANSACTION_ID = t.AUDIT_LOG_TRANSACTION_ID
+      WHERE MODIFIED_DATE > @MODIFIED_DATE
+        AND TABLE_NAME = @TabName
+        AND PRIMARY_KEY_DATA = @PK_data
+    IF @@ROWCOUNT > 0
+    BEGIN
+      SET @UndoStatus = 1
+      SET @UndoComment = 'There were actions against the Tab/PK after the insertion. Date: '+CONVERT(varchar(40),@NextMODIFIED_DATE,109)
+      GOTO ReturnLabel
+    END
+    -- There is no records fot the Tab/PK in AUDIT_LOG_TRANSACTIONS
+    SET @UndoStatus = 1
+    SET @UndoComment = ''
+    GOTO ReturnLabel
+  END
+ReturnLabel:
+END
+GO
+/****** Object:  StoredProcedure [dbo].[AUDIT_prc_UndoGenerateCommand]    Script Date: 18/02/2023 19:48:00 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE PROCEDURE [dbo].[AUDIT_prc_UndoGenerateCommand]
+@UndoLogId int,
+@CheckError bit,
+@Print nvarchar(4000) OUTPUT,
+@SQL nvarchar(4000) OUTPUT
+AS
+-- Check if for each Undelete action in ##UndoLog there are all columns in ##UndoColumns. If not, the Undelete
+-- cannot be done
+BEGIN
+DECLARE @Comment varchar(8000)
+DECLARE @UndoStatus int
+DECLARE @UndoAction tinyint
+DECLARE @TabName nvarchar(128)
+DECLARE @ColName nvarchar(128)
+DECLARE @PK_data nvarchar(4000)
+DECLARE @OLD_VALUE nvarchar(4000)
+DECLARE @HOST_NAME nvarchar(25)
+DECLARE @APP_NAME nvarchar(100)
+DECLARE @MODIFIED_BY nvarchar(30)
+DECLARE @MODIFIED_DATE datetime
+DECLARE @ColumnList nvarchar(4000)
+DECLARE @ColumnDataList nvarchar(4000)
+DECLARE @xtype int
+DECLARE @IdentityCount int
+DECLARE @SQL_OUT nvarchar(4000)
+SET NOCOUNT OFF
+  SELECT @UndoAction=UndoAction, @TabName=TabName, @PK_data=PK_data, @ColName=ColName, @OLD_VALUE=replace(OLD_VALUE,'''',''''''),
+         @HOST_NAME=[HOST_NAME], @APP_NAME=[APP_NAME], @MODIFIED_BY=MODIFIED_BY, @MODIFIED_DATE=MODIFIED_DATE,
+         @UndoStatus=UndoStatus, @Comment=Comment
+    FROM ##UndoLog
+    WHERE UndoLogId=@UndoLogId
+  SET @Print='********** '+LTRIM(STR(@UndoLogId))+' **********
+'
+  IF @UndoAction = 1
+  BEGIN
+    SELECT @xtype = c.xtype 
+      FROM dbo.sysobjects o
+      JOIN dbo.syscolumns c ON c.id = o.id
+      WHERE o.id = OBJECT_ID(@TabName) and c.name = @ColName
+    SET @SQL = 'UPDATE '+@TabName+' SET ['+@ColName+']='+ISNULL(
+        CASE WHEN @xtype in (40, 41, 42, 43, 175, 239, 231, 167, 61, 58, 98, 240, 241)
+              THEN ''''+@OLD_VALUE+'''' 
+             WHEN @xtype in (173, 165)
+              THEN 'CONVERT(varbinary(8000),'''+@OLD_VALUE+''')'
+             WHEN @xtype in (36)
+              THEN 'CONVERT(uniqueidentifier,'''+@OLD_VALUE+''')'
+             ELSE @OLD_VALUE
+         END,'null') + ' WHERE '+@PK_data+'
+' + CASE WHEN @CheckError=1
+      THEN 'set @ERROR=@@ERROR
+'   ELSE ''
+    END
+    EXEC dbo.AUDIT_prc_UndoAddTriggersCheck @TabName, @UndoAction, @SQL, @SQL_OUT output
+	set @SQL = @SQL_OUT
+  END
+  ELSE IF @UndoAction = 2 -- Undelete
+  BEGIN
+    SET @ColumnList = ''
+    SET @ColumnDataList = ''
+    DECLARE ColumnData CURSOR FOR
+      SELECT ColName, OLD_VALUE FROM ##UndoColumns WHERE UndoLogId = @UndoLogId
+    OPEN ColumnData
+    FETCH NEXT FROM ColumnData INTO @ColName, @OLD_VALUE
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+      SELECT @xtype = c.xtype 
+      FROM dbo.sysobjects o
+      JOIN dbo.syscolumns c ON c.id = o.id
+      WHERE o.id = OBJECT_ID(@TabName) and c.name = @ColName
+      IF @ColumnList <> ''
+        SET @ColumnList = @ColumnList + ','
+      IF @ColumnDataList <> ''
+        SET @ColumnDataList = @ColumnDataList + ','
+      SET @ColumnList = @ColumnList + '[' + @ColName + ']'
+      SET @ColumnDataList = @ColumnDataList +
+        CASE WHEN @xtype in (40, 41, 42, 43, 175, 239, 231, 167, 61, 58, 240, 241)
+              THEN ''''+replace(@OLD_VALUE, '''', '''''')+'''' 
+             WHEN @xtype in (173, 165)
+              THEN 'CONVERT(varbinary(8000),'''+@OLD_VALUE+''')'
+             WHEN @xtype in (36)
+              THEN 'CONVERT(uniqueidentifier,'''+@OLD_VALUE+''')'
+             ELSE @OLD_VALUE
+         END
+      FETCH NEXT FROM ColumnData INTO @ColName, @OLD_VALUE
+    END
+    DEALLOCATE ColumnData
+	set @SQL = ''
+    IF OBJECTPROPERTY(object_id(@TabName),'TableHasIdentity')=1
+	begin
+		select @IdentityCount = Count(*) from sys.identity_columns where object_id=object_id(@TabName) and @ColumnList like '%[' + name +']%'
+		if @IdentityCount > 0
+  			set @SQL = @SQL + 'SET IDENTITY_INSERT '+@TabName+' ON'
+	end
+	set @SQL = @SQL + '
+INSERT INTO '+@TabName+' ('+@ColumnList+') VALUES ('+@ColumnDataList+')
+' + CASE WHEN @CheckError=1
+      THEN 'set @ERROR=@@ERROR
+'   ELSE ''
+    END 
+	IF OBJECTPROPERTY(object_id(@TabName),'TableHasIdentity')=1
+		if @IdentityCount > 0
+  		set @SQL = @SQL + 'SET IDENTITY_INSERT '+@TabName+' OFF'
+    EXEC dbo.AUDIT_prc_UndoAddTriggersCheck @TabName, @UndoAction, @SQL, @SQL_OUT output
+	set @SQL = @SQL_OUT
+  END
+  ELSE IF @UndoAction = 3 -- UnInsert
+  BEGIN
+    SET @SQL = 'DELETE FROM '+@TabName+' WHERE '+@PK_data+'
+' + CASE WHEN @CheckError=1
+      THEN 'set @ERROR=@@ERROR
+'   ELSE ''
+    END 
+    EXEC dbo.AUDIT_prc_UndoAddTriggersCheck @TabName, @UndoAction, @SQL, @SQL_OUT output
+	set @SQL = @SQL_OUT
+  END
+  SET @Print= @Print + CASE 
+  WHEN @UndoAction = 1 
+    THEN ISNULL('Undo UPDATE for ' + RTRIM(@TabName)+'.'+RTRIM(@ColName)+', PK:"'+@PK_data+'", done on '+CONVERT(varchar(40),@MODIFIED_DATE,109)+
+	 ' by '+ISNULL(@MODIFIED_BY,'Unknown')+', HOST:'+ISNULL(@HOST_NAME,'Unknown')+', App:'+ISNULL(@APP_NAME,'Unknown'),'No Details')
+  WHEN @UndoAction = 2
+    THEN ISNULL('Undelete for ' + RTRIM(@TabName)+', PK:"'+@PK_data+'", done on '+CONVERT(varchar(40),@MODIFIED_DATE,109)+
+	 ' by '+ISNULL(@MODIFIED_BY,'Unknown')+', HOST:'+ISNULL(@HOST_NAME,'Unknown')+', App:'+ISNULL(@APP_NAME,'Unknown'),'No Details')
+  WHEN @UndoAction = 3 
+    THEN ISNULL('Undo INSERT for ' + RTRIM(@TabName)+', PK:"'+@PK_data+'", done on '+CONVERT(varchar(40),@MODIFIED_DATE,109)+
+	 ' by '+ISNULL(@MODIFIED_BY,'Unknown')+', HOST:'+ISNULL(@HOST_NAME,'Unknown')+', App:'+ISNULL(@APP_NAME,'Unknown'),'No Details')
+  END
+END
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'PORCENTAJE DE IGV' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI03', @level2type=N'COLUMN',@level2name=N'POIGV_I03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FECHA DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'FDREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'TIPO DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'TDREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'SERIE DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'SDREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'NUMERO DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'NDREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CANTIDAD DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'CAREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'UNIDAD MEDIDA DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'UMREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'DESCRIPCION DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'DSREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'PRECIO DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'PRREF_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'TOTAL DOC REFERENCIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'TODRE_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'IMPORTE CANCELADO EN ESTA TRANSACCION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'ICDRE_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ID FACTURACION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI06', @level2type=N'COLUMN',@level2name=N'IDFAC_I06'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CASILLEROS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CCI10', @level2type=N'COLUMN',@level2name=N'CAREF_I10'
+GO
+USE [master]
+GO
+ALTER DATABASE [CC] SET  READ_WRITE 
+GO

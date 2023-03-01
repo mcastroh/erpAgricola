@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+
+
+
+@*@model IEnumerable<Agricola_Models.Models.UnidadMedida>
+@{
+    ViewData["Title"] = "Fetching data from web API";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayName("Descripción")</th>
+            <th>@Html.DisplayName("Símbolo")</th>
+            <th>@Html.DisplayName("Id SUNAT")</th>
+            <th>@Html.DisplayName("Usuario")</th>
+            <th>@Html.DisplayName("Fecha")</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.Descripcion</td>
+                <td>@item.Simbolo</td>
+                <td>@item.IdSunat</td>
+                <td>@item.AuditoriaUser</td>
+                <td>@item.AuditoriaFecha</td>
+            </tr>
+        }
+    </tbody>
+</table>
+*@
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,76 @@
+﻿@model IEnumerable<Agricola_Models.DTO.UnidadMedidaDto>
+
+@{
+    ViewBag.Title = "Inicio";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: center;
+            background-color: #04AA6D;
+            color: white;
+        } 
+
+</style>
+
+<div class="card" style="margin-top:20px">
+    <div class="card-header" >
+        <h3>Unidades de medida</h3>                
+    </div>
+    <div class="card-body">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a class="btn btn-warning btn-sm" href="@Url.Action("RegistrarOrEditar", "UnidadMedida", new { idUnidad= 0})">Adicionar</a>
+            <a class="btn btn-warning btn-sm" href="@Url.Action("ListarPDF", "UnidadMedida", new { idUnidad= 0})">Listar PDF</a>
+            <a class="btn btn-warning btn-sm" href="@Url.Action("ExportarExcel", "UnidadMedida", new { idUnidad= 0})">Exportar Excel</a>
+        </div>
+        <hr />
+        <table id="customers" class="table">
+            <thead class="table-primary">
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Símbolo</th>
+                    <th>SUNAT</th>
+                    <th style="width:150px">Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.IdUnidad</td>
+                        <td>@item.Descripcion</td>
+                        <td>@item.Simbolo</td>
+                        <td>@item.IdSunat</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="@Url.Action("RegistrarOrEditar", "UnidadMedida", new { idUnidad= item.IdUnidad })">Editar</a>
+                            <a class="btn btn-danger btn-sm" href="@Url.Action("Eliminar", "UnidadMedida", new { idUnidad= item.IdUnidad })">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div> 

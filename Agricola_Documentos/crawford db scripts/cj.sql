@@ -1,0 +1,633 @@
+USE [master]
+GO
+/****** Object:  Database [CJ]    Script Date: 18/02/2023 19:48:34 ******/
+CREATE DATABASE [CJ]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'CJ_Data', FILENAME = N'D:\MSSQL14.MSSQLSERVER\MSSQL\DATA\CJ.MDF' , SIZE = 13376KB , MAXSIZE = UNLIMITED, FILEGROWTH = 10%)
+ LOG ON 
+( NAME = N'CJ_Log', FILENAME = N'D:\MSSQL14.MSSQLSERVER\MSSQL\DATA\CJ.LDF' , SIZE = 3840KB , MAXSIZE = UNLIMITED, FILEGROWTH = 10%)
+GO
+ALTER DATABASE [CJ] SET COMPATIBILITY_LEVEL = 100
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [CJ].[dbo].[sp_fulltext_database] @action = 'disable'
+end
+GO
+ALTER DATABASE [CJ] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [CJ] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [CJ] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [CJ] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [CJ] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [CJ] SET AUTO_CLOSE ON 
+GO
+ALTER DATABASE [CJ] SET AUTO_SHRINK ON 
+GO
+ALTER DATABASE [CJ] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [CJ] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [CJ] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [CJ] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [CJ] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [CJ] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [CJ] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [CJ] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [CJ] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [CJ] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [CJ] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [CJ] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [CJ] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [CJ] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [CJ] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [CJ] SET RECOVERY SIMPLE 
+GO
+ALTER DATABASE [CJ] SET  MULTI_USER 
+GO
+ALTER DATABASE [CJ] SET PAGE_VERIFY TORN_PAGE_DETECTION  
+GO
+ALTER DATABASE [CJ] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [CJ] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [CJ] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [CJ] SET DELAYED_DURABILITY = DISABLED 
+GO
+ALTER DATABASE [CJ] SET QUERY_STORE = OFF
+GO
+USE [CJ]
+GO
+/****** Object:  User [usersql]    Script Date: 18/02/2023 19:48:34 ******/
+CREATE USER [usersql] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[usersql]
+GO
+/****** Object:  User [user]    Script Date: 18/02/2023 19:48:34 ******/
+CREATE USER [user] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[user]
+GO
+/****** Object:  User [sqlbackup]    Script Date: 18/02/2023 19:48:34 ******/
+CREATE USER [sqlbackup] WITH DEFAULT_SCHEMA=[sqlbackup]
+GO
+/****** Object:  User [consulta]    Script Date: 18/02/2023 19:48:34 ******/
+CREATE USER [consulta] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[consulta]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [user]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [consulta]
+GO
+/****** Object:  Schema [consulta]    Script Date: 18/02/2023 19:48:35 ******/
+CREATE SCHEMA [consulta]
+GO
+/****** Object:  Schema [sqlbackup]    Script Date: 18/02/2023 19:48:35 ******/
+CREATE SCHEMA [sqlbackup]
+GO
+/****** Object:  Schema [user]    Script Date: 18/02/2023 19:48:35 ******/
+CREATE SCHEMA [user]
+GO
+/****** Object:  Schema [usersql]    Script Date: 18/02/2023 19:48:35 ******/
+CREATE SCHEMA [usersql]
+GO
+/****** Object:  Table [dbo].[CJI01]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJI01](
+	[IDCAB_I01] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PERIO_I01] [char](7) NOT NULL,
+	[LOCAL_I01] [char](2) NOT NULL,
+	[SUBDI_I01] [char](2) NOT NULL,
+	[CTCTE_I01] [char](20) NOT NULL,
+	[CJBCO_I01] [varchar](8) NOT NULL,
+	[VOUCH_I01] [char](12) NOT NULL,
+	[FEREG_I01] [datetime] NOT NULL,
+	[DEFEC_I01] [char](10) NOT NULL,
+	[OPERA_I01] [char](2) NOT NULL,
+	[TANEX_I01] [char](2) NOT NULL,
+	[MAEST_I01] [char](11) NOT NULL,
+	[TIDOC_I01] [char](2) NOT NULL,
+	[NUDOC_I01] [char](17) NOT NULL,
+	[FEDOC_I01] [datetime] NOT NULL,
+	[FEPAG_I01] [datetime] NOT NULL,
+	[FAVOR_I01] [varchar](100) NOT NULL,
+	[GLOSA_I01] [varchar](100) NOT NULL,
+	[MONED_I01] [char](12) NOT NULL,
+	[CONVE_I01] [char](3) NOT NULL,
+	[TICAM_I01] [float] NOT NULL,
+	[ABOSO_I01] [float] NOT NULL,
+	[CARSO_I01] [float] NOT NULL,
+	[ABODO_I01] [float] NOT NULL,
+	[CARDO_I01] [float] NOT NULL,
+	[CONTA_I01] [char](1) NOT NULL,
+	[FECON_I01] [datetime] NOT NULL,
+	[STATU_I01] [char](12) NOT NULL,
+	[USUAR_I01] [char](10) NOT NULL,
+	[CAANT_I01] [char](1) NULL,
+	[REDET_I01] [char](12) NULL,
+	[COBRA_I01] [char](1) NULL,
+	[CONCI_I01] [char](1) NULL,
+	[FLGPO_I01] [bit] NULL,
+	[GRUPO_I01] [varchar](8) NULL,
+	[TICLT_I01] [varchar](2) NULL,
+	[SUCUR_I01] [varchar](7) NULL,
+	[NUOPB_I01] [varchar](10) NULL,
+	[DIFER_I01] [bit] NULL,
+	[NOPER_I01] [varchar](10) NULL,
+	[FOPER_I01] [datetime] NULL,
+ CONSTRAINT [PK_CJI01] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I01] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[cji01bk_20120802]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[cji01bk_20120802](
+	[IDCAB_I01] [int] IDENTITY(1,1) NOT NULL,
+	[PERIO_I01] [char](7) NOT NULL,
+	[LOCAL_I01] [char](2) NOT NULL,
+	[SUBDI_I01] [char](2) NOT NULL,
+	[CTCTE_I01] [char](20) NOT NULL,
+	[CJBCO_I01] [varchar](8) NOT NULL,
+	[VOUCH_I01] [char](12) NOT NULL,
+	[FEREG_I01] [datetime] NOT NULL,
+	[DEFEC_I01] [char](10) NOT NULL,
+	[OPERA_I01] [char](2) NOT NULL,
+	[TANEX_I01] [char](2) NOT NULL,
+	[MAEST_I01] [char](11) NOT NULL,
+	[TIDOC_I01] [char](2) NOT NULL,
+	[NUDOC_I01] [char](17) NOT NULL,
+	[FEDOC_I01] [datetime] NOT NULL,
+	[FEPAG_I01] [datetime] NOT NULL,
+	[FAVOR_I01] [varchar](100) NOT NULL,
+	[GLOSA_I01] [varchar](100) NOT NULL,
+	[MONED_I01] [char](12) NOT NULL,
+	[CONVE_I01] [char](3) NOT NULL,
+	[TICAM_I01] [float] NOT NULL,
+	[ABOSO_I01] [float] NOT NULL,
+	[CARSO_I01] [float] NOT NULL,
+	[ABODO_I01] [float] NOT NULL,
+	[CARDO_I01] [float] NOT NULL,
+	[CONTA_I01] [char](1) NOT NULL,
+	[FECON_I01] [datetime] NOT NULL,
+	[STATU_I01] [char](12) NOT NULL,
+	[USUAR_I01] [char](10) NOT NULL,
+	[CAANT_I01] [char](1) NULL,
+	[REDET_I01] [char](12) NULL,
+	[COBRA_I01] [char](1) NULL,
+	[CONCI_I01] [char](1) NULL,
+	[FLGPO_I01] [bit] NULL,
+	[GRUPO_I01] [varchar](8) NULL,
+	[TICLT_I01] [varchar](2) NULL,
+	[SUCUR_I01] [varchar](7) NULL,
+	[NUOPB_I01] [varchar](10) NULL,
+	[DIFER_I01] [bit] NULL,
+	[NOPER_I01] [varchar](10) NULL,
+	[FOPER_I01] [datetime] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJI02]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJI02](
+	[IDDET_I02] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I02] [int] NOT NULL,
+	[ITEM__I02] [varchar](5) NOT NULL,
+	[CUENT_I02] [varchar](8) NOT NULL,
+	[COSTO_I02] [varchar](8) NULL,
+	[MAEST_I02] [varchar](11) NULL,
+	[TIDOC_I02] [varchar](2) NOT NULL,
+	[SEDOC_I02] [varchar](4) NULL,
+	[NUDOC_I02] [varchar](17) NOT NULL,
+	[FEDOC_I02] [datetime] NOT NULL,
+	[DEFEC_I02] [varchar](1) NOT NULL,
+	[SOLES_I02] [float] NOT NULL,
+	[DOLAR_I02] [float] NOT NULL,
+	[REFER_I02] [varchar](100) NULL,
+	[IDPRO_I02] [int] NOT NULL,
+	[FEVEN_I02] [datetime] NULL,
+	[FLANT_I02] [bit] NULL,
+	[FLCAN_I02] [bit] NULL,
+	[SDOAN_I02] [float] NULL,
+ CONSTRAINT [PK_CJI02] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I02] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[cji02bk_20120802]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[cji02bk_20120802](
+	[IDDET_I02] [int] IDENTITY(1,1) NOT NULL,
+	[IDCAB_I02] [int] NOT NULL,
+	[ITEM__I02] [varchar](5) NOT NULL,
+	[CUENT_I02] [varchar](8) NOT NULL,
+	[COSTO_I02] [varchar](8) NULL,
+	[MAEST_I02] [varchar](11) NULL,
+	[TIDOC_I02] [varchar](2) NOT NULL,
+	[SEDOC_I02] [varchar](4) NULL,
+	[NUDOC_I02] [varchar](17) NOT NULL,
+	[FEDOC_I02] [datetime] NOT NULL,
+	[DEFEC_I02] [varchar](1) NOT NULL,
+	[SOLES_I02] [float] NOT NULL,
+	[DOLAR_I02] [float] NOT NULL,
+	[REFER_I02] [varchar](100) NULL,
+	[IDPRO_I02] [int] NOT NULL,
+	[FEVEN_I02] [datetime] NULL,
+	[FLANT_I02] [bit] NULL,
+	[FLCAN_I02] [bit] NULL,
+	[SDOAN_I02] [float] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJI03]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJI03](
+	[IDCAB_I03] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[PERIO_I03] [char](7) NOT NULL,
+	[LOCAL_I03] [char](2) NOT NULL,
+	[SUBDI_I03] [char](2) NOT NULL,
+	[VOUCH_I03] [char](12) NOT NULL,
+	[FEREG_I03] [datetime] NOT NULL,
+	[DEFEC_I03] [char](10) NOT NULL,
+	[MAEST_I03] [char](11) NOT NULL,
+	[FEDOC_I03] [datetime] NOT NULL,
+	[GLOSA_I03] [varchar](100) NOT NULL,
+	[MONED_I03] [char](12) NOT NULL,
+	[CONVE_I03] [char](3) NOT NULL,
+	[TICAM_I03] [float] NOT NULL,
+	[ABOSO_I03] [float] NOT NULL,
+	[CARSO_I03] [float] NOT NULL,
+	[ABODO_I03] [float] NOT NULL,
+	[CARDO_I03] [float] NOT NULL,
+	[CONTA_I03] [char](1) NOT NULL,
+	[FECON_I03] [datetime] NOT NULL,
+	[STATU_I03] [char](12) NOT NULL,
+	[USUAR_I03] [char](10) NOT NULL,
+ CONSTRAINT [PK_CJI03] PRIMARY KEY CLUSTERED 
+(
+	[IDCAB_I03] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJI04]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJI04](
+	[IDDET_I04] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[IDCAB_I04] [int] NOT NULL,
+	[ITEM__I04] [char](5) NOT NULL,
+	[CUENT_I04] [varchar](8) NOT NULL,
+	[COSTO_I04] [char](8) NULL,
+	[MAEST_I04] [char](11) NULL,
+	[TIDOC_I04] [char](2) NOT NULL,
+	[SEDOC_I04] [char](4) NULL,
+	[NUDOC_I04] [char](17) NOT NULL,
+	[FEDOC_I04] [datetime] NOT NULL,
+	[DEFEC_I04] [char](1) NOT NULL,
+	[SOLES_I04] [float] NOT NULL,
+	[DOLAR_I04] [float] NOT NULL,
+	[REFER_I04] [varchar](100) NULL,
+	[IDPRO_I04] [int] NULL,
+ CONSTRAINT [PK_CJI04] PRIMARY KEY CLUSTERED 
+(
+	[IDDET_I04] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJI05]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJI05](
+	[PERIO_I05] [varchar](7) NULL,
+	[CUENT_I05] [varchar](30) NULL,
+	[FECHA_I05] [datetime] NULL,
+	[FEVAL_I05] [datetime] NULL,
+	[REFER_I05] [varchar](50) NULL,
+	[CARGO_I05] [float] NULL,
+	[ABONO_I05] [float] NULL,
+	[SALDO_I05] [float] NULL,
+	[SUCAG_I05] [varchar](7) NULL,
+	[NUMOP_I05] [varchar](6) NULL,
+	[HOROP_I05] [varchar](8) NULL,
+	[USUAR_I05] [varchar](6) NULL,
+	[UTC___I05] [varchar](4) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJR01]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJR01](
+	[PERIO_R01] [char](7) NULL,
+	[CUENT_R01] [varchar](8) NULL,
+	[FEDOC_R01] [datetime] NULL,
+	[TIMOV_R01] [char](1) NULL,
+	[VOUCH_R01] [char](12) NULL,
+	[TIDOC_R01] [char](2) NULL,
+	[SEDOC_R01] [char](4) NULL,
+	[NUDOC_R01] [char](20) NULL,
+	[MONED_R01] [char](1) NULL,
+	[ABOSO_R01] [float] NULL,
+	[CARSO_R01] [float] NULL,
+	[ABODO_R01] [float] NULL,
+	[CARDO_R01] [float] NULL,
+	[TICAM_R01] [float] NULL,
+	[DEFEC_R01] [char](1) NULL,
+	[REFER_R01] [varchar](100) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJR02]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJR02](
+	[CUENT_R02] [varchar](8) NOT NULL,
+	[PERIO_R02] [char](7) NOT NULL,
+	[SDANT_R02] [float] NULL,
+	[DEBE__R02] [float] NULL,
+	[HABE__R02] [float] NULL,
+	[SALDO_R02] [float] NULL,
+ CONSTRAINT [PK_CJR02_1] PRIMARY KEY CLUSTERED 
+(
+	[CUENT_R02] ASC,
+	[PERIO_R02] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJT01]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJT01](
+	[CODIG_T01] [varchar](2) NULL,
+	[DESCR_T01] [varchar](30) NULL,
+	[ABREV_T01] [varchar](5) NOT NULL,
+	[FLBCO_T01] [varchar](1) NULL,
+ CONSTRAINT [PK_CJT01] PRIMARY KEY CLUSTERED 
+(
+	[ABREV_T01] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJT02]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJT02](
+	[CODIG_T02] [varchar](20) NULL,
+	[SUBDI_T02] [varchar](2) NULL,
+	[BANCO_T02] [varchar](2) NULL,
+	[CUENT_T02] [varchar](8) NULL,
+	[DESCR_T02] [varchar](40) NULL,
+	[MONED_T02] [varchar](1) NULL,
+	[MIGSS_T02] [varchar](1) NULL,
+	[MPVTA_T02] [varchar](1) NULL,
+	[RUBRO_T02] [varchar](2) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJT03]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJT03](
+	[CODIG_T03] [char](2) NOT NULL,
+	[DESCR_T03] [varchar](50) NULL,
+	[ABREV_T03] [char](2) NULL,
+	[TIPOP_T03] [char](1) NULL,
+	[SUBDI_T03] [char](2) NULL,
+	[REQPR_T03] [char](1) NULL,
+	[AUTFD_T03] [char](1) NULL,
+	[AUTFA_T03] [char](1) NULL,
+	[EXAUT_T03] [char](1) NULL,
+	[TANEX_T03] [char](2) NULL,
+	[MUENT_T03] [char](1) NULL,
+	[SUBAU_T03] [char](2) NULL,
+	[DETTC_T03] [char](1) NULL,
+	[PAVAR_T03] [char](1) NULL,
+	[SUBPR_T03] [char](2) NULL,
+	[PRCTA_T03] [char](3) NULL,
+	[VLEBL_T03] [char](1) NULL,
+	[CPEBL_T03] [char](1) NULL,
+	[TPAGO_T03] [char](1) NULL,
+	[FVRPD_T03] [char](1) NULL,
+	[ACTIV_T03] [bit] NULL,
+ CONSTRAINT [PK_CJT03] PRIMARY KEY CLUSTERED 
+(
+	[CODIG_T03] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJT04]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJT04](
+	[CODIG_T04] [char](2) NOT NULL,
+	[DESCR_T04] [varchar](50) NULL,
+	[ABREV_T04] [char](2) NULL,
+	[FLBCO_T04] [char](1) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CJT05]    Script Date: 18/02/2023 19:48:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CJT05](
+	[CJBCO_T05] [varchar](8) NULL,
+	[TIPOT_T05] [varchar](2) NULL,
+	[CODIG_T05] [varchar](2) NULL,
+	[ABREV_T05] [varchar](12) NOT NULL,
+	[DESDE_T05] [int] NULL,
+	[HASTA_T05] [int] NULL,
+ CONSTRAINT [PK_CJT05] PRIMARY KEY CLUSTERED 
+(
+	[ABREV_T05] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_CAANT_I01]  DEFAULT ('N') FOR [CAANT_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_REDET_I01]  DEFAULT (' ') FOR [REDET_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_COBRA_I01]  DEFAULT ('N') FOR [COBRA_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_CONCI_I01]  DEFAULT ('N') FOR [CONCI_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_FLGPO_I01]  DEFAULT (0) FOR [FLGPO_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_GRUPO_I01]  DEFAULT (' ') FOR [GRUPO_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_TICLT_I01]  DEFAULT (' ') FOR [TICLT_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_SUCUR_I01]  DEFAULT (' ') FOR [SUCUR_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_NUOPB_I01]  DEFAULT (' ') FOR [NUOPB_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_DIFER_I01]  DEFAULT (0) FOR [DIFER_I01]
+GO
+ALTER TABLE [dbo].[CJI01] ADD  CONSTRAINT [DF_CJI01_NOPER_I01]  DEFAULT (' ') FOR [NOPER_I01]
+GO
+ALTER TABLE [dbo].[CJI02] ADD  CONSTRAINT [DF_CJI02_TIDOC_I02]  DEFAULT (' ') FOR [TIDOC_I02]
+GO
+ALTER TABLE [dbo].[CJI02] ADD  CONSTRAINT [DF_CJI02_SEDOC_I02]  DEFAULT (' ') FOR [SEDOC_I02]
+GO
+ALTER TABLE [dbo].[CJI02] ADD  CONSTRAINT [DF_CJI02_IDPRO_I02]  DEFAULT (0) FOR [IDPRO_I02]
+GO
+ALTER TABLE [dbo].[CJI02] ADD  CONSTRAINT [DF_CJI02_FLANT_I02]  DEFAULT (0) FOR [FLANT_I02]
+GO
+ALTER TABLE [dbo].[CJI02] ADD  CONSTRAINT [DF_CJI02_FLCAN_I02]  DEFAULT (0) FOR [FLCAN_I02]
+GO
+ALTER TABLE [dbo].[CJI02] ADD  CONSTRAINT [DF_CJI02_SDOAN_I02]  DEFAULT (0) FOR [SDOAN_I02]
+GO
+ALTER TABLE [dbo].[CJI05] ADD  CONSTRAINT [DF_CJI05_CARGO_I05]  DEFAULT (0) FOR [CARGO_I05]
+GO
+ALTER TABLE [dbo].[CJI05] ADD  CONSTRAINT [DF_CJI05_ABONO_I05]  DEFAULT (0) FOR [ABONO_I05]
+GO
+ALTER TABLE [dbo].[CJI05] ADD  CONSTRAINT [DF_CJI05_SALDO_I05]  DEFAULT (0) FOR [SALDO_I05]
+GO
+ALTER TABLE [dbo].[CJR02] ADD  CONSTRAINT [DF_CJR02_SDANT_R02]  DEFAULT (0) FOR [SDANT_R02]
+GO
+ALTER TABLE [dbo].[CJR02] ADD  CONSTRAINT [DF_CJR02_DEBE__R02]  DEFAULT (0) FOR [DEBE__R02]
+GO
+ALTER TABLE [dbo].[CJR02] ADD  CONSTRAINT [DF_CJR02_HABE__R02]  DEFAULT (0) FOR [HABE__R02]
+GO
+ALTER TABLE [dbo].[CJR02] ADD  CONSTRAINT [DF_CJR02_SALDO_R02]  DEFAULT (0) FOR [SALDO_R02]
+GO
+ALTER TABLE [dbo].[CJT01] ADD  CONSTRAINT [DF_CJT01_FLBCO_T01]  DEFAULT ('B') FOR [FLBCO_T01]
+GO
+ALTER TABLE [dbo].[CJT02] ADD  CONSTRAINT [DF_CJT02_MIGSS_T02]  DEFAULT (' ') FOR [MIGSS_T02]
+GO
+ALTER TABLE [dbo].[CJT02] ADD  CONSTRAINT [DF_CJT02_MPVTA_T02]  DEFAULT (' ') FOR [MPVTA_T02]
+GO
+ALTER TABLE [dbo].[CJT02] ADD  CONSTRAINT [DF_CJT02_RUBRO_T02]  DEFAULT (' ') FOR [RUBRO_T02]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_REQPR_T03]  DEFAULT ('N') FOR [REQPR_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_AUTFA_T03]  DEFAULT ('N') FOR [AUTFA_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_TANEX_T03]  DEFAULT (' ') FOR [TANEX_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_MUENT_T03]  DEFAULT ('N') FOR [MUENT_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_DETTC_03]  DEFAULT ('N') FOR [DETTC_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_PAVAR_T03]  DEFAULT ('N') FOR [PAVAR_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_SUBPR_T03]  DEFAULT ('  ') FOR [SUBPR_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_PRCTA_T03]  DEFAULT (' ') FOR [PRCTA_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_FVRPD_T03]  DEFAULT ('N') FOR [FVRPD_T03]
+GO
+ALTER TABLE [dbo].[CJT03] ADD  CONSTRAINT [DF_CJT03_ACTIV_T03]  DEFAULT (1) FOR [ACTIV_T03]
+GO
+ALTER TABLE [dbo].[CJI02]  WITH NOCHECK ADD  CONSTRAINT [FK_CJI02_CJI01] FOREIGN KEY([IDCAB_I02])
+REFERENCES [dbo].[CJI01] ([IDCAB_I01])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CJI02] CHECK CONSTRAINT [FK_CJI02_CJI01]
+GO
+ALTER TABLE [dbo].[CJI04]  WITH NOCHECK ADD  CONSTRAINT [FK_CJI04_CJI03] FOREIGN KEY([IDCAB_I04])
+REFERENCES [dbo].[CJI03] ([IDCAB_I03])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[CJI04] CHECK CONSTRAINT [FK_CJI04_CJI03]
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'VOUCHER GENERADO AL HACER LA REGULARIZACION DE LA DETRACCION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJI01', @level2type=N'COLUMN',@level2name=N'REDET_I01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CAMPO ESTADO PARA CHEQUES COBRADOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJI01', @level2type=N'COLUMN',@level2name=N'COBRA_I01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'CAMPO ESTADO OPERACION CONCILIADA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJI01', @level2type=N'COLUMN',@level2name=N'CONCI_I01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'NUMERO DE OPERACION BANCARIA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJI01', @level2type=N'COLUMN',@level2name=N'NUOPB_I01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI ES ANTICIPO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJI02', @level2type=N'COLUMN',@level2name=N'FLANT_I02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI EL ANTICIPO HA SIDO CANCELADO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJI02', @level2type=N'COLUMN',@level2name=N'FLCAN_I02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'SALDO DEL ANTICIPO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJI02', @level2type=N'COLUMN',@level2name=N'SDOAN_I02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJR02', @level2type=N'COLUMN',@level2name=N'HABE__R02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICADOR BANCO O CAJA' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT01', @level2type=N'COLUMN',@level2name=N'FLBCO_T01'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA SI MIGRA AL STARSOFT' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT02', @level2type=N'COLUMN',@level2name=N'MIGSS_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG INDICA CUAL TIPO DE PROVISION MOSTRARA LA VENTANA: 1-FT, 2-NF, 3-CS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT02', @level2type=N'COLUMN',@level2name=N'MPVTA_T02'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'TIPO DE OPERACION INGRESO/EGRESO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'TIPOP_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'SUBDIARIO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'SUBDI_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG REQUIERE SELECCIONAR PROVISION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'REQPR_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FALG AUTO LLENADO DE COLUMAS EN ASIENTO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'AUTFD_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG EXTORNO AUTOMATICO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'EXAUT_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'TIPO DE ANEXO ASOCIADO A LA OPERACION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'TANEX_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG MUESTRA NOTAS DE CREDITO' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'MUENT_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'SUBDIARIO DEL AUTOMATICO A GENERAR' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'SUBAU_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG QUE INDICA SI AL HACER DETRACION JALA EL TC DE LA PROVISION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'DETTC_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'SUBDIARIO DE PROVISION A MOSTRAR' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'SUBPR_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'PREFIJO DE CUENTAS PERMITIDAS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'PRCTA_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG VALORES EDITABLES DE ACUERDO A LA OPERACION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'VLEBL_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG CAMPOS EDITABLES DE ACUERDO A OPERACION' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'CPEBL_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG DETERMINA SI EL TIPO DE PAGO ES PARCIAL O TOTAL' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'TPAGO_T03'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'FLAG PARA FILTRAR VARIOS POR DOCUMENTOS' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'CJT03', @level2type=N'COLUMN',@level2name=N'FVRPD_T03'
+GO
+USE [master]
+GO
+ALTER DATABASE [CJ] SET  READ_WRITE 
+GO
