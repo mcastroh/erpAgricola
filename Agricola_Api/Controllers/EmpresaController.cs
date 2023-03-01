@@ -1,8 +1,6 @@
 ﻿using Agricola_Api.Repository.IRepository;
-using Agricola_Models.DTO;
 using Agricola_Models.Models;
 using AutoMapper;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -13,15 +11,13 @@ namespace Agricola_Api.Controllers
     public class EmpresaController : ControllerBase
     {
         private readonly IEmpresaRepository _repository;
-        private readonly ILogger<EmpresaController> _logger;
         private readonly IMapper _mapper;
-        protected ApiResponseEmpresa _response;
+        protected ApiResponse<Empresa> _response;
 
         #region Constructor
 
-        public EmpresaController(ILogger<EmpresaController> logger, IEmpresaRepository repository, IMapper mapper)
+        public EmpresaController(IEmpresaRepository repository, IMapper mapper)
         {
-            _logger = logger;
             _repository = repository;
             _mapper = mapper;
             _response = new();
@@ -29,18 +25,17 @@ namespace Agricola_Api.Controllers
 
         #endregion 
 
-        #region GetAll => GetUnidadMedida
+        #region GetAll
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponseEmpresa>> GetAll()
+        public async Task<ActionResult<ApiResponse<Empresa>>> GetAll()
         {
             try
             {
-                _logger.LogInformation("Obtener Empresas");
                 IEnumerable<Empresa> lista = await _repository.ObtenerTodos();
-                _response.Resultado = _mapper.Map<List<EmpresaDto>>(lista);
+                _response.Resultado = lista.ToList();
                 _response.statusCode = HttpStatusCode.OK;
                 _response.IsExitoso = true;
                 return Ok(_response);
@@ -56,35 +51,33 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        #region GetById => GetUnidadMedidaPorId
+        #region GetById
 
         [HttpGet("{idEmpresa:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ApiResponseEmpresa>> GetPorId(int idEmpresa)
+        public async Task<ActionResult<ApiResponse<Empresa>>> GetPorId(int idEmpresa)
         {
             try
             {
                 if (idEmpresa == 0)
                 {
-                    _logger.LogError("Código empresa en blanco.");
                     _response.statusCode = HttpStatusCode.BadRequest;
                     _response.IsExitoso = false;
                     return BadRequest(_response);
                 }
 
-                var obj = await _repository.Obtener(x => x.IdEmpresa == idEmpresa);
+                var objeto = await _repository.Obtener(x => x.IdEmpresa == idEmpresa);
 
-                if (obj == null)
+                if (objeto == null)
                 {
                     _response.statusCode = HttpStatusCode.NotFound;
                     _response.IsExitoso = false;
                     return NotFound(_response);
                 }
 
-                _response.Resultado = null; // obj;
-                _response.ResultadoObj= _mapper.Map<EmpresaDto>(obj);
+                _response.ResultadoObj= objeto;
                 _response.statusCode = HttpStatusCode.OK;
                 _response.IsExitoso = true;
                 return Ok(_response);
@@ -99,13 +92,13 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        #region Adicionar => crudInsertar
+        #region CrudInsert
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponseEmpresa>> crudInsert([FromBody] Empresa modelo)
+        public async Task<ActionResult<ApiResponse<Empresa>>> CrudInsert([FromBody] Empresa modelo)
         {
             try
             {
@@ -124,7 +117,7 @@ namespace Agricola_Api.Controllers
                 await _repository.Crear(modelo);
 
                 _response.Resultado = null; // modelo;
-                _response.ResultadoObj = _mapper.Map<EmpresaDto>(modelo); ;
+                _response.ResultadoObj = modelo; ;
                 _response.statusCode = HttpStatusCode.Created;
                 _response.IsExitoso = true;
 
@@ -176,15 +169,15 @@ namespace Agricola_Api.Controllers
         }
 
         #endregion
-            
-        #region Eliminar => crudDelete
+
+        #region CrudDelete
 
         [HttpDelete("{idEmpresa:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> crudDelete(int idEmpresa)
+        public async Task<ActionResult> CrudDelete(int idEmpresa)
         {
             try
             {

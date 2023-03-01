@@ -6,4 +6,8 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Models\ApiResponseEmpresa.cs" />
+  </ItemGroup>
+
 </Project>

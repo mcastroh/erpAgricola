@@ -1,5 +1,4 @@
 ﻿using Agricola_Api.Repository.IRepository;
-using Agricola_Models.DTO;
 using Agricola_Models.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
@@ -13,15 +12,13 @@ namespace Agricola_Api.Controllers
     public class UnidadMedidaController : ControllerBase
     {
         private readonly IUnidadMedidaRepository _repository;
-        private readonly ILogger<UnidadMedidaController> _logger;
         private readonly IMapper _mapper;
-        protected ApiResponse _response;
+        protected ApiResponse<UnidadMedida> _response;
 
         #region Constructor
 
-        public UnidadMedidaController(ILogger<UnidadMedidaController> logger, IUnidadMedidaRepository repository, IMapper mapper)
+        public UnidadMedidaController(IUnidadMedidaRepository repository, IMapper mapper)
         {
-            _logger = logger;
             _repository = repository;
             _mapper = mapper;
             _response = new();
@@ -29,20 +26,17 @@ namespace Agricola_Api.Controllers
 
         #endregion 
 
-        #region GetAll => GetUnidadMedida
+        #region GetAll
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
-        public async Task<ActionResult<ApiResponse>> GetUnidadMedida()
+        public async Task<ActionResult<ApiResponse<UnidadMedida>>> GetAll()
         {
             try
             {
-                _logger.LogInformation("Obtener las unidades de medida");
                 IEnumerable<UnidadMedida> lista = await _repository.ObtenerTodos();
-                //_response.Resultado = lista.ToList();
-                _response.Resultado = _mapper.Map<List<UnidadMedidaDto>>(lista);
+                _response.Resultado = lista.ToList();
                 _response.statusCode = HttpStatusCode.OK;
                 _response.IsExitoso = true;
                 return Ok(_response);
@@ -58,36 +52,36 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        #region GetById => GetUnidadMedidaPorId
+        #region GetPorId
 
         [HttpGet("{idUnidad:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-
-        public async Task<ActionResult<ApiResponse>> GetUnidadMedidaPorId(int idUnidad)
+        public async Task<ActionResult<ApiResponse<UnidadMedida>>> GetPorId(int idUnidad)
         {
             try
             {
                 if (idUnidad == 0)
                 {
-                    _logger.LogError("Código unidad de medida en blanco.");
                     _response.statusCode = HttpStatusCode.BadRequest;
                     _response.IsExitoso = false;
+                    _response.ErrorMesagges = new List<string>() { "Código unidad de medida en blanco." };
                     return BadRequest(_response);
                 }
 
-                var obj = await _repository.Obtener(x => x.IdUnidad == idUnidad);
+                var objeto = await _repository.Obtener(x => x.IdUnidad == idUnidad);
 
-                if (obj == null)
+                if (objeto == null)
                 {
                     _response.statusCode = HttpStatusCode.NotFound;
                     _response.IsExitoso = false;
+                    _response.ErrorMesagges = new List<string>() { $"Código unidad de medida {idUnidad} no encontrado." };
                     return NotFound(_response);
                 }
 
-                _response.Resultado = null; // obj;
-                _response.ResultadoObj= _mapper.Map<UnidadMedidaDto>(obj);
+                _response.Resultado = null;
+                _response.ResultadoObj = objeto;
                 _response.statusCode = HttpStatusCode.OK;
                 _response.IsExitoso = true;
                 return Ok(_response);
@@ -102,14 +96,13 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        #region Adicionar => crudInsertar
+        #region CrudInsert
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
-        public async Task<ActionResult<ApiResponse>> crudInsert([FromBody] UnidadMedida modelo)
+        public async Task<ActionResult<ApiResponse<UnidadMedida>>> CrudInsert([FromBody] UnidadMedida modelo)
         {
             try
             {
@@ -124,11 +117,11 @@ namespace Agricola_Api.Controllers
                 }
 
                 modelo.AuditoriaFecha = DateTime.Now;
-                
+
                 await _repository.Crear(modelo);
 
-                _response.Resultado = null; // modelo;
-                _response.ResultadoObj = _mapper.Map<UnidadMedidaDto>(modelo); ;
+                _response.Resultado = null;
+                _response.ResultadoObj = modelo; ;
                 _response.statusCode = HttpStatusCode.Created;
                 _response.IsExitoso = true;
 
@@ -145,24 +138,23 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        #region Actualizar => crudUpdate
+        #region CrudUpdate
 
         [HttpPut("{idUnidad:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
-        public async Task<IActionResult> crudUpdate(int idUnidad, [FromBody] UnidadMedida modelo)
+        public async Task<IActionResult> CrudUpdate(int idUnidad, [FromBody] UnidadMedida modelo)
         {
             try
             {
-                if (modelo == null || modelo.IdUnidad != idUnidad) 
+                if (modelo == null || modelo.IdUnidad != idUnidad)
                 {
                     _response.IsExitoso = false;
                     _response.statusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(_response); 
-                }                  
+                    return BadRequest(_response);
+                }
 
                 await _repository.Actualizar(modelo);
 
@@ -182,13 +174,12 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        #region Actualizar => crudPartialUpdate
+        #region CrudPartialUpdate
 
         [HttpPatch("{idUnidad:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
-        public async Task<IActionResult> crudPartialUpdate(int idUnidad, JsonPatchDocument<UnidadMedida> patchUnidadMedida)
+        public async Task<IActionResult> CrudPartialUpdate(int idUnidad, JsonPatchDocument<UnidadMedida> patchUnidadMedida)
         {
             try
             {
@@ -229,15 +220,14 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        #region Eliminar => crudDelete
+        #region CrudDelete
 
         [HttpDelete("{idUnidad:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
-        public async Task<ActionResult> crudDelete(int idUnidad)
+        public async Task<ActionResult> CrudDelete(int idUnidad)
         {
             try
             {
@@ -273,7 +263,6 @@ namespace Agricola_Api.Controllers
         }
 
         #endregion
-
 
     }
 }
