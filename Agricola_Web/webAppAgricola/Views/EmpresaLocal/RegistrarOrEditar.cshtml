@@ -30,7 +30,7 @@
 
             <hr />
             <button type="submit" class="btn btn-success btn-sm">Guardar cambios</button>
-            <a class="btn btn-warning btn-sm" href="@Url.Action("Index", "Empresa")">Volver</a>
+            <a class="btn btn-warning btn-sm" href="@Url.Action("Index", "EmpresaLocal", new {idEmpresa = @Html.DisplayTextFor(x=> x.IdEmpresa)})">Volver</a>
         </form>
     </div>
 </div>

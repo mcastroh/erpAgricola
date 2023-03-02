@@ -10,76 +10,74 @@ namespace Agricola_Api.Controllers
     [ApiController]
     public class EmpresaLocalController : ControllerBase
     {
-        private readonly IRepository<Empresa> _repositoryEmpresa;
-        private readonly IEmpresaLocalRepository _repositoryLocal;
+        private readonly IRepository<EmpresaLocal> _repositoryLocal;
         private readonly IMapper _mapper;
         protected ApiResponse<EmpresaLocal> _response;
 
         #region Constructor
 
-        public EmpresaLocalController(IRepository<Empresa> repositoryEmpresa, IEmpresaLocalRepository repositoryLocal, IMapper mapper)
+        public EmpresaLocalController(IRepository<EmpresaLocal> repositoryLocal, IMapper mapper)
         {
-            _repositoryEmpresa = repositoryEmpresa;
-            _repositoryLocal = repositoryLocal;
+            _repositoryLocal = repositoryLocal;            
             _mapper = mapper;
             _response = new();
         }
 
         #endregion 
 
-        //#region GetAll
+        #region GetAll
 
-        //[HttpGet]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<ActionResult<ApiResponse<Empresa>>> GetAll()
-        //{
-        //    try
-        //    {
-        //        IEnumerable<Empresa> lista = await _repository.ObtenerTodos();
-        //        _response.Resultado = lista.ToList();
-        //        _response.statusCode = HttpStatusCode.OK;
-        //        _response.IsExitoso = true;
-        //        return Ok(_response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _response.ErrorMesagges = new List<string>() { ex.ToString() };
-        //        _response.IsExitoso = false;
-        //    }
-
-        //    return _response;
-        //}
-
-        //#endregion
-
-        #region GetById
-
-        [HttpGet("{idEmpresa:int}")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ApiResponse<EmpresaLocal>>> GetPorId(int idEmpresa)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<EmpresaLocal>>> GetAll()
         {
             try
             {
-                if (idEmpresa == 0)
+                IEnumerable<EmpresaLocal> lista = await _repositoryLocal.ObtenerTodos();
+                _response.Resultado = lista.ToList();
+                _response.statusCode = HttpStatusCode.OK;
+                _response.IsExitoso = true;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.ErrorMesagges = new List<string>() { ex.ToString() };
+                _response.IsExitoso = false;
+            }
+
+            return _response;
+        }
+
+        #endregion
+
+        #region GetById
+
+        [HttpGet("{idLocal:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<EmpresaLocal>>> GetPorId(int idLocal)
+        {
+            try
+            {
+                if (idLocal == 0)
                 {
                     _response.statusCode = HttpStatusCode.BadRequest;
                     _response.IsExitoso = false;
                     return BadRequest(_response);
                 }
-               
-                IEnumerable<EmpresaLocal> locales = await _repositoryLocal.ObtenerTodosById(idEmpresa);
 
-                if (locales == null)
+                EmpresaLocal local = await _repositoryLocal.Obtener(x => x.IdLocal == idLocal);
+
+                if (local == null)
                 {
                     _response.statusCode = HttpStatusCode.NotFound;
                     _response.IsExitoso = false;
                     return NotFound(_response);
                 }
 
-                _response.Resultado = locales.ToList();
+                _response.ResultadoObj = local;
                 _response.statusCode = HttpStatusCode.OK;
                 _response.IsExitoso = true;
                 return Ok(_response);
@@ -108,7 +106,7 @@ namespace Agricola_Api.Controllers
                 if (modelo == null) { return BadRequest(modelo); }
                 if (modelo.IdEmpresa == 0 || modelo.IdLocal != 0) { return StatusCode(StatusCodes.Status500InternalServerError); }
 
-                var empresa = await _repositoryEmpresa.Obtener(x => x.IdEmpresa == modelo.IdEmpresa);
+                var empresa = await _repositoryLocal.Obtener(x => x.IdEmpresa == modelo.IdEmpresa);
                                     
                 if (empresa == null)
                 {
@@ -123,6 +121,8 @@ namespace Agricola_Api.Controllers
                     ModelState.AddModelError("EmpresaLocalExiste", "Local de la Empresa ya está registrado !");
                     return BadRequest(ModelState);
                 }
+
+                //modelo.Empresa = null;
 
                 await _repositoryLocal.Crear(modelo);
 
@@ -145,16 +145,16 @@ namespace Agricola_Api.Controllers
 
         #region Actualizar => crudUpdate
 
-        [HttpPut("{idEmpresa:int}")]
+        [HttpPut("{idLocal:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> crudUpdate(int idEmpresa, [FromBody] EmpresaLocal modelo)
+        public async Task<ActionResult> crudUpdate(int idLocal, [FromBody] EmpresaLocal modelo)
         {
             try
             {
-                if (modelo == null || modelo.IdEmpresa != idEmpresa)
+                if (modelo == null || modelo.IdLocal != idLocal)
                 {
                     _response.IsExitoso = false;
                     _response.statusCode = HttpStatusCode.BadRequest;
@@ -189,38 +189,29 @@ namespace Agricola_Api.Controllers
 
         #region CrudDelete
 
-        [HttpDelete("{idEmpresa:int}")]
+        [HttpDelete("{idLocal:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> CrudDelete(int idEmpresa, int idLocal)
+        public async Task<ActionResult> CrudDelete(int idLocal)
         {
             try
             {
-                if (idEmpresa == 0 || idLocal == 0)
+                if (idLocal == 0 || idLocal == 0)
                 {
                     _response.IsExitoso = false;
                     _response.statusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
 
-                var modelo = await _repositoryLocal.Obtener(x => x.IdEmpresa == idEmpresa && x.IdLocal == idLocal);
+                var modelo = await _repositoryLocal.Obtener(x => x.IdLocal == idLocal);
 
                 if (modelo == null)
                 {
                     ModelState.AddModelError("EmpresaLocalNoExiste", "Local de la Empresa no está registrado !");
                     return BadRequest(ModelState);
                 }
-
-                //var modelo = await _repository.Obtener(x => x.IdEmpresa == idEmpresa);
-
-                //if (modelo == null)
-                //{
-                //    _response.IsExitoso = false;
-                //    _response.statusCode = HttpStatusCode.NotFound;
-                //    return NotFound(_response);
-                //}
 
                 await _repositoryLocal.Remover(modelo);
 

@@ -57,6 +57,7 @@
         <table id="customers" class="table">
             <thead class="table-primary">
                 <tr>
+                    <th>Empresa</th>
                     <th>Local</th>
                     <th>Descripción</th>
                     <th>Dirección</th>
@@ -67,6 +68,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>@item.IdEmpresa</td>
                         <td>@item.IdLocal</td>
                         <td>@item.RazonSocial</td>
                         <td>@item.Direccion</td>

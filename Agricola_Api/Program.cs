@@ -24,7 +24,7 @@ builder.Services.AddAutoMapper(typeof(MapingConfig));
 
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IEmpresaLocalRepository, EmpresaLocalRepository>();
+//builder.Services.AddScoped<IEmpresaLocalRepository, EmpresaLocalRepository>();
 
 //builder.Services.AddScoped<IUnidadMedidaRepository, UnidadMedidaRepository>();
 //builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();

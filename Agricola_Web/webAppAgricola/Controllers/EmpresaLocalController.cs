@@ -8,14 +8,6 @@ using System.Data;
 using webAppAgricola.Services;
 using webAppAgricola.Services.IServices;
 
-//
-// para las vistas buscar
-// https://getbootstrap.com/docs/5.0/components/card/
-//
-// ------------------------------------------------------------------------
-// Bootstrap Button Generator
-// https://www.tutorialrepublic.com/twitter-bootstrap-button-generator.php
-
 namespace webAppAgricola.Controllers
 {
     public class EmpresaLocalController : Controller
