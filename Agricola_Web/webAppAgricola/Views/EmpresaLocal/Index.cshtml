@@ -1,0 +1,85 @@
+﻿@model IEnumerable<Agricola_Models.Models.EmpresaLocal>
+
+@{
+    ViewBag.Title = "Inicio";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<title>Including Bootstrap Icons in HTML</title>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+<!-- Bootstrap Font Icon CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
+
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: center;
+            background-color: #04AA6D;
+            color: white;
+        }
+</style>
+
+<div class="card" style="margin-top:20px">
+    <div class="card-header">
+        <h3>Locales por Empresa : @ViewBag.RazonSocial</h3>
+    </div>
+    <div class="card-body">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">            
+            <a class="btn btn-warning btn-sm" href="@Url.Action("RegistrarOrEditar", "EmpresaLocal", new { idUnidad= 0})"><span class="bi-plus-circle"></span> Adicionar</a>
+            <a class="btn btn-warning btn-sm" href="@Url.Action("ListarPDF", "EmpresaLocal", new { idUnidad= 0})"><span class="bi-printer"></span> Listar PDF</a>
+            <a class="btn btn-warning btn-sm" href="@Url.Action("ExportarExcel", "EmpresaLocal", new { idUnidad= 0})"><span class="bi-file-excel"></span> Exportar Excel</a>
+
+        </div>
+        <hr />
+        <table id="customers" class="table">
+            <thead class="table-primary">
+                <tr>
+                    <th>Local</th>
+                    <th>Descripción</th>
+                    <th>Dirección</th>
+                    <th style="width:200px">Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.IdLocal</td>
+                        <td>@item.RazonSocial</td>
+                        <td>@item.Direccion</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="@Url.Action("RegistrarOrEditar", "EmpresaLocal", new { idEmpresa = item.IdEmpresa})"><span class="bi-pencil-square"></span>  Editar</a>
+                            <a class="btn btn-danger btn-sm" href="@Url.Action("Eliminar", "EmpresaLocal", new { idEmpresa = item.IdEmpresa })"><span class="bi-trash"></span>  Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>       
+        <a class="btn btn-warning btn-sm" href="@Url.Action("Index", "Empresa")">Volver</a>
+    </div>
+</div>
+ 
+

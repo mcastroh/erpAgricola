@@ -52,3 +52,6 @@ app.Run();
 // 3. Bootstrap’s cards
 //      https://getbootstrap.com/docs/5.0/components/card/
 // -------------------------------------------------------------------
+
+//  Tutorial: Creación de un modelo de datos complejo: ASP.NET MVC con EF Core
+//      https://learn.microsoft.com/es-es/aspnet/core/data/ef-mvc/complex-data-model?view=aspnetcore-7.0

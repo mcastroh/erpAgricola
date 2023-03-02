@@ -1,0 +1,29 @@
+﻿@model Agricola_Models.Models.Empresa
+
+@{
+    ViewBag.Title = "Eliminar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row" style="margin-top:30px">
+    <div class="col-sm-12">
+        <div class="panel-warning">
+            <div class="panel-heading">
+                <h4>Eliminar Empresa</h4>
+            </div>
+            <div class="panel-body">
+                <div class="alert alert-danger">
+                    ¿Desea eliminar la Empresa: @Html.DisplayTextFor(m => m.RazonSocial) ?
+                </div>
+                <form action="@Url.Action("EliminarEntity", "Empresa")" method="post">
+                    <input type="hidden" class="form-control" name="IdEmpresa" value="@Html.DisplayTextFor(x=> x.IdEmpresa)" />
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                    <a class="btn btn-success" href="@Url.Action("Index", "Empresa")">Volver</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

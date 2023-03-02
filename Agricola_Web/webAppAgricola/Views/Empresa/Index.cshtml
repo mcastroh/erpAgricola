@@ -5,6 +5,13 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <title>Including Bootstrap Icons in HTML</title>
 <!-- Bootstrap CSS -->
@@ -44,6 +51,8 @@
 </style>
 
 <div class="card" style="margin-top:20px">
+    
+
     <div class="card-header" >
         <h3>Empresas</h3>                
     </div>
@@ -74,7 +83,7 @@
                         <td>
                             <a class="btn btn-primary btn-sm" href="@Url.Action("RegistrarOrEditar", "Empresa", new { idEmpresa = item.IdEmpresa})"><span class="bi-pencil-square"></span>  Editar</a>
                             <a class="btn btn-danger btn-sm" href="@Url.Action("Eliminar", "Empresa", new { idEmpresa = item.IdEmpresa })"><span class="bi-trash"></span>  Eliminar</a>
-                            <a class="btn btn-info btn-sm" href="@Url.Action("Index", "EmpresaLocales", new { idEmpresa = item.IdEmpresa})"><span class="bi-shop-window"></span>  Locales</a>
+                            <a class="btn btn-info btn-sm" href="@Url.Action("Index", "EmpresaLocal", new { idEmpresa = item.IdEmpresa})"><span class="bi-shop-window"></span>  Locales</a>
                         </td>
                     </tr>
                 }

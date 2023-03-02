@@ -8,14 +8,6 @@ using System.Data;
 using webAppAgricola.Services;
 using webAppAgricola.Services.IServices;
 
-//
-// para las vistas buscar
-// https://getbootstrap.com/docs/5.0/components/card/
-//
-// ------------------------------------------------------------------------
-// Bootstrap Button Generator
-// https://www.tutorialrepublic.com/twitter-bootstrap-button-generator.php
-
 namespace webAppAgricola.Controllers
 {
     public class EmpresaController : Controller
@@ -80,10 +72,12 @@ namespace webAppAgricola.Controllers
             if (modelo.IdEmpresa == 0)
             {
                 respuesta = await _servicioApi.Guardar(_nameBaseApi, modelo);
+                TempData["Mensaje"] = "Empresa creada correctamente";
             }
             else
             {
                 respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdEmpresa, modelo);
+                TempData["Mensaje"] = "Empresa actualizada correctamente";
             }
 
             if (respuesta)
@@ -119,6 +113,7 @@ namespace webAppAgricola.Controllers
 
             if (respuesta)
             {
+                TempData["Mensaje"] = "Empresa eliminada correctamente";
                 return RedirectToAction("Index");
             }
             else
@@ -135,9 +130,6 @@ namespace webAppAgricola.Controllers
         {
             List<Empresa> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
             List<EmpresaDtoExcel> dtoExcel = new List<EmpresaDtoExcel>();
-
-            //var dtoExcel = _mapper.Map<EmpresaDtoExcel>(lista);
-            //var _mappedUser = _mapper.Map<EmpresaDtoExcel>(lista);
 
             foreach (var item in lista)
             {
@@ -171,9 +163,6 @@ namespace webAppAgricola.Controllers
 
         #region Método  => Listar PDF   
 
-        // Listar PDF   => https://www.youtube.com/watch?v=VkHcG24nM8U
-        // Rotativa     => https://wkhtmltopdf.org/downloads.html
-
         public async Task<IActionResult> ListarPDF()
         {
             List<Empresa> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
@@ -198,7 +187,6 @@ namespace webAppAgricola.Controllers
         }
 
         #endregion
-
 
 
     }

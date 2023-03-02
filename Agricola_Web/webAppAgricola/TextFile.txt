@@ -1,0 +1,42 @@
+﻿
+Por revisar sólo en los metodos [HttpPost], que hace
+	[ValidateAntiForgeryToken]
+
+Usos de auto mapper (ver metodo ExportarExcel del controlados EmpresaController)
+	List<Empresa> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
+    List<EmpresaDtoExcel> dtoExcel = new List<EmpresaDtoExcel>();
+
+    var dtoExcel = _mapper.Map<EmpresaDtoExcel>(lista);
+    var _mappedUser = _mapper.Map<EmpresaDtoExcel>(lista);
+
+	debe reemplazar lo siguiente
+	        foreach (var item in lista)
+            {
+                EmpresaDtoExcel dto = new EmpresaDtoExcel();
+                dto.IdEmpresa= item.IdEmpresa;
+                dto.NumeroRUC = item.NumeroRUC; 
+                dto.RazonSocial= item.RazonSocial;
+                dto.Direccion = item.Direccion;
+                dtoExcel.Add(dto);
+            }
+
+
+
+
+
+
+
+
+para las vistas buscar
+	https://getbootstrap.com/docs/5.0/components/card/
+
+Bootstrap Button Generator
+	https://www.tutorialrepublic.com/twitter-bootstrap-button-generator.php
+
+
+Listar PDF   
+	Listar PDF	=> https://www.youtube.com/watch?v=VkHcG24nM8U
+    Rotativa    => https://wkhtmltopdf.org/downloads.html
+
+
+
