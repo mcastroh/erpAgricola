@@ -20,6 +20,6 @@ namespace Agricola_Api.Repository
             await _context.SaveChangesAsync();
             return entidad;
         }
-
+               
     }
 }

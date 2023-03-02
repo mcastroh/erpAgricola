@@ -11,13 +11,13 @@ namespace Agricola_Api.Controllers
     [ApiController]
     public class UnidadMedidaController : ControllerBase
     {
-        private readonly IUnidadMedidaRepository _repository;
+        private readonly IRepository<UnidadMedida> _repository;
         private readonly IMapper _mapper;
         protected ApiResponse<UnidadMedida> _response;
 
         #region Constructor
 
-        public UnidadMedidaController(IUnidadMedidaRepository repository, IMapper mapper)
+        public UnidadMedidaController(IRepository<UnidadMedida> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

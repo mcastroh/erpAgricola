@@ -1,5 +1,4 @@
-﻿using Agricola_Api.Repository;
-using Agricola_Api.Repository.IRepository;
+﻿using Agricola_Api.Repository.IRepository;
 using Agricola_Models.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -11,14 +10,14 @@ namespace Agricola_Api.Controllers
     [ApiController]
     public class EmpresaLocalController : ControllerBase
     {
-        private readonly IEmpresaRepository _repositoryEmpresa;
+        private readonly IRepository<Empresa> _repositoryEmpresa;
         private readonly IEmpresaLocalRepository _repositoryLocal;
         private readonly IMapper _mapper;
         protected ApiResponse<EmpresaLocal> _response;
 
         #region Constructor
 
-        public EmpresaLocalController(IEmpresaRepository repositoryEmpresa, IEmpresaLocalRepository repositoryLocal, IMapper mapper)
+        public EmpresaLocalController(IRepository<Empresa> repositoryEmpresa, IEmpresaLocalRepository repositoryLocal, IMapper mapper)
         {
             _repositoryEmpresa = repositoryEmpresa;
             _repositoryLocal = repositoryLocal;
@@ -95,127 +94,150 @@ namespace Agricola_Api.Controllers
 
         #endregion
 
-        //#region CrudInsert
+        #region CrudInsert
 
-        //[HttpPost]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<ActionResult<ApiResponse<EmpresaLocal>>> CrudInsert([FromBody] EmpresaLocal modelo)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid) { return BadRequest(ModelState); }
-        //        if (modelo == null) { return BadRequest(modelo); }
-        //        if (modelo.IdEmpresa != 0) { return StatusCode(StatusCodes.Status500InternalServerError); }
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<EmpresaLocal>>> CrudInsert([FromBody] EmpresaLocal modelo)
+        {
+            try
+            {
+                if (!ModelState.IsValid) { return BadRequest(ModelState); }
+                if (modelo == null) { return BadRequest(modelo); }
+                if (modelo.IdEmpresa == 0 || modelo.IdLocal != 0) { return StatusCode(StatusCodes.Status500InternalServerError); }
 
-        //        if (await _repository.Obtener(x => x.RazonSocial.ToLower() == modelo.RazonSocial.ToLower()) != null)
-        //        {
-        //            ModelState.AddModelError("RazonSocialExiste", "Razón Social  ya fue registrada!");
-        //            return BadRequest(ModelState);
-        //        }
+                var empresa = await _repositoryEmpresa.Obtener(x => x.IdEmpresa == modelo.IdEmpresa);
+                                    
+                if (empresa == null)
+                {
+                    ModelState.AddModelError("EmpresaNoExiste", "Empresa no está registrada !");
+                    return BadRequest(ModelState);
+                }
 
-        //        modelo.AuditoriaFecha = DateTime.Now;
+                var local = await _repositoryLocal.Obtener(x => x.IdEmpresa == modelo.IdEmpresa && x.IdLocal == modelo.IdLocal);
 
-        //        await _repository.Crear(modelo);
+                if (local != null)
+                {
+                    ModelState.AddModelError("EmpresaLocalExiste", "Local de la Empresa ya está registrado !");
+                    return BadRequest(ModelState);
+                }
 
-        //        _response.Resultado = null; // modelo;
-        //        _response.ResultadoObj = modelo; ;
-        //        _response.statusCode = HttpStatusCode.Created;
-        //        _response.IsExitoso = true;
+                await _repositoryLocal.Crear(modelo);
 
-        //        return Ok(_response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _response.ErrorMesagges = new List<string>() { ex.ToString() };
-        //        _response.IsExitoso = false;
-        //    }
+                _response.ResultadoObj = modelo; ;
+                _response.statusCode = HttpStatusCode.Created;
+                _response.IsExitoso = true;
 
-        //    return _response;
-        //}
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.ErrorMesagges = new List<string>() { ex.ToString() };
+                _response.IsExitoso = false;
+            }
 
-        //#endregion
+            return _response;
+        }
 
-        //#region Actualizar => crudUpdate
+        #endregion
 
-        //[HttpPut("{idEmpresa:int}")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<IActionResult> crudUpdate(int idEmpresa, [FromBody] Empresa modelo)
-        //{
-        //    try
-        //    {
-        //        if (modelo == null || modelo.IdEmpresa != idEmpresa)
-        //        {
-        //            _response.IsExitoso = false;
-        //            _response.statusCode = HttpStatusCode.BadRequest;
-        //            return BadRequest(_response);
-        //        }
+        #region Actualizar => crudUpdate
 
-        //        await _repository.Actualizar(modelo);
+        [HttpPut("{idEmpresa:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> crudUpdate(int idEmpresa, [FromBody] EmpresaLocal modelo)
+        {
+            try
+            {
+                if (modelo == null || modelo.IdEmpresa != idEmpresa)
+                {
+                    _response.IsExitoso = false;
+                    _response.statusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
 
-        //        _response.IsExitoso = true;
-        //        _response.statusCode = HttpStatusCode.NoContent;
+                var local = await _repositoryLocal.Obtener(x => x.IdEmpresa == modelo.IdEmpresa && x.IdLocal == modelo.IdLocal);
 
-        //        return Ok(_response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _response.ErrorMesagges = new List<string>() { ex.ToString() };
-        //        _response.IsExitoso = false;
-        //    }
+                if (local == null)
+                {
+                    ModelState.AddModelError("EmpresaLocalNoExiste", "Local de la Empresa no está registrado !");
+                    return BadRequest(ModelState);
+                }
 
-        //    return BadRequest(_response);
-        //}
+                await _repositoryLocal.Actualizar(modelo);
 
-        //#endregion
+                _response.IsExitoso = true;
+                _response.statusCode = HttpStatusCode.NoContent;
 
-        //#region CrudDelete
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.ErrorMesagges = new List<string>() { ex.ToString() };
+                _response.IsExitoso = false;
+            }
 
-        //[HttpDelete("{idEmpresa:int}")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<ActionResult> CrudDelete(int idEmpresa)
-        //{
-        //    try
-        //    {
-        //        if (idEmpresa == 0)
-        //        {
-        //            _response.IsExitoso = false;
-        //            _response.statusCode = HttpStatusCode.BadRequest;
-        //            return BadRequest(_response);
-        //        }
+            return BadRequest(_response);
+        }
 
-        //        var modelo = await _repository.Obtener(x => x.IdEmpresa == idEmpresa);
+        #endregion
 
-        //        if (modelo == null)
-        //        {
-        //            _response.IsExitoso = false;
-        //            _response.statusCode = HttpStatusCode.NotFound;
-        //            return NotFound(_response);
-        //        }
+        #region CrudDelete
 
-        //        await _repository.Remover(modelo);
+        [HttpDelete("{idEmpresa:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> CrudDelete(int idEmpresa, int idLocal)
+        {
+            try
+            {
+                if (idEmpresa == 0 || idLocal == 0)
+                {
+                    _response.IsExitoso = false;
+                    _response.statusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
 
-        //        _response.IsExitoso = true;
-        //        _response.statusCode = HttpStatusCode.NoContent;
-        //        return Ok(_response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _response.ErrorMesagges = new List<string>() { ex.ToString() };
-        //        _response.IsExitoso = false;
-        //    }
+                var modelo = await _repositoryLocal.Obtener(x => x.IdEmpresa == idEmpresa && x.IdLocal == idLocal);
 
-        //    return BadRequest(_response);
-        //}
+                if (modelo == null)
+                {
+                    ModelState.AddModelError("EmpresaLocalNoExiste", "Local de la Empresa no está registrado !");
+                    return BadRequest(ModelState);
+                }
 
-        //#endregion
+                //var modelo = await _repository.Obtener(x => x.IdEmpresa == idEmpresa);
+
+                //if (modelo == null)
+                //{
+                //    _response.IsExitoso = false;
+                //    _response.statusCode = HttpStatusCode.NotFound;
+                //    return NotFound(_response);
+                //}
+
+                await _repositoryLocal.Remover(modelo);
+
+                _response.IsExitoso = true;
+                _response.statusCode = HttpStatusCode.NoContent;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.ErrorMesagges = new List<string>() { ex.ToString() };
+                _response.IsExitoso = false;
+            }
+
+            return BadRequest(_response);
+        }
+
+        #endregion
 
 
     }

@@ -4,6 +4,7 @@ using Agricola_Api.Repository;
 using Agricola_Api.Repository.IRepository;
 using Agricola_Models.Models;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +22,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 
 builder.Services.AddAutoMapper(typeof(MapingConfig));
 
-builder.Services.AddScoped<IUnidadMedidaRepository, UnidadMedidaRepository>();
-builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IEmpresaLocalRepository, EmpresaLocalRepository>();
+
+//builder.Services.AddScoped<IUnidadMedidaRepository, UnidadMedidaRepository>();
+//builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+
 
 var app = builder.Build();
 

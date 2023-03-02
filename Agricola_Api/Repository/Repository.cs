@@ -53,15 +53,16 @@ namespace Agricola_Api.Repository
 
         #endregion
 
-        #region Grabar
+        #region Actualizar
 
-        public async Task Grabar()
+        public async Task Actualizar(T entidad)
         {
-            await _context.SaveChangesAsync();
+            _dbSet.Update(entidad);
+            await Grabar();
         }
 
-        #endregion 
-     
+        #endregion
+
         #region Remover
 
         public async Task Remover(T entidad)
@@ -71,6 +72,17 @@ namespace Agricola_Api.Repository
         }
 
         #endregion 
+
+        #region Grabar
+
+        public async Task Grabar()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        #endregion 
+     
+
 
     }
 }

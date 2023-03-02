@@ -10,13 +10,13 @@ namespace Agricola_Api.Controllers
     [ApiController]
     public class EmpresaController : ControllerBase
     {
-        private readonly IEmpresaRepository _repository;
+        private readonly IRepository<Empresa> _repository;
         private readonly IMapper _mapper;
         protected ApiResponse<Empresa> _response;
 
         #region Constructor
 
-        public EmpresaController(IEmpresaRepository repository, IMapper mapper)
+        public EmpresaController(IRepository<Empresa> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

@@ -10,6 +10,10 @@
     <Compile Remove="Controllers\UnidadMedidaEntityFrameworkAsyncController.cs" />
     <Compile Remove="Controllers\UnidadMedidaEntityFrameworkController.cs" />
     <Compile Remove="Controllers\UnidadMedidaInicialController.cs" />
+    <Compile Remove="Repository\EmpresaRepository.cs" />
+    <Compile Remove="Repository\IRepository\IEmpresaRepository.cs" />
+    <Compile Remove="Repository\IRepository\IUnidadMedidaRepository.cs" />
+    <Compile Remove="Repository\UnidadMedidaRepository.cs" />
   </ItemGroup>
 
   <ItemGroup>

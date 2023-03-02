@@ -10,8 +10,10 @@ namespace Agricola_Api.Repository.IRepository
 
         Task Crear(T entidad);
 
-        Task Grabar();
+        Task Actualizar(T entidad);
 
         Task Remover(T entidad);
+
+        Task Grabar();
     }
 }
