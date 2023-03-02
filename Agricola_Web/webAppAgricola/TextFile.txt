@@ -20,8 +20,11 @@ Usos de auto mapper (ver metodo ExportarExcel del controlados EmpresaController)
                 dtoExcel.Add(dto);
             }
 
-
-
+Subir a git y github
+    Abrir terminal (anticlic en la solucion, y seleccionar Abrir Terminal )
+        git add .                       (enter)
+        git commit -m "Tabla Empresas"  (enter)
+        git push -u origei main         (enter)
 
 
 

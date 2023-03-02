@@ -8,11 +8,6 @@ using System.Data;
 using webAppAgricola.Services;
 using webAppAgricola.Services.IServices;
 
-//
-// para las vistas buscar
-// https://getbootstrap.com/docs/5.0/components/card/
-//
-
 namespace webAppAgricola.Controllers
 {
     public class UnidadMedidaController : Controller
@@ -77,10 +72,12 @@ namespace webAppAgricola.Controllers
             if (modelo.IdUnidad == 0)
             {
                 respuesta = await _servicioApi.Guardar(_nameBaseApi, modelo);
+                TempData["Mensaje"] = "Unidad de Medida creada correctamente";
             }
             else
             {
                 respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdUnidad, modelo);
+                TempData["Mensaje"] = "Unidad de Medida actualizada correctamente";
             }
 
             if (respuesta)
@@ -116,6 +113,7 @@ namespace webAppAgricola.Controllers
 
             if (respuesta)
             {
+                TempData["Mensaje"] = "Unidad de Medida eliminada correctamente";
                 return RedirectToAction("Index");
             }
             else
@@ -164,9 +162,6 @@ namespace webAppAgricola.Controllers
         #endregion
 
         #region Método  => Listar PDF   
-
-        // Listar PDF   => https://www.youtube.com/watch?v=VkHcG24nM8U
-        // Rotativa     => https://wkhtmltopdf.org/downloads.html
 
         public async Task<IActionResult> ListarPDF()
         {
