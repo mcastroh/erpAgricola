@@ -1,5 +1,3 @@
-using Agricola_Models.Models;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using webAppAgricola;
 using webAppAgricola.Services;
 using webAppAgricola.Services.IServices;
@@ -9,10 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IUnidadMedidaService_API, UnidadMedidaService_API>();
+builder.Services.AddAutoMapper(typeof(MapingConfigWeb));
+
+//builder.Services.AddScoped<IUnidadMedidaService_API, UnidadMedidaService_API>();
 //builder.Services.AddScoped<IEntityService_API, EntityService_API<T> >();
 
-builder.Services.AddScoped(typeof(IEntityService_API<>), typeof(EntityService_API<>));
+builder.Services.AddScoped(typeof(IEntityServiceAPI<>), typeof(EntityServiceAPI<>));
 
 var app = builder.Build();
 

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Remove="Models\ApiResponseEmpresa.cs" />
+    <Compile Remove="Models\xApiResponse.cs" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Agricola_Models.DTO;
 using Agricola_Models.Models;
+using AutoMapper;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
@@ -21,15 +22,18 @@ namespace webAppAgricola.Controllers
     {
         #region Variables
 
-        private readonly IEntityService_API<Empresa> _servicioApi;
+        private readonly IEntityServiceAPI<Empresa> _servicioApi;
+        private readonly IMapper _mapper;
+        private readonly string _nameBaseApi = "api/Empresa";
 
         #endregion
 
         #region Constructor   
 
-        public EmpresaController(IEntityService_API<Empresa> servicioApi)
+        public EmpresaController(IEntityServiceAPI<Empresa> servicioApi, IMapper mapper)
         {
             _servicioApi = servicioApi;
+            _mapper = mapper;
         }
 
         #endregion 
@@ -39,7 +43,7 @@ namespace webAppAgricola.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            List<Empresa> modelo = await _servicioApi.ObtenerEntityAll();
+            List<Empresa> modelo = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
             return View(modelo);
         }
 
@@ -50,12 +54,12 @@ namespace webAppAgricola.Controllers
         [HttpGet]
         public async Task<IActionResult> RegistrarOrEditar(int idEmpresa)
         {
-            Empresa modelo = new Empresa();
+            Empresa modelo = new Empresa();            
             ViewBag.Accion = "Crear Empresa";
 
             if (idEmpresa != 0)
             {
-                modelo = await _servicioApi.ObtenerEntity(idEmpresa);
+                modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idEmpresa);
                 ViewBag.Accion = "Editar Empresa";
             }
 
@@ -64,137 +68,136 @@ namespace webAppAgricola.Controllers
 
         #endregion
 
-        //#region HttpPost => GuardarCambios
+        #region HttpPost => GuardarCambios
 
-        //[HttpPost]
-        //public async Task<IActionResult> GuardarCambios(UnidadMedida obj)
-        //{
-        //    bool respuesta = false;
+        [HttpPost]
+        public async Task<IActionResult> GuardarCambios(Empresa modelo)
+        {
+            modelo.AuditoriaUser = "admin";
+            modelo.AuditoriaFecha = DateTime.Now;
+            bool respuesta = false;
 
-        //    if (obj.IdUnidad == 0)
-        //    {
-        //        respuesta = await _servicioApi.Guardar(obj);
-        //    }
-        //    else
-        //    {
-        //        respuesta = await _servicioApi.Editar(obj);
-        //    }
+            if (modelo.IdEmpresa == 0)
+            {
+                respuesta = await _servicioApi.Guardar(_nameBaseApi, modelo);
+            }
+            else
+            {
+                respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdEmpresa, modelo);
+            }
 
-        //    if (respuesta)
-        //    {
-        //        return RedirectToAction("Index");
-        //    }
-        //    else
-        //    {
-        //        return NoContent();
-        //    }
-        //}
+            if (respuesta)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
 
-        //#endregion
+        #endregion
 
-        //#region HttpGet: Eliminar 
+        #region HttpGet: Eliminar 
 
-        //[HttpGet]
-        //public async Task<ActionResult> Eliminar(int idUnidad)
-        //{
-        //    if (idUnidad == 0)
-        //    {
-        //        return RedirectToAction("Index", "UnidadMedida");
-        //    }
+        [HttpGet]
+        public async Task<ActionResult> Eliminar(int idEmpresa)
+        {
+            if (idEmpresa == 0) { return RedirectToAction("Index", "Empresa"); }
+            Empresa modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idEmpresa);
+            return View(modelo);
+        }
 
-        //    UnidadMedidaDto modelo = await _servicioApi.Obtener(idUnidad);
-        //    return View(modelo);
-        //}
+        #endregion
 
-        //#endregion
+        #region HttpPost: EliminarEntity
 
-        //#region HttpPost: EliminarUnidadMedida
+        [HttpPost]
+        public async Task<IActionResult> EliminarEntity(int idEmpresa)
+        {
+            bool respuesta = await _servicioApi.Eliminar(_nameBaseApi, idEmpresa);
 
-        //[HttpPost]
-        //public async Task<IActionResult> EliminarUnidadMedida(int IdUnidad)
-        //{
-        //    bool respuesta = await _servicioApi.Eliminar(IdUnidad);
+            if (respuesta)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
 
-        //    if (respuesta)
-        //    {
-        //        return RedirectToAction("Index");
-        //    }
-        //    else
-        //    {
-        //        return NoContent();
-        //    }
-        //}
+        #endregion
 
-        //#endregion
+        #region Método  => Exportar Excel
 
-        //#region Método  => Exportar Excel
+        public async Task<IActionResult> ExportarExcel()
+        {
+            List<Empresa> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
+            List<EmpresaDtoExcel> dtoExcel = new List<EmpresaDtoExcel>();
 
-        //public async Task<IActionResult> ExportarExcel()
-        //{
-        //    List<UnidadMedidaDto> lista = await _servicioApi.Lista();
-        //    List<UnidadMedidaDtoExcel> dtoExcel = new List<UnidadMedidaDtoExcel>();
+            //var dtoExcel = _mapper.Map<EmpresaDtoExcel>(lista);
+            //var _mappedUser = _mapper.Map<EmpresaDtoExcel>(lista);
 
-        //    foreach (var item in lista)
-        //    {
-        //        UnidadMedidaDtoExcel dto = new UnidadMedidaDtoExcel();
-        //        dto.IdUnidad = item.IdUnidad;
-        //        dto.Descripcion = item.Descripcion;
-        //        dto.Simbolo = item.Simbolo;
-        //        dto.IdSunat = item.IdSunat;
-        //        dto.AuditoriaFecha = item.AuditoriaFecha;
-        //        dtoExcel.Add(dto);
-        //    }
+            foreach (var item in lista)
+            {
+                EmpresaDtoExcel dto = new EmpresaDtoExcel();
+                dto.IdEmpresa= item.IdEmpresa;
+                dto.NumeroRUC = item.NumeroRUC; 
+                dto.RazonSocial= item.RazonSocial;
+                dto.Direccion = item.Direccion;
+                dtoExcel.Add(dto);
+            }
 
-        //    ConverterListToDataTable convert = new ConverterListToDataTable();
-        //    DataTable dt = convert.ToDataTable(dtoExcel);
+            ConverterListToDataTable convert = new ConverterListToDataTable();
+            DataTable dt = convert.ToDataTable(dtoExcel);
 
-        //    using (var libro = new XLWorkbook())
-        //    {
-        //        dt.TableName = "Unidades de Medida";
-        //        var hoja = libro.Worksheets.Add(dt);
-        //        hoja.ColumnsUsed().AdjustToContents();
+            using (var libro = new XLWorkbook())
+            {
+                dt.TableName = "Empresas";
+                var hoja = libro.Worksheets.Add(dt);
+                hoja.ColumnsUsed().AdjustToContents();
 
-        //        using (var memoria = new MemoryStream())
-        //        {
-        //            libro.SaveAs(memoria);
-        //            var nameExcel = string.Concat("Reporte Unidades de Medida ", DateTime.Now.ToString(), ".xlsx");
-        //            return File(memoria.ToArray(), "application/vnd.openxmlformats-officeddocument.spreadsheetml.sheet", nameExcel);
-        //        }
-        //    }
-        //}
+                using (var memoria = new MemoryStream())
+                {
+                    libro.SaveAs(memoria);
+                    var nameExcel = string.Concat("Empresas ", DateTime.Now.ToString(), ".xlsx");
+                    return File(memoria.ToArray(), "application/vnd.openxmlformats-officeddocument.spreadsheetml.sheet", nameExcel);
+                }
+            }
+        }
 
-        //#endregion
+        #endregion
 
-        //#region Método  => Listar PDF   
+        #region Método  => Listar PDF   
 
-        //// Listar PDF   => https://www.youtube.com/watch?v=VkHcG24nM8U
-        //// Rotativa     => https://wkhtmltopdf.org/downloads.html
+        // Listar PDF   => https://www.youtube.com/watch?v=VkHcG24nM8U
+        // Rotativa     => https://wkhtmltopdf.org/downloads.html
 
-        //public async Task<IActionResult> ListarPDF()
-        //{
-        //    List<UnidadMedidaDto> lista = await _servicioApi.Lista();
-        //    List<UnidadMedidaDtoExcel> dtoExcel = new List<UnidadMedidaDtoExcel>();
+        public async Task<IActionResult> ListarPDF()
+        {
+            List<Empresa> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
+            List<EmpresaDtoExcel> dtoExcel = new List<EmpresaDtoExcel>();
 
-        //    foreach (var item in lista)
-        //    {
-        //        UnidadMedidaDtoExcel dto = new UnidadMedidaDtoExcel();
-        //        dto.IdUnidad = item.IdUnidad;
-        //        dto.Descripcion = item.Descripcion;
-        //        dto.Simbolo = item.Simbolo;
-        //        dto.IdSunat = item.IdSunat;
-        //        dto.AuditoriaFecha = item.AuditoriaFecha;
-        //        dtoExcel.Add(dto);
-        //    }
+            foreach (var item in lista)
+            {
+                EmpresaDtoExcel dto = new EmpresaDtoExcel();
+                dto.IdEmpresa = item.IdEmpresa;
+                dto.NumeroRUC = item.NumeroRUC;
+                dto.RazonSocial = item.RazonSocial;
+                dto.Direccion= item.Direccion;
+                dtoExcel.Add(dto);
+            }
 
-        //    return new ViewAsPdf("ListarPDF", dtoExcel)
-        //    {
-        //        FileName = $"Unidad Medida {DateTime.Now}.pdf",
-        //        PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
-        //        PageSize = Rotativa.AspNetCore.Options.Size.A4
-        //    };
-        //}
+            return new ViewAsPdf("ListarPDF", dtoExcel)
+            {
+                FileName = $"Empresa {DateTime.Now}.pdf",
+                PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                PageSize = Rotativa.AspNetCore.Options.Size.A4
+            };
+        }
 
-        //#endregion
+        #endregion
 
 
 

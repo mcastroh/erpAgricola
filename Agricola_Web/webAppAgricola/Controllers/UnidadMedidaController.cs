@@ -1,5 +1,6 @@
 ﻿using Agricola_Models.DTO;
 using Agricola_Models.Models;
+using AutoMapper;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
@@ -18,15 +19,18 @@ namespace webAppAgricola.Controllers
     {
         #region Variables
 
-        private readonly IUnidadMedidaService_API _servicioApi;
+        private readonly IEntityServiceAPI<UnidadMedida> _servicioApi;
+        private readonly IMapper _mapper;
+        private readonly string _nameBaseApi = "api/UnidadMedida";
 
         #endregion
 
         #region Constructor 
 
-        public UnidadMedidaController(IUnidadMedidaService_API servicioApi)
+        public UnidadMedidaController(IEntityServiceAPI<UnidadMedida> servicioApi, IMapper mapper)
         {
             _servicioApi = servicioApi;
+            _mapper = mapper;
         }
 
         #endregion 
@@ -36,8 +40,7 @@ namespace webAppAgricola.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            List<UnidadMedidaDto> modelo = await _servicioApi.Lista();
-
+            List<UnidadMedida> modelo = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
             return View(modelo);
         }
 
@@ -48,13 +51,13 @@ namespace webAppAgricola.Controllers
         [HttpGet]
         public async Task<IActionResult> RegistrarOrEditar(int idUnidad)
         {
-            UnidadMedidaDto modelo = new UnidadMedidaDto();
-            ViewBag.Accion = "Crear unidad de medida";
+            UnidadMedida modelo = new UnidadMedida();
+            ViewBag.Accion = "Crear Unidad de Medida";
 
             if (idUnidad != 0)
             {
-                modelo = await _servicioApi.Obtener(idUnidad);
-                ViewBag.Accion = "Editar unidad de medida";
+                modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idUnidad);
+                ViewBag.Accion = "Editar Unidad de Medida";
             }
 
             return View(modelo);
@@ -65,17 +68,19 @@ namespace webAppAgricola.Controllers
         #region HttpPost => GuardarCambios
 
         [HttpPost]
-        public async Task<IActionResult> GuardarCambios(UnidadMedida obj)
+        public async Task<IActionResult> GuardarCambios(UnidadMedida modelo)
         {
+            modelo.AuditoriaUser = "admin";
+            modelo.AuditoriaFecha = DateTime.Now;
             bool respuesta = false;
 
-            if (obj.IdUnidad == 0)
+            if (modelo.IdUnidad == 0)
             {
-                respuesta = await _servicioApi.Guardar(obj);
+                respuesta = await _servicioApi.Guardar(_nameBaseApi, modelo);
             }
             else
             {
-                respuesta = await _servicioApi.Editar(obj);
+                respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdUnidad, modelo);
             }
 
             if (respuesta)
@@ -95,23 +100,19 @@ namespace webAppAgricola.Controllers
         [HttpGet]
         public async Task<ActionResult> Eliminar(int idUnidad)
         {
-            if (idUnidad == 0)
-            {
-                return RedirectToAction("Index", "UnidadMedida");
-            }
-
-            UnidadMedidaDto modelo = await _servicioApi.Obtener(idUnidad);
+            if (idUnidad == 0) { return RedirectToAction("Index", "UnidadMedida"); }
+            UnidadMedida modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idUnidad);
             return View(modelo);
         }
 
         #endregion
 
-        #region HttpPost: EliminarUnidadMedida
+        #region HttpPost: EliminarEntity
 
         [HttpPost]
-        public async Task<IActionResult> EliminarUnidadMedida(int IdUnidad)
+        public async Task<IActionResult> EliminarEntity(int IdUnidad)
         {
-            bool respuesta = await _servicioApi.Eliminar(IdUnidad);
+            bool respuesta = await _servicioApi.Eliminar(_nameBaseApi, IdUnidad);
 
             if (respuesta)
             {
@@ -129,7 +130,7 @@ namespace webAppAgricola.Controllers
 
         public async Task<IActionResult> ExportarExcel()
         {
-            List<UnidadMedidaDto> lista = await _servicioApi.Lista();
+            List<UnidadMedida> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
             List<UnidadMedidaDtoExcel> dtoExcel = new List<UnidadMedidaDtoExcel>();
 
             foreach (var item in lista)
@@ -139,7 +140,6 @@ namespace webAppAgricola.Controllers
                 dto.Descripcion = item.Descripcion;
                 dto.Simbolo = item.Simbolo;
                 dto.IdSunat = item.IdSunat;
-                dto.AuditoriaFecha = item.AuditoriaFecha;
                 dtoExcel.Add(dto);
             }
 
@@ -170,7 +170,7 @@ namespace webAppAgricola.Controllers
 
         public async Task<IActionResult> ListarPDF()
         {
-            List<UnidadMedidaDto> lista = await _servicioApi.Lista();
+            List<UnidadMedida> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
             List<UnidadMedidaDtoExcel> dtoExcel = new List<UnidadMedidaDtoExcel>();
 
             foreach (var item in lista)
@@ -180,7 +180,6 @@ namespace webAppAgricola.Controllers
                 dto.Descripcion = item.Descripcion;
                 dto.Simbolo = item.Simbolo;
                 dto.IdSunat = item.IdSunat;
-                dto.AuditoriaFecha = item.AuditoriaFecha;
                 dtoExcel.Add(dto);
             }
 

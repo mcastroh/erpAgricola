@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Agricola_Models.DTO.UnidadMedidaDtoExcel>
+﻿@model IEnumerable<Agricola_Models.DTO.EmpresaDtoExcel>
 
 @{
     Layout = null;
@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Imprimir Unidades de Medida</title>
+    <title>Imprimir Empresas</title>
     <style>
         .contenedor {
             width: 900px !important;
@@ -111,16 +111,17 @@
             </tr>
         </table>
         <br />
-        <h2 style="text-align:center">Listado Unidades de Medida</h2>
+        <h2 style="text-align:center">Listado de Empresas</h2>
         <br />
        
     <table class="tbproductos" style="width:100%">
         <thead>
             <tr>
-                <th class="tbth">Descripción</th>
-                <th class="tbth" style="width:130px">Código</th>
-                <th class="tbth" style="width:130px">Símbolo</th>
-                <th class="tbth" style="width:130px">SUNAT</th>
+                <th class="tbth" style="width:60px">Código</th>
+                <th class="tbth" style="width:80px">RUC</th> 
+                <th class="tbth" style="width:150px">Razón Social</th>
+                <th class="tbth" style="width:200px">Dirección</th>
+
             </tr>
         </thead>
         <tbody>
@@ -128,10 +129,10 @@
                 foreach (var item in Model)
                 {
                     <tr>
-                        <td class="td-item"><p class="item">@item.Descripcion</p></td>
-                        <td class="td-item"><p class="item">@item.IdUnidad</p></td>
-                        <td class="td-item"><p class="item">@item.Simbolo</p></td>
-                        <td style="background-color:#EDF6F9"><p class="item">@item.IdSunat</p></td>
+                        <td class="td-item"><p class="item">@item.IdEmpresa</p></td>
+                        <td class="td-item"><p class="item">@item.NumeroRUC</p></td>
+                        <td class="td-item"><p class="item">@item.RazonSocial</p></td>
+                        <td class="td-item"><p class="item">@item.Direccion</p></td>
                     </tr>
 
                 }

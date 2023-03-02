@@ -2,14 +2,14 @@
 using Agricola_Models.Models;
 using AutoMapper;
 
-namespace Agricola_Api
+namespace webAppAgricola
 {
-    public class MapingConfig : Profile
+    public class MapingConfigWeb : Profile
     {
-        public MapingConfig()
+        public MapingConfigWeb()
         {
-            CreateMap<UnidadMedida, UnidadMedidaDtoExcel>().ReverseMap();
             CreateMap<Empresa, EmpresaDtoExcel>().ReverseMap();
+            CreateMap<UnidadMedida, UnidadMedidaDtoExcel>().ReverseMap();
         }
     }
 }

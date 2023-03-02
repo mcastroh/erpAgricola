@@ -6,7 +6,6 @@
         public string Descripcion { get; set; }
         public string Simbolo { get; set; }
         public string IdSunat { get; set; }
-        public DateTime AuditoriaFecha { get; set; }
 
     }
 }

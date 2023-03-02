@@ -9,7 +9,9 @@
   <ItemGroup>
     <Compile Remove="Controllers\UnidadMedida_InicialController.cs" />
     <Compile Remove="Services\IServices\IUnidadMedidaService.cs" />
+    <Compile Remove="Services\IServices\IUnidadMedidaService_API.cs" />
     <Compile Remove="Services\UnidadMedidaService.cs" />
+    <Compile Remove="Services\UnidadMedidaService_API.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="ClosedXML" Version="0.100.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Rotativa.AspNetCore" Version="1.2.0" />

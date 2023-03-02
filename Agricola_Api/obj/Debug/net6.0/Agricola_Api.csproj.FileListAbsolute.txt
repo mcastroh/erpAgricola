@@ -1,3 +1,10 @@
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.csproj.AssemblyReference.cache
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.GeneratedMSBuildEditorConfig.editorconfig
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.AssemblyInfoInputs.cache
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.AssemblyInfo.cs
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.csproj.CoreCompileInputs.cache
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.MvcApplicationPartsAssemblyInfo.cs
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.MvcApplicationPartsAssemblyInfo.cache
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\bin\Debug\net6.0\appsettings.Development.json
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\bin\Debug\net6.0\appsettings.json
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\bin\Debug\net6.0\Agricola_Api.exe
@@ -58,13 +65,6 @@ E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\bin\Debug\net6.0\runtimes\win\l
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\bin\Debug\net6.0\Agricola_Models.dll
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\bin\Debug\net6.0\Agricola_Models.pdb
-E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.csproj.AssemblyReference.cache
-E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.GeneratedMSBuildEditorConfig.editorconfig
-E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.AssemblyInfoInputs.cache
-E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.AssemblyInfo.cs
-E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.csproj.CoreCompileInputs.cache
-E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.MvcApplicationPartsAssemblyInfo.cs
-E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\Agricola_Api.MvcApplicationPartsAssemblyInfo.cache
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\staticwebassets\msbuild.Agricola_Api.Microsoft.AspNetCore.StaticWebAssets.props
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\staticwebassets\msbuild.build.Agricola_Api.props
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Api\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.Agricola_Api.props

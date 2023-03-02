@@ -9,13 +9,13 @@
     <div class="col-sm-12">
         <div class="panel-warning">
             <div class="panel-heading">
-                <h4>Eliminar unidad de medida</h4>
+                <h4>Eliminar Unidad de Medida</h4>
             </div>
             <div class="panel-body">
                 <div class="alert alert-danger">
                     ¿Desea eliminar unidad de medida: @Html.DisplayTextFor(m => m.Descripcion) ?
                 </div>
-                <form action="@Url.Action("EliminarUnidadMedida", "UnidadMedida")" method="post">
+                <form action="@Url.Action("EliminarEntity", "UnidadMedida")" method="post">
                     <input type="hidden" class="form-control" name="IdUnidad" value="@Html.DisplayTextFor(x=> x.IdUnidad)" />
                     <button type="submit" class="btn btn-danger">Eliminar</button>
                     <a class="btn btn-success" href="@Url.Action("Index", "UnidadMedida")">Volver</a>
