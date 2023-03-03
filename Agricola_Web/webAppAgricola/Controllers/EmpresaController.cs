@@ -35,6 +35,7 @@ namespace webAppAgricola.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            TempData["Mensaje"] = null;
             List<Empresa> modelo = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
             return View(modelo);
         }
@@ -68,20 +69,22 @@ namespace webAppAgricola.Controllers
             modelo.AuditoriaUser = "admin";
             modelo.AuditoriaFecha = DateTime.Now;
             bool respuesta = false;
+            string mensajeCRUD = string.Empty;
 
             if (modelo.IdEmpresa == 0)
             {
                 respuesta = await _servicioApi.Guardar(_nameBaseApi, modelo);
-                TempData["Mensaje"] = "Empresa creada correctamente";
+                mensajeCRUD = "Empresa creada correctamente";
             }
             else
             {
                 respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdEmpresa, modelo);
-                TempData["Mensaje"] = "Empresa actualizada correctamente";
+                mensajeCRUD = "Empresa actualizada correctamente";
             }
 
             if (respuesta)
             {
+                TempData["Mensaje"] = mensajeCRUD;
                 return RedirectToAction("Index");
             }
             else

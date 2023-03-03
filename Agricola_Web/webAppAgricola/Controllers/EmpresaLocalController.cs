@@ -2,8 +2,10 @@
 using Agricola_Models.Models;
 using AutoMapper;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
+using System.Collections.Generic;
 using System.Data;
 using webAppAgricola.Services;
 using webAppAgricola.Services.IServices;
@@ -80,23 +82,18 @@ namespace webAppAgricola.Controllers
             string mensajeCRUD = string.Empty;
             var empresa = await _servicioEmpresaApi.ObtenerEntity("api/Empresa", idEmpresa);
             
-            if (empresa == null) 
-            {
-                return NoContent();
-            }
-             
+            if (empresa == null) { return NoContent(); }
+            
             bool respuesta = false;
+            modelo.Empresa = null;
 
             if (modelo.IdLocal == 0)
             {
-                modelo.Empresa = null;
                 respuesta = await _servicioApi.Guardar(_nameBaseApi, modelo);
                 mensajeCRUD = "Local creado correctamente";
             }
             else
             {
-                //modelo.Empresa = empresa;
-                modelo.Empresa = null;
                 respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdLocal, modelo);
                 mensajeCRUD = "Local actualizado correctamente";
             }
@@ -135,8 +132,8 @@ namespace webAppAgricola.Controllers
 
             if (respuesta)
             {
+                TempData["Mensaje"] = "Local eliminado correctamente";
                 return RedirectToRoute(new { action = "Index", controller = "EmpresaLocal", idEmpresa });
-                //return RedirectToAction("Index");
             }
             else
             {
@@ -146,77 +143,73 @@ namespace webAppAgricola.Controllers
 
         #endregion
 
-        //#region Método  => Exportar Excel
+        #region Método  => Exportar Excel
 
-        //public async Task<IActionResult> ExportarExcel()
-        //{
-        //    var modeloEmpresa = await _servicioEmpresaApi.ObtenerEntity("api/Empresa", idEmpresa);
+        public async Task<IActionResult> ExportarExcel(int idEmpresa, string razonSocial)
+        {
+            List<EmpresaLocal> lista = (await _servicioApi.ObtenerEntityAll(_nameBaseApi)).Where(x => x.IdEmpresa == idEmpresa).ToList();
 
-        //    List<EmpresaLocal> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
-        //    List<EmpresaDtoExcel> dtoExcel = new List<EmpresaDtoExcel>();
+            List<EmpresaLocalDtoExcel> dtoExcel = new List<EmpresaLocalDtoExcel>();
 
-        //    //var dtoExcel = _mapper.Map<EmpresaDtoExcel>(lista);
-        //    //var _mappedUser = _mapper.Map<EmpresaDtoExcel>(lista);
+            //var adtoExcel = _mapper.Map<EmpresaLocalDtoExcel>(lista);
 
-        //    foreach (var item in lista)
-        //    {
-        //        EmpresaDtoExcel dto = new EmpresaDtoExcel();
-        //        dto.IdEmpresa = item.IdEmpresa;
-        //        dto.NumeroRUC = item.NumeroRUC;
-        //        dto.RazonSocial = item.RazonSocial;
-        //        dto.Direccion = item.Direccion;
-        //        dtoExcel.Add(dto);
-        //    }
+            foreach (var item in lista)
+            {
+                EmpresaLocalDtoExcel dto = new EmpresaLocalDtoExcel();
+                dto.IdLocal= item.IdLocal;
+                dto.RazonSocial = item.RazonSocial;
+                dto.Direccion = item.Direccion;
+                dtoExcel.Add(dto);
+            }
 
-        //    ConverterListToDataTable convert = new ConverterListToDataTable();
-        //    DataTable dt = convert.ToDataTable(dtoExcel);
+            ConverterListToDataTable convert = new ConverterListToDataTable();
+            DataTable dt = convert.ToDataTable(dtoExcel);
 
-        //    using (var libro = new XLWorkbook())
-        //    {
-        //        dt.TableName = "Empresas";
-        //        var hoja = libro.Worksheets.Add(dt);
-        //        hoja.ColumnsUsed().AdjustToContents();
+            using (var libro = new XLWorkbook())
+            {
+                dt.TableName = "Locales";
+                var hoja = libro.Worksheets.Add(dt);
+                hoja.ColumnsUsed().AdjustToContents();
 
-        //        using (var memoria = new MemoryStream())
-        //        {
-        //            libro.SaveAs(memoria);
-        //            var nameExcel = string.Concat("Empresas ", DateTime.Now.ToString(), ".xlsx");
-        //            return File(memoria.ToArray(), "application/vnd.openxmlformats-officeddocument.spreadsheetml.sheet", nameExcel);
-        //        }
-        //    }
-        //}
+                using (var memoria = new MemoryStream())
+                {
+                    libro.SaveAs(memoria);
+                    var nameExcel = string.Concat("Locales ", DateTime.Now.ToString(), ".xlsx");
+                    return File(memoria.ToArray(), "application/vnd.openxmlformats-officeddocument.spreadsheetml.sheet", nameExcel);
+                }
+            }
+        }
 
-        //#endregion
+        #endregion
 
-        //#region Método  => Listar PDF   
+        #region Método  => Listar PDF   
 
-        //// Listar PDF   => https://www.youtube.com/watch?v=VkHcG24nM8U
-        //// Rotativa     => https://wkhtmltopdf.org/downloads.html
+        public async Task<IActionResult> ListarPDF(int idEmpresa, string razonSocial)
+        {
+            List<EmpresaLocal> lista = (await _servicioApi.ObtenerEntityAll(_nameBaseApi)).Where(x => x.IdEmpresa == idEmpresa).ToList();            
+            List<EmpresaLocalDtoExcel> dtoExcel = new List<EmpresaLocalDtoExcel>();
+            ViewBag.RazonSocial = razonSocial;
 
-        //public async Task<IActionResult> ListarPDF()
-        //{
-        //    List<Empresa> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
-        //    List<EmpresaDtoExcel> dtoExcel = new List<EmpresaDtoExcel>();
+            foreach (var item in lista)
+            {
+                EmpresaLocalDtoExcel dto = new EmpresaLocalDtoExcel();
+                dto.IdLocal= item.IdLocal;
+                dto.RazonSocial = item.RazonSocial;
+                dto.Direccion = item.Direccion;
+                dtoExcel.Add(dto);
+            }
 
-        //    foreach (var item in lista)
-        //    {
-        //        EmpresaDtoExcel dto = new EmpresaDtoExcel();
-        //        dto.IdEmpresa = item.IdEmpresa;
-        //        dto.NumeroRUC = item.NumeroRUC;
-        //        dto.RazonSocial = item.RazonSocial;
-        //        dto.Direccion = item.Direccion;
-        //        dtoExcel.Add(dto);
-        //    }
+            //return View(dtoExcel);
 
-        //    return new ViewAsPdf("ListarPDF", dtoExcel)
-        //    {
-        //        FileName = $"Empresa {DateTime.Now}.pdf",
-        //        PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
-        //        PageSize = Rotativa.AspNetCore.Options.Size.A4
-        //    };
-        //}
+            return new ViewAsPdf("ListarPDF", dtoExcel)
+            {
+                FileName = $"EmpresaLocales {DateTime.Now}.pdf",
+                PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                PageSize = Rotativa.AspNetCore.Options.Size.A4
+            };
+        }
 
-        //#endregion
+        #endregion
 
 
 

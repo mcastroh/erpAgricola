@@ -54,3 +54,5 @@ E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola\obj\Debug\net6.0
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola\obj\Debug\net6.0\webAppAgricola.pdb
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola\obj\Debug\net6.0\webAppAgricola.genruntimeconfig.cache
 E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola\obj\Debug\net6.0\ref\webAppAgricola.dll
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola\bin\Debug\net6.0\Rotativa\Windows\wkhtmltoimage.exe
+E:\Agricola\erpAgricola\erpAgricola\Agricola_Web\webAppAgricola\bin\Debug\net6.0\Rotativa\Windows\wkhtmltopdf.exe

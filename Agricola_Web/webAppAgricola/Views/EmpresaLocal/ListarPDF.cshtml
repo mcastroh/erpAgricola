@@ -1,5 +1,5 @@
-﻿@model IEnumerable<Agricola_Models.DTO.EmpresaDtoExcel>
-
+﻿@model IEnumerable<Agricola_Models.DTO.EmpresaLocalDtoExcel>
+ 
 @{
     Layout = null;
 }
@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Imprimir Empresas</title>
+    <title>Locales</title>
     <style>
         .contenedor {
             width: 900px !important;
@@ -111,14 +111,13 @@
             </tr>
         </table>
         <br />
-        <h2 style="text-align:center">Listado de Empresas</h2>
+        <h2 style="text-align:center">Locales Empresas</h2>
         <br />
        
     <table class="tbproductos" style="width:100%">
         <thead>
             <tr>
                 <th class="tbth" style="width:60px">Código</th>
-                <th class="tbth" style="width:80px">RUC</th> 
                 <th class="tbth" style="width:150px">Razón Social</th>
                 <th class="tbth" style="width:200px">Dirección</th>
 
@@ -129,8 +128,7 @@
                 foreach (var item in Model)
                 {
                     <tr>
-                        <td class="td-item"><p class="item">@item.IdEmpresa</p></td>
-                        <td class="td-item"><p class="item">@item.NumeroRUC</p></td>
+                        <td class="td-item"><p class="item">@item.IdLocal</p></td>
                         <td class="td-item"><p class="item">@item.RazonSocial</p></td>
                         <td class="td-item"><p class="item">@item.Direccion</p></td>
                     </tr>

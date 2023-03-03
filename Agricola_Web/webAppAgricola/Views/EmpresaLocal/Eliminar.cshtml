@@ -19,12 +19,10 @@
                     <input type="hidden" class="form-control" name="IdEmpresa" value="@Html.DisplayTextFor(x=> x.IdEmpresa)" />
                     <input type="hidden" class="form-control" name="IdLocal" value="@Html.DisplayTextFor(x=> x.IdLocal)" />
                     <button type="submit" class="btn btn-danger">Eliminar</button>
-                    <a class="btn btn-success" href="@Url.Action("Index", "EmpresaLocal", @Html.DisplayTextFor(x=> x.Empresa) )">Volver</a>
+                    <a class="btn btn-success" href="@Url.Action("Index", "EmpresaLocal",new {idEmpresa = @Html.DisplayTextFor(x=> x.IdEmpresa)})">Volver</a>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-
-
+ 

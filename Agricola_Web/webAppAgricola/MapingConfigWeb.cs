@@ -9,7 +9,9 @@ namespace webAppAgricola
         public MapingConfigWeb()
         {
             CreateMap<Empresa, EmpresaDtoExcel>().ReverseMap();
+            CreateMap<EmpresaLocal, EmpresaLocalDtoExcel>().ReverseMap();
             CreateMap<UnidadMedida, UnidadMedidaDtoExcel>().ReverseMap();
+
         }
     }
 }

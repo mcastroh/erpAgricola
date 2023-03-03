@@ -1,4 +1,17 @@
 ﻿
+
+Redirect Action Result in ASP.NET Core MVC
+    https://www.c-sharpcorner.com/article/redirect-action-result-in-asp-net-core-mvc/
+    https://stackoverflow.com/questions/39280717/asp-net-core-mvc-redirecttoaction-is-appending-controller-name-in-front-of-retur
+
+Cómo crear un PDF a partir de una Vista en ASP.NET MVC
+    https://www.rafaelacosta.net/Blog/2020/1/13/c%c3%b3mo-crear-un-pdf-a-partir-de-una-vista-en-aspnet-mvc?AspxAutoDetectCookieSupport=1
+
+Cómo crear un PDF a partir de una Vista en ASP.NET Core MVC
+    https://www.rafaelacosta.net/Blog/2019/3/21/c%C3%B3mo-crear-un-pdf-a-partir-de-una-vista-en-aspnet-core-mvc#comments
+    https://www.rafaelacosta.net/Blog/2019/3/21/c%c3%b3mo-crear-un-pdf-a-partir-de-una-vista-en-aspnet-core-mvc?AspxAutoDetectCookieSupport=1
+
+
 Por revisar sólo en los metodos [HttpPost], que hace
 	[ValidateAntiForgeryToken]
 
@@ -29,6 +42,13 @@ Subir a git y github
 
 
 
+
+
+
+
+
+ASP.NET Core MVC C♯ || Agregar buscador a un listado o tabla (.Net 6) [2022]
+    https://www.youtube.com/watch?v=-kp1J_zlcF8
 
 para las vistas buscar
 	https://getbootstrap.com/docs/5.0/components/card/
