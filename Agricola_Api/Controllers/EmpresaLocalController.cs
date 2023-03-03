@@ -10,14 +10,16 @@ namespace Agricola_Api.Controllers
     [ApiController]
     public class EmpresaLocalController : ControllerBase
     {
+        private readonly IRepository<Empresa> _repositoryEmpresa;
         private readonly IRepository<EmpresaLocal> _repositoryLocal;
         private readonly IMapper _mapper;
         protected ApiResponse<EmpresaLocal> _response;
 
         #region Constructor
 
-        public EmpresaLocalController(IRepository<EmpresaLocal> repositoryLocal, IMapper mapper)
+        public EmpresaLocalController(IRepository<Empresa> repositoryEmpresa, IRepository<EmpresaLocal> repositoryLocal, IMapper mapper)
         {
+            _repositoryEmpresa = repositoryEmpresa;
             _repositoryLocal = repositoryLocal;            
             _mapper = mapper;
             _response = new();
@@ -68,7 +70,7 @@ namespace Agricola_Api.Controllers
                     return BadRequest(_response);
                 }
 
-                EmpresaLocal local = await _repositoryLocal.Obtener(x => x.IdLocal == idLocal);
+                EmpresaLocal local = await _repositoryLocal.Obtener(x => x.IdLocal == idLocal, false);
 
                 if (local == null)
                 {
@@ -106,7 +108,7 @@ namespace Agricola_Api.Controllers
                 if (modelo == null) { return BadRequest(modelo); }
                 if (modelo.IdEmpresa == 0 || modelo.IdLocal != 0) { return StatusCode(StatusCodes.Status500InternalServerError); }
 
-                var empresa = await _repositoryLocal.Obtener(x => x.IdEmpresa == modelo.IdEmpresa);
+                var empresa = await _repositoryEmpresa.Obtener(x => x.IdEmpresa == modelo.IdEmpresa, false);
                                     
                 if (empresa == null)
                 {
@@ -114,7 +116,7 @@ namespace Agricola_Api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var local = await _repositoryLocal.Obtener(x => x.IdEmpresa == modelo.IdEmpresa && x.IdLocal == modelo.IdLocal);
+                var local = await _repositoryLocal.Obtener(x => x.IdLocal == modelo.IdLocal, false);
 
                 if (local != null)
                 {
@@ -122,7 +124,7 @@ namespace Agricola_Api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                //modelo.Empresa = null;
+                modelo.Empresa = null;
 
                 await _repositoryLocal.Crear(modelo);
 
@@ -161,13 +163,15 @@ namespace Agricola_Api.Controllers
                     return BadRequest(_response);
                 }
 
-                var local = await _repositoryLocal.Obtener(x => x.IdEmpresa == modelo.IdEmpresa && x.IdLocal == modelo.IdLocal);
+                var local = await _repositoryLocal.Obtener(x => x.IdLocal == idLocal, false);
 
                 if (local == null)
                 {
                     ModelState.AddModelError("EmpresaLocalNoExiste", "Local de la Empresa no está registrado !");
                     return BadRequest(ModelState);
                 }
+
+                modelo.Empresa = null;
 
                 await _repositoryLocal.Actualizar(modelo);
 
@@ -205,7 +209,7 @@ namespace Agricola_Api.Controllers
                     return BadRequest(_response);
                 }
 
-                var modelo = await _repositoryLocal.Obtener(x => x.IdLocal == idLocal);
+                var modelo = await _repositoryLocal.Obtener(x => x.IdLocal == idLocal, false);
 
                 if (modelo == null)
                 {

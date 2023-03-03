@@ -55,7 +55,6 @@ namespace webAppAgricola.Services
 
             var cliente = new HttpClient();
             cliente.BaseAddress = new Uri(_baseUrl);
-            //var response = await cliente.GetAsync("api/Empresa/" + id);
             var response = await cliente.GetAsync(nameAPI + "/" + id);
 
             if (response.IsSuccessStatusCode)
@@ -79,7 +78,6 @@ namespace webAppAgricola.Services
             var cliente = new HttpClient();
             cliente.BaseAddress = new Uri(_baseUrl);
             var content = new StringContent(JsonConvert.SerializeObject(objeto), Encoding.UTF8, "application/json");
-            //var response = await cliente.PutAsync($"api/UnidadMedida/{objeto.IdUnidad}", content);
             var response = await cliente.PutAsync(nameAPI + $"/{id}", content);
 
             if (response.IsSuccessStatusCode)
@@ -122,7 +120,6 @@ namespace webAppAgricola.Services
             var cliente = new HttpClient();
             cliente.BaseAddress = new Uri(_baseUrl);
             var content = new StringContent(JsonConvert.SerializeObject(objeto), Encoding.UTF8, "application/json");
-            //var response = await cliente.PostAsync("api/UnidadMedida/", content);
             var response = await cliente.PostAsync(nameAPI + "/", content);
 
             if (response.IsSuccessStatusCode)

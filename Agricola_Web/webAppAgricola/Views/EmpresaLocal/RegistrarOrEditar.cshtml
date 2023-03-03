@@ -15,8 +15,8 @@
 
         <form action="@Url.Action("GuardarCambios", "EmpresaLocal")" method="post">
             
-            <input type="hidden" class="form-control" name="IdEmpresa" value="@Html.DisplayTextFor(x=> x.IdEmpresa)" />
-            <input type="hidden" class="form-control" name="IdLocal" value="@Html.DisplayTextFor(x=> x.IdLocal)" />
+            <input type="text" class="form-control" name="IdEmpresa" value="@Html.DisplayTextFor(x=> x.IdEmpresa)" />
+            <input type="text" class="form-control" name="IdLocal" value="@Html.DisplayTextFor(x=> x.IdLocal)" />
 
             <div class="form-group">
                 <label>Razón Social</label>

@@ -48,17 +48,21 @@ namespace webAppAgricola.Controllers
 
         #endregion
 
+
         #region HttpGet => RegistrarOrEditar
 
         [HttpGet]
-        public async Task<IActionResult> RegistrarOrEditar(int idEmpresa)
+        public async Task<IActionResult> RegistrarOrEditar(int idEmpresa, int idLocal)
         {
             EmpresaLocal modelo = new EmpresaLocal();
+
+            modelo.IdEmpresa = idEmpresa;
+            
             ViewBag.Accion = "Crear Local";
 
-            if (idEmpresa != 0)
+            if (idLocal != 0)
             {
-                modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idEmpresa);
+                modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idLocal);
                 ViewBag.Accion = "Editar Local";
             }
 
@@ -72,22 +76,35 @@ namespace webAppAgricola.Controllers
         [HttpPost]
         public async Task<IActionResult> GuardarCambios(EmpresaLocal modelo)
         {
-            modelo.Empresa = null;
-
+            int idEmpresa = modelo.IdEmpresa;
+            string mensajeCRUD = string.Empty;
+            var empresa = await _servicioEmpresaApi.ObtenerEntity("api/Empresa", idEmpresa);
+            
+            if (empresa == null) 
+            {
+                return NoContent();
+            }
+             
             bool respuesta = false;
 
             if (modelo.IdLocal == 0)
             {
+                modelo.Empresa = null;
                 respuesta = await _servicioApi.Guardar(_nameBaseApi, modelo);
+                mensajeCRUD = "Local creado correctamente";
             }
             else
             {
-                respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdEmpresa, modelo);
+                //modelo.Empresa = empresa;
+                modelo.Empresa = null;
+                respuesta = await _servicioApi.Editar(_nameBaseApi, modelo.IdLocal, modelo);
+                mensajeCRUD = "Local actualizado correctamente";
             }
 
             if (respuesta)
             {
-                return RedirectToAction("Index");
+                TempData["Mensaje"] = mensajeCRUD;
+                return RedirectToRoute(new { action = "Index", controller = "EmpresaLocal", idEmpresa });
             }
             else
             {
@@ -97,42 +114,45 @@ namespace webAppAgricola.Controllers
 
         #endregion
 
-        //#region HttpGet: Eliminar 
+        #region HttpGet: Eliminar 
 
-        //[HttpGet]
-        //public async Task<ActionResult> Eliminar(int idEmpresa)
-        //{
-        //    if (idEmpresa == 0) { return RedirectToAction("Index", "Empresa"); }
-        //    Empresa modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idEmpresa);
-        //    return View(modelo);
-        //}
+        [HttpGet]
+        public async Task<ActionResult> Eliminar(int idEmpresa, int idLocal)
+        {
+            if (idLocal == 0) { return RedirectToAction("Index", "EmpresaLocal"); }
+            EmpresaLocal modelo = await _servicioApi.ObtenerEntity(_nameBaseApi, idLocal);
+            return View(modelo);
+        }
 
-        //#endregion
+        #endregion
 
-        //#region HttpPost: EliminarEntity
+        #region HttpPost: EliminarEntity
 
-        //[HttpPost]
-        //public async Task<IActionResult> EliminarEntity(int idEmpresa)
-        //{
-        //    bool respuesta = await _servicioApi.Eliminar(_nameBaseApi, idEmpresa);
+        [HttpPost]
+        public async Task<IActionResult> EliminarEntity(int idEmpresa, int idLocal)
+        {
+            bool respuesta = await _servicioApi.Eliminar(_nameBaseApi, idLocal);
 
-        //    if (respuesta)
-        //    {
-        //        return RedirectToAction("Index");
-        //    }
-        //    else
-        //    {
-        //        return NoContent();
-        //    }
-        //}
+            if (respuesta)
+            {
+                return RedirectToRoute(new { action = "Index", controller = "EmpresaLocal", idEmpresa });
+                //return RedirectToAction("Index");
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
 
-        //#endregion
+        #endregion
 
         //#region Método  => Exportar Excel
 
         //public async Task<IActionResult> ExportarExcel()
         //{
-        //    List<Empresa> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
+        //    var modeloEmpresa = await _servicioEmpresaApi.ObtenerEntity("api/Empresa", idEmpresa);
+
+        //    List<EmpresaLocal> lista = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
         //    List<EmpresaDtoExcel> dtoExcel = new List<EmpresaDtoExcel>();
 
         //    //var dtoExcel = _mapper.Map<EmpresaDtoExcel>(lista);
@@ -141,9 +161,9 @@ namespace webAppAgricola.Controllers
         //    foreach (var item in lista)
         //    {
         //        EmpresaDtoExcel dto = new EmpresaDtoExcel();
-        //        dto.IdEmpresa= item.IdEmpresa;
-        //        dto.NumeroRUC = item.NumeroRUC; 
-        //        dto.RazonSocial= item.RazonSocial;
+        //        dto.IdEmpresa = item.IdEmpresa;
+        //        dto.NumeroRUC = item.NumeroRUC;
+        //        dto.RazonSocial = item.RazonSocial;
         //        dto.Direccion = item.Direccion;
         //        dtoExcel.Add(dto);
         //    }
@@ -184,7 +204,7 @@ namespace webAppAgricola.Controllers
         //        dto.IdEmpresa = item.IdEmpresa;
         //        dto.NumeroRUC = item.NumeroRUC;
         //        dto.RazonSocial = item.RazonSocial;
-        //        dto.Direccion= item.Direccion;
+        //        dto.Direccion = item.Direccion;
         //        dtoExcel.Add(dto);
         //    }
 

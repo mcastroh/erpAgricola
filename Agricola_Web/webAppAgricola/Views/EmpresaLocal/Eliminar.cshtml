@@ -1,4 +1,4 @@
-﻿@model Agricola_Models.Models.Empresa
+﻿@model Agricola_Models.Models.EmpresaLocal
 
 @{
     ViewBag.Title = "Eliminar";
@@ -9,16 +9,17 @@
     <div class="col-sm-12">
         <div class="panel-warning">
             <div class="panel-heading">
-                <h4>Eliminar Empresa</h4>
+                <h4>Eliminar Local</h4>
             </div>
             <div class="panel-body">
                 <div class="alert alert-danger">
-                    ¿Desea eliminar la Empresa: @Html.DisplayTextFor(m => m.RazonSocial) ?
+                    ¿Desea eliminar el Local : @Html.DisplayTextFor(m => m.RazonSocial) ?
                 </div>
-                <form action="@Url.Action("EliminarEntity", "Empresa")" method="post">
+                <form action="@Url.Action("EliminarEntity", "EmpresaLocal")" method="post">
                     <input type="hidden" class="form-control" name="IdEmpresa" value="@Html.DisplayTextFor(x=> x.IdEmpresa)" />
+                    <input type="hidden" class="form-control" name="IdLocal" value="@Html.DisplayTextFor(x=> x.IdLocal)" />
                     <button type="submit" class="btn btn-danger">Eliminar</button>
-                    <a class="btn btn-success" href="@Url.Action("Index", "Empresa")">Volver</a>
+                    <a class="btn btn-success" href="@Url.Action("Index", "EmpresaLocal", @Html.DisplayTextFor(x=> x.Empresa) )">Volver</a>
                 </form>
             </div>
         </div>
