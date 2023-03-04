@@ -42,26 +42,41 @@
         } 
 
 </style>
-
+ 
 <div class="card" style="margin-top:20px">
     <div class="card-header" >
         <h3>Unidades de Medida</h3>                
     </div>
     <div class="card-body">
+        <form asp-controller="UnidadMedida" asp-action="Index" method="get">
+        <p>
+            Buscar por descripción: <input type="text" name="buscar" class="form-text" />
+            <input type="submit" value="Buscar" class="btn btn-dark btn-sm" />
+        </p>
+        </form>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a class="btn btn-warning btn-sm" href="@Url.Action("RegistrarOrEditar", "UnidadMedida", new { idUnidad= 0})">Adicionar</a>
             <a class="btn btn-warning btn-sm" href="@Url.Action("ListarPDF", "UnidadMedida", new { idUnidad= 0})">Listar PDF</a>
             <a class="btn btn-warning btn-sm" href="@Url.Action("ExportarExcel", "UnidadMedida", new { idUnidad= 0})">Exportar Excel</a>
         </div>
         <hr />
+        
+        <div class="table-responsive-sm">
+        
+            @*<table class="table table-bordered border-primary">*@
         <table id="customers" class="table">
             <thead class="table-primary">
                 <tr>
                     <th>Código</th>
                     <th>Descripción</th>
+                    @*                    <th>
+                        <a asp-action="Index" asp-route-filtro="@ViewData["FiltroDescripcion"]">
+                            @Html.DisplayNameFor(model => model.Descripcion)
+                        </a>
+                    </th>*@
                     <th>Símbolo</th>
                     <th>SUNAT</th>
-                    <th style="width:150px">Opciones</th>
+                    <th style="width:180px">Opciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,5 +95,9 @@
                 }
             </tbody>
         </table>
+
+        </div>
+
     </div>
-</div> 
+</div>
+

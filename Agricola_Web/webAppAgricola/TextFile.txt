@@ -1,5 +1,10 @@
 ﻿
 
+
+
+Operaciones CRUD usando Datatable JQuery - ASP.NET MVC 5
+    https://www.youtube.com/watch?v=w-GhpikCKaQ
+
 Redirect Action Result in ASP.NET Core MVC
     https://www.c-sharpcorner.com/article/redirect-action-result-in-asp-net-core-mvc/
     https://stackoverflow.com/questions/39280717/asp-net-core-mvc-redirecttoaction-is-appending-controller-name-in-front-of-retur
@@ -44,8 +49,8 @@ Subir a git y github
 
 
 
-
-
+ASP.NET Core MVC C♯ || Agregar ordenación de columnas a un listado o tabla (.Net 6) [2022]
+    https://www.youtube.com/watch?v=x0uXanYwclo
 
 ASP.NET Core MVC C♯ || Agregar buscador a un listado o tabla (.Net 6) [2022]
     https://www.youtube.com/watch?v=-kp1J_zlcF8

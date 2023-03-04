@@ -20,7 +20,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("CnSqlServer"));
 });
 
+// MACH: AutoMapper
 builder.Services.AddAutoMapper(typeof(MapingConfig));
+
+// MACH: Apis en minúsculas
+builder.Services.AddRouting(routing => routing.LowercaseUrls = true);
 
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

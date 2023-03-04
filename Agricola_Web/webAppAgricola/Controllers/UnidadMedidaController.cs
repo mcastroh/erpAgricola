@@ -33,10 +33,25 @@ namespace webAppAgricola.Controllers
         #region HttpGet => Index 
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? buscar)
         {
             TempData["Mensaje"] = null;
             List<UnidadMedida> modelo = await _servicioApi.ObtenerEntityAll(_nameBaseApi);
+            if (!String.IsNullOrEmpty(buscar)) { modelo = modelo.Where(x => x.Descripcion.ToLower()!.Contains(buscar.ToLower())).ToList(); }
+
+
+            //ViewData["FiltroDescripcion"] = String.IsNullOrEmpty(filtro) ? "DescripcionAscendente" : "";
+
+            //switch(filtro)
+            //{
+            //    case "DescripcionAscendente":
+            //        modelo = modelo.OrderByDescending(x => x.Descripcion).ToList();
+            //        break;
+            //    default:
+            //        modelo = modelo.OrderBy(x => x.Descripcion).ToList();
+            //        break;
+            //}
+
             return View(modelo);
         }
 
